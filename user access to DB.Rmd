@@ -1,0 +1,35 @@
+```{r}
+# connect to database
+source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
+```
+
+# check database list
+
+```{r}
+tables = dbListTables(aws_con_track)
+```
+
+# function to check number of updated rows in the tables
+
+```{r}
+table_rows = function(table){
+  # tables tin the database to ignore (lag results data)
+  lag_tables = c("AUS_lag_results", "simulated_population_lag_table_4_locations", "NZL_lag_results")
+  
+  if(!(table %in% lag_tables)){
+    query = paste("SELECT COUNT(*) AS rows, MIN(year) AS earliest_record FROM", table)
+    query_output = dbGetQuery(aws_con_track, query)
+    data.frame(table = table, rows = query_output$rows, earliest_record = query_output$earliest_record)
+  }
+}
+
+# check tables
+table_list = list()
+for (table in tables) {
+  table_list[[table]] = table_rows(table = table)
+}
+
+# View tables
+h = Reduce(dplyr::full_join, table_list) |> dplyr::arrange(table)
+h |> View()
+```
