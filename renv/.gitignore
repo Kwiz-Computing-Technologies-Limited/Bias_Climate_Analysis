@@ -1,0 +1,7 @@
+library/
+local/
+cellar/
+lock/
+python/
+staging/
+set_env_variables.R
