@@ -7,15 +7,7 @@ library(rdrop2)
 library(tidyverse)
 
 
-library(DBI)
-library(RPostgreSQL)
-
-aws_con <- dbConnect(drv = "PostgreSQL",
-                           dbname = "postgres", 
-                           host = "postgres.cl0erzvvnfux.ap-northeast-1.rds.amazonaws.com", 
-                           port = 5432, 
-                           user = "kwizera_jvk", 
-                           password = "Achibbo93...")
+source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
 ```
 
 Get gbr native clean
@@ -43,17 +35,14 @@ for (n in N) {
                    nrows = 1000000)
     rownames(value) = NULL
     
-    aws_con <- dbConnect(drv = "PostgreSQL",
-                           dbname = "postgres", 
-                           host = "postgres.cl0erzvvnfux.ap-northeast-1.rds.amazonaws.com", 
-                           port = 5432, 
-                           user = "kwizera_jvk", 
-                           password = "Achibbo93...")
+    source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
+
     print("uploading new")
     dbWriteTable(conn = aws_con, name = "gbr_native_clean", value = value)
   } 
   
     x = dbGetQuery(aws_con, "SELECT COUNT(*) FROM gbr_native_clean")$count
+    
     source("~/Desktop/Documents/GitHub/bias assessment/killing_DB_connections.R")
     
     if(((x/1000000) - floor(x/1000000)) == 0) {
@@ -69,12 +58,7 @@ for (n in N) {
     if(!is_empty(value)) {
       rownames(value) = NULL
     
-      aws_con <- dbConnect(drv = "PostgreSQL",
-                           dbname = "postgres", 
-                           host = "postgres.cl0erzvvnfux.ap-northeast-1.rds.amazonaws.com", 
-                           port = 5432, 
-                           user = "kwizera_jvk", 
-                           password = "Achibbo93...")
+      source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
       
       db_columns = dbGetQuery(conn=aws_con, statement = "SELECT column_name 
                         FROM information_schema.columns WHERE table_name = 'gbr_native_clean' 
