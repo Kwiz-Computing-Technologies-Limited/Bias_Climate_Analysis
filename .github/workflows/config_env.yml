@@ -28,7 +28,7 @@ jobs:
       # get evnironment variables
       
       - name: start get env
-        run: getting environment variables...
+        run: echo getting environment variables...
 
       - name: get env variables # connect_db.R
         env: 
@@ -38,7 +38,4 @@ jobs:
           AWS_POSTGRES_PORT: ${{ secrets.AWS_POSTGRES_PORT }}
           AWS_POSTGRES_USER: ${{ secrets.AWS_POSTGRES_USER }}
           AWS_POSTGRES_PASSWORD: ${{ secrets.AWS_POSTGRES_PASSWORD }}
-        run: Rscript connect_db.R
-
-      - name: finish get env
-        run: environment variables set
+        run: echo environment variables set
