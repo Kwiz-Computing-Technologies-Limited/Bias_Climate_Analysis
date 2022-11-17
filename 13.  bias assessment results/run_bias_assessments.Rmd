@@ -7,12 +7,13 @@ source("~/Desktop/Documents/GitHub/bias assessment/occAssess_bias_function.R")
 ```{r}
 # Tables to analyse
 tables = dbListTables(conn = aws_con)
-tables = tables[!(tables %in% c("AUS_lag_results", "simulated_population_lag_table_4_locations", "NZL_lag_results"))][-grep("_backbone", tables)] |> sort()
+tables = tables[-grep("_backbone", tables) | -grep("lag", tables)] |> sort()
 ```
 
 
 ```{r}
 # generate bias output files
+
 for (table in tables) {
   Bias_assessment_function(db_table = table, con = aws_con, periods_length = 50)
 }
