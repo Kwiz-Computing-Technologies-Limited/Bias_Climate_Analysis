@@ -21,11 +21,12 @@ library(tidyverse)
 # available_country_names = sort(unique(ggplot2::map_data("world")$region))
 
 
-# connect DB
-source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
+
 
 # bias analysis function
 Bias_assessment_function = function(db_table, con = aws_con, periods_length = 50) {
+  # connect DB
+  source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
   
   directory_files = list.files("~/Desktop/Documents/GitHub/bias assessment/13.  bias assessment results")
   
