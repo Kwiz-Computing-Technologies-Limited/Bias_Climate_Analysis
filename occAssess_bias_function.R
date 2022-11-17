@@ -66,11 +66,13 @@ Bias_assessment_function = function(db_table, con = aws_con, periods_length = 50
   
   # add backbone record to database if not present
   if(!(paste0(db_table, "_backbone_order") %in% dbListTables(conn = aws_con))){
+    
     # get the "name_backbone"/grouping variable ("Order") from GBIF
     paste("Fetching species name backbone for", db_table) |> print()
     family = sapply((dbGetQuery(aws_con, paste("SELECT DISTINCT species AS species FROM", db_table))$species |>
                        na.omit()),
                     function(x) name_backbone(name = x, kingdom = "plants")["order"], simplify = TRUE)
+    paste("Fetch complete! Transforming data ...") |> print()
     
     ## Bind the rows
     aa<-family %>% bind_rows()
@@ -79,16 +81,18 @@ Bias_assessment_function = function(db_table, con = aws_con, periods_length = 50
     aaa$species<-gsub(aaa$species,pattern = ".order",replacement = "")
     rownames(aaa) <- NULL
     
+    paste("uploading species name backbone for", db_table, "to DB") |> print()
     dbWriteTable(aws_con, paste0(db_table, "_backbone_order"), aaa)
     dbSendQuery(aws_con, paste('ALTER TABLE', paste0(db_table, "_backbone_order"), 'DROP COLUMN "row.names"'))
   }
   
   
   # merge backbone record to db_table 
+  paste("Merging species name backbone to", db_table, "data") |> print()
   dbSendQuery(aws_con, paste('CREATE TABLE', paste0(db_table, '_backbone_merged'), 'AS SELECT * FROM', db_table, 'LEFT JOIN', paste0(db_table, '_backbone_order'), 'USING (species)'))
   
   # get number of records in each year.
-  paste("Fetching number of records in each year") |> print()
+  paste("Merge complete! Fetching number of records in each year for", db_table, "...") |> print()
   nRec <- assessRecordNumber(dat = dbGetQuery(aws_con, paste('SELECT * FROM', paste0(db_table, '_backbone_merged'), 'WHERE "V1" IS NOT NULL')),
                              periods = periods,
                              species = "species",
@@ -101,7 +105,7 @@ Bias_assessment_function = function(db_table, con = aws_con, periods_length = 50
   
   
   # get number of species recorded in each year
-  paste("Fetching number of species in each year from", db_table) |> print()
+  paste("Fetch complete! Fetching number of species in each year from", db_table, "...") |> print()
   nSpec <- assessSpeciesNumber(dat = dbGetQuery(aws_con, paste('SELECT * FROM', paste0(db_table, '_backbone_merged'), 'WHERE "V1" IS NOT NULL')),
                                periods = periods,
                                species = "species",
@@ -114,7 +118,7 @@ Bias_assessment_function = function(db_table, con = aws_con, periods_length = 50
   
   
   # get "the proportion (or counts) of records identified to species level over time."
-  paste("Fetching proportion (or counts) of records identified to species level over time from", db_table) |> print()
+  paste("Fetch complete! Fetching proportion (or counts) of records identified to species level over time from", db_table, "...") |> print()
   propID <- assessSpeciesID(dat = dbGetQuery(aws_con, paste('SELECT * FROM', paste0(db_table, '_backbone_merged'), 'WHERE "V1" IS NOT NULL')),
                             periods = periods,
                             type = "proportion",
@@ -127,7 +131,7 @@ Bias_assessment_function = function(db_table, con = aws_con, periods_length = 50
   
   
   # get "proportionality of species observed range sizes and number of records."
-  paste("Fetching taxonomic bias from", db_table) |> print()
+  paste("Fetch complete! Fetching taxonomic bias from", db_table, "...") |> print()
   taxBias <- assessRarityBias(dat = dbGetQuery(aws_con, paste('SELECT * FROM', paste0(db_table, '_backbone_merged'), 'WHERE "V1" IS NOT NULL')),
                               periods = periods,
                               res = 0.5,
@@ -141,7 +145,7 @@ Bias_assessment_function = function(db_table, con = aws_con, periods_length = 50
   
   
   # grids and then maps species occurrence data
-  paste("mapping species occurence from", db_table) |> print()
+  paste("Fetch complete! mapping species occurence from", db_table, "...") |> print()
   maps <- assessSpatialCov(dat = dbGetQuery(aws_con, paste('SELECT * FROM', paste0(db_table, '_backbone_merged'), 'WHERE "V1" IS NOT NULL')),
                            periods = periods,
                            res = 0.5,
@@ -156,6 +160,7 @@ Bias_assessment_function = function(db_table, con = aws_con, periods_length = 50
   
   
   # list of results objects
+  paste("Fetch complete! Saving", db_table, "bias results to RDS file") |> print()
   results = list(
     periods = periods,
     dataset = db_table,
@@ -166,11 +171,8 @@ Bias_assessment_function = function(db_table, con = aws_con, periods_length = 50
     assessSpatialCov_output = maps
   )
   
-  
-  paste("Saving", db_table, "bias results to RDS file") |> print()
   saveRDS(results, file = paste(db_table, "periods_length", periods_length, "bias_output", sep = "_"))
-  paste("DONE") |> print()
-  
+  paste("Bias analysis for", db_table, "complete!") |> print()
   
 }
 
