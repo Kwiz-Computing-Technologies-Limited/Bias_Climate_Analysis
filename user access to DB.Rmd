@@ -6,7 +6,7 @@ source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
 # check database list
 
 ```{r}
-tables = dbListTables(aws_con_track)
+tables = dbListTables(aws_con)
 ```
 
 # function to check number of updated rows in the tables
@@ -18,7 +18,7 @@ table_rows = function(table){
   
   if(!(table %in% lag_tables)){
     query = paste("SELECT COUNT(*) AS rows, MIN(year) AS earliest_record FROM", table)
-    query_output = dbGetQuery(aws_con_track, query)
+    query_output = dbGetQuery(aws_con, query)
     data.frame(table = table, rows = query_output$rows, earliest_record = query_output$earliest_record)
   }
 }
