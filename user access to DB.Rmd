@@ -14,9 +14,9 @@ tables = dbListTables(aws_con)
 ```{r}
 table_rows = function(table){
   # tables tin the database to ignore (lag results data)
-  lag_tables = c("AUS_lag_results", "simulated_population_lag_table_4_locations", "NZL_lag_results")
+  other_tables = c("AUS_lag_results", "simulated_population_lag_table_4_locations", "NZL_lag_results", tables[grep("_backbone", tables)])
   
-  if(!(table %in% lag_tables)){
+  if(!(table %in% other_tables)){
     query = paste("SELECT COUNT(*) AS rows, MIN(year) AS earliest_record FROM", table)
     query_output = dbGetQuery(aws_con, query)
     data.frame(table = table, rows = query_output$rows, earliest_record = query_output$earliest_record)
