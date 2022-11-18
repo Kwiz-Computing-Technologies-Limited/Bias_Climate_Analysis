@@ -91,9 +91,7 @@ Bias_assessment_function = function(db_table, con = aws_con, periods_length = 50
     
     source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
     
-    # upload once once if table is 1,000 rows or less
-    dbWriteTable(aws_con, paste0(db_table, "_backbone_order"), aaa[1,])
-    dbSendQuery(aws_con, paste("COPY INTO", paste0(db_table, "_backbone_order"), "FROM", aaa[2:nrow(aaa), ]))
+    dbWriteTable(aws_con, paste0(db_table, "_backbone_order"), aaa)
     dbSendQuery(aws_con, paste('ALTER TABLE', paste0(db_table, "_backbone_order"), 'DROP COLUMN "row.names"'))
     source("~/Desktop/Documents/GitHub/bias assessment/killing_DB_connections.R")
   }
