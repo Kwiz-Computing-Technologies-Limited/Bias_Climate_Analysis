@@ -89,19 +89,15 @@ Bias_assessment_function = function(db_table, con = aws_con, periods_length = 50
     
     paste("uploading species name backbone for", db_table, "to DB") |> print()
     
-    dbWriteTable(aws_con, paste0(db_table, "_backbone_order"), aaa)
+    source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
+    
+    # upload once once if table is 1,000 rows or less
+    dbWriteTable(aws_con, paste0(db_table, "_backbone_order"), aaa[1,])
+    dbSendQuery(aws_con, paste("COPY INTO", paste0(db_table, "_backbone_order"), "FROM", aaa[2:nrow(aaa), ]))
     dbSendQuery(aws_con, paste('ALTER TABLE', paste0(db_table, "_backbone_order"), 'DROP COLUMN "row.names"'))
     source("~/Desktop/Documents/GitHub/bias assessment/killing_DB_connections.R")
   }
   
-  if(!(paste0(db_table, '_backbone_merged') %in% list_tables)) {
-    # merge backbone record to db_table 
-    source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
-    paste("Merging species name backbone to", db_table, "data") |> print()
-    dbSendQuery(aws_con, paste('CREATE TABLE', paste0(db_table, '_backbone_merged'), 'AS SELECT * FROM', db_table, 'LEFT JOIN', paste0(db_table, '_backbone_order'), 'USING (species)'))
-    paste("Merge complete!") |> print()
-    source("~/Desktop/Documents/GitHub/bias assessment/killing_DB_connections.R")
-  }
   
   
   if(!(paste(db_table, "periods_length", periods_length, "assessRecordNumber_output.RDS", sep = "_") %in% directory_files)){
@@ -109,7 +105,7 @@ Bias_assessment_function = function(db_table, con = aws_con, periods_length = 50
     
     source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
     paste("Fetching number of records in each year for", db_table, "...") |> print()
-    nRec <- assessRecordNumber(dat = dbGetQuery(aws_con, paste('SELECT * FROM', paste0(db_table, '_backbone_merged'), 'WHERE "V1" IS NOT NULL')),
+    nRec <- assessRecordNumber(dat = dbGetQuery(aws_con, paste('SELECT * FROM', db_table, 'LEFT JOIN', paste0(db_table, '_backbone_order'), 'USING (species) WHERE "V1" IS NOT NULL')),
                                periods = periods,
                                species = "species",
                                y = "decimalLatitude",
@@ -119,6 +115,7 @@ Bias_assessment_function = function(db_table, con = aws_con, periods_length = 50
                                identifier = "V1",
                                normalize = FALSE)
     
+   
     saveRDS(nRec, file = paste(db_table, "periods_length", periods_length, "assessRecordNumber_output.RDS", sep = "_"))
     source("~/Desktop/Documents/GitHub/bias assessment/killing_DB_connections.R")
   }
@@ -129,7 +126,7 @@ Bias_assessment_function = function(db_table, con = aws_con, periods_length = 50
     
     source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
     paste("Fetch complete! Fetching number of species in each year from", db_table, "...") |> print()
-    nSpec <- assessSpeciesNumber(dat = dbGetQuery(aws_con, paste('SELECT * FROM', paste0(db_table, '_backbone_merged'), 'WHERE "V1" IS NOT NULL')),
+    nSpec <- assessSpeciesNumber(dat = dbGetQuery(aws_con, paste('SELECT * FROM', db_table, 'LEFT JOIN', paste0(db_table, '_backbone_order'), 'USING (species) WHERE "V1" IS NOT NULL')),
                                  periods = periods,
                                  species = "species",
                                  y = "decimalLatitude",
@@ -149,7 +146,7 @@ Bias_assessment_function = function(db_table, con = aws_con, periods_length = 50
     
     source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
     paste("Fetch complete! Fetching SpeciesID proportions from", db_table, "...") |> print()
-    propID <- assessSpeciesID(dat = dbGetQuery(aws_con, paste('SELECT * FROM', paste0(db_table, '_backbone_merged'), 'WHERE "V1" IS NOT NULL')),
+    propID <- assessSpeciesID(dat = dbGetQuery(aws_con, paste('SELECT * FROM', db_table, 'LEFT JOIN', paste0(db_table, '_backbone_order'), 'USING (species) WHERE "V1" IS NOT NULL')),
                               periods = periods,
                               type = "proportion",
                               species = "species",
@@ -169,7 +166,7 @@ Bias_assessment_function = function(db_table, con = aws_con, periods_length = 50
     
     source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
     paste("Fetch complete! Fetching rarity from", db_table, "...") |> print()
-    taxBias <- assessRarityBias(dat = dbGetQuery(aws_con, paste('SELECT * FROM', paste0(db_table, '_backbone_merged'), 'WHERE "V1" IS NOT NULL')),
+    taxBias <- assessRarityBias(dat = dbGetQuery(aws_con, paste('SELECT * FROM', db_table, 'LEFT JOIN', paste0(db_table, '_backbone_order'), 'USING (species) WHERE "V1" IS NOT NULL')),
                                 periods = periods,
                                 res = 0.5,
                                 prevPerPeriod = FALSE,
@@ -192,7 +189,7 @@ Bias_assessment_function = function(db_table, con = aws_con, periods_length = 50
     
     source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
     paste("Fetch complete! mapping species occurence from", db_table, "...") |> print()
-    maps <- assessSpatialCov(dat = dbGetQuery(aws_con, paste('SELECT * FROM', paste0(db_table, '_backbone_merged'), 'WHERE "V1" IS NOT NULL')),
+    maps <- assessSpatialCov(dat = dbGetQuery(aws_con, paste('SELECT * FROM', db_table, 'LEFT JOIN', paste0(db_table, '_backbone_order'), 'USING (species) WHERE "V1" IS NOT NULL')),
                              periods = periods,
                              res = 0.5,
                              logCount = TRUE,
