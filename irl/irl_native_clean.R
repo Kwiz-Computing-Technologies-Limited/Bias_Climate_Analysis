@@ -7,7 +7,6 @@ library(rdrop2)
 library(tidyverse)
 
 
-if(!("aws_con" %in% ls())) {   source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R") }
 
 
 # Get irl native clean
@@ -23,6 +22,7 @@ options(timeout = 100000)
 
 for (n in N) {
   gc()
+  source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
   
   tryCatch({
     if(!("irl_native_clean" %in% dbListTables(aws_con))){
@@ -35,7 +35,7 @@ for (n in N) {
                        nrows = 1000000)
       rownames(value) = NULL
       
-      if(!("aws_con" %in% ls())) {   source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R") }
+      source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
       
       print("uploading new")
       dbWriteTable(conn = aws_con, name = "irl_native_clean", value = value)
@@ -58,7 +58,7 @@ for (n in N) {
       if(!is_empty(value)) {
         rownames(value) = NULL
         
-        if(!("aws_con" %in% ls())) {   source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R") }
+        source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
         
         db_columns = dbGetQuery(conn=aws_con, statement = "SELECT column_name 
                         FROM information_schema.columns WHERE table_name = 'irl_native_clean' 
@@ -76,6 +76,8 @@ for (n in N) {
       finished = Sys.time()
       paste("completed in", (finished - start), "at", finished) |> print()
     }
+    paste("Upload is up-to-data") |> print()
+    break
   })
 }
 

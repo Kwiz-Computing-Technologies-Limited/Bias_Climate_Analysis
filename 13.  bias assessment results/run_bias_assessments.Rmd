@@ -1,6 +1,6 @@
 ```{r}
 # db connection
-if(!("aws_con" %in% ls())) {   source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R") }
+source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
 
 # bias function
 source("~/Desktop/Documents/GitHub/bias assessment/occAssess_bias_function.R")
@@ -16,7 +16,7 @@ tables = tables[-grep("lag", tables)] |> sort()
 
 ```{r}
 # generate bias output files
-for (table in tables) {
-  Bias_assessment_function(db_table = table, con = aws_con, periods_length = 50)
+for (db_table in tables) {
+  Bias_assessment_function(db_table = db_table, con = aws_con, periods_length = 50)
 }
 ```
