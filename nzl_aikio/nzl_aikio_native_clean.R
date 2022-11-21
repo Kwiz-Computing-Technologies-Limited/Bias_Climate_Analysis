@@ -7,7 +7,6 @@ library(rdrop2)
 library(tidyverse)
 
 
-source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
 
 
 # Get nzl_aiko native clean
@@ -23,6 +22,7 @@ options(timeout = 100000)
 
 for (n in N) {
   gc()
+  source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
   
   tryCatch({
     if(!("nzl_aiko_native_clean" %in% dbListTables(aws_con))){
@@ -76,6 +76,9 @@ for (n in N) {
       finished = Sys.time()
       paste("completed in", (finished - start), "at", finished) |> print()
     }
+    
+    paste("Upload is up-to-data") |> print()
+    break
   })
 }
 

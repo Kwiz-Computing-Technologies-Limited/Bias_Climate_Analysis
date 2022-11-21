@@ -79,6 +79,9 @@ for (n in N) {
       
       paste("completed in", (finished - start), "at", finished) |> print()
     }
+    
+    paste("Upload is up-to-data") |> print()
+    break
   })
 }
 

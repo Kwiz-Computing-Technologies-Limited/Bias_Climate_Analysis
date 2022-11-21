@@ -6,8 +6,6 @@ library(readr)
 library(rdrop2)
 library(tidyverse)
 
-source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
-
 
 # Get mdg native filtered
 
@@ -21,6 +19,7 @@ N = seq(from = 1, to = 1e3, by = 1)
 options(timeout = 100000)
 
 for (n in N) {
+  source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
   gc()
   
   tryCatch({
@@ -41,7 +40,6 @@ for (n in N) {
     } 
     
     x = dbGetQuery(aws_con, "SELECT COUNT(*) FROM mdg_native_filtered")$count
-    source("~/Desktop/Documents/GitHub/bias assessment/killing_DB_connections.R")
     
     if(((x/1000000) - floor(x/1000000)) == 0) {
       
@@ -68,12 +66,16 @@ for (n in N) {
                      value = value, 
                      overwrite = FALSE,
                      append = TRUE)
+        source("~/Desktop/Documents/GitHub/bias assessment/killing_DB_connections.R")
       } else {
         paste("row", n, "not found") |> print() 
       }
       finished = Sys.time()
       paste("completed in", (finished - start), "at", finished) |> print()
     }
+    
+    paste("Upload is up-to-data") |> print()
+    break
   })
 }
 
