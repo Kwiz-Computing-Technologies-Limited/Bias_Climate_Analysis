@@ -1,6 +1,6 @@
 ```{r}
 # connect to database
-source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
+if(!("aws_con" %in% ls())) {   source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R") }
 ```
 
 # check database list

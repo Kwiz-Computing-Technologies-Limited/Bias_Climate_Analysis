@@ -6,7 +6,7 @@ library(readr)
 library(rdrop2)
 library(tidyverse)
 
-source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
+if(!("aws_con" %in% ls())) {   source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R") }
 
 
 # Get aus_glonaf invaded clean
@@ -34,7 +34,7 @@ for (n in N) {
                        nrows = 1000000)
       rownames(value) = NULL
       
-      source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
+      if(!("aws_con" %in% ls())) {   source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R") }
       
       print("uploading new")
       dbWriteTable(conn = aws_con, name = "aus_glonaf_invaded_clean", value = value)
@@ -57,7 +57,7 @@ for (n in N) {
       if(!is_empty(value)) {
         rownames(value) = NULL
         
-        source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
+        if(!("aws_con" %in% ls())) {   source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R") }
         
         db_columns = dbGetQuery(conn=aws_con, statement = "SELECT column_name 
                         FROM information_schema.columns WHERE table_name = 'aus_glonaf_invaded_clean' 
