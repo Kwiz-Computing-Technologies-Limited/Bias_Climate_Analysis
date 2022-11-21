@@ -78,9 +78,11 @@ for (n in N) {
       finished = Sys.time()
       
       paste("completed in", (finished - start), "at", finished) |> print()
+    } else {
+      paste("Upload is up-to-data") |> print()
+      break
     }
-    paste("Upload is up-to-data") |> print()
-    break
+    
   })
 }
 
