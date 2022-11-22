@@ -5,6 +5,11 @@ library(rgbif)
 library(readr)
 library(rdrop2)
 library(tidyverse)
+library(geodata)
+library(terra)
+library(ggspatial)
+library(ggplot2)
+library(googledrive)
 
 # connect to remote postgres from terminal using "system2() function in R
 #system2(command = "psql", args = c("-h", "postgres.cl0erzvvnfux.ap-northeast-1.rds.amazonaws.com", "-p", 5432, "-d", "postgres", "-U"," kwizera_jvk", "-W"))
@@ -24,12 +29,12 @@ library(tidyverse)
 
 
 # bias analysis function
-Bias_assessment_function = function(db_table, con = aws_con, periods_length = 50) {
+Bias_assessment_function = function(db_table, con = aws_con, periods_length = 10) {
   # connect DB
   source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
   
   directory_files = list.files("~/Desktop/Documents/GitHub/bias assessment/13.  bias assessment results")
-  
+
   x = dbGetQuery(aws_con, paste("SELECT COUNT(*) FROM", db_table))$count
   
   if(((x/1000000) - floor(x/1000000)) == 0){
@@ -180,6 +185,41 @@ Bias_assessment_function = function(db_table, con = aws_con, periods_length = 50
   }
   
   
+  if(!(paste0(db_table, "_periods_length_", periods_length, "_assessSpatialBias_output.RDS") %in% directory_files)){
+    # get spatial bias
+    mask = geodata::worldclim_country(country = country, level = 0, res = 10, var = "tavg",
+                                             path = paste0("~/Desktop/Documents/GitHub/bias assessment/", 
+                                                           substr(db_table, 1, 3)))
+    mask2 = raster::brick(mask[[1]])
+    
+    source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
+    paste("Fetch complete! Fetching spatial bias from", db_table, "...") |> print()
+    spatBias <- assessSpatialBias(dat = dbGetQuery(aws_con, paste('SELECT * FROM', db_table, 'LEFT JOIN', paste0(db_table, '_backbone_order'), 'USING (species) WHERE "V1" IS NOT NULL')),
+                                  species = "species",
+                                  y = "decimalLatitude",
+                                  x = "decimalLongitude",
+                                  year = "year", 
+                                  spatialUncertainty = "coordinateUncertaintyInMeters",
+                                  identifier = "V1",
+                                  periods = periods,
+                                  mask = mask2,
+                                  nSamps = 1,
+                                  degrade = TRUE)
+    
+    spatBias$data = spatBias$data |> 
+      dplyr::mutate(Period = as.integer(Period))
+    
+    spatBias$data |>
+      ggplot(mapping = aes(x = Period, y = mean, col = identifier)) +
+      geom_line() + geom_point() + theme_bw() +
+      ylab("Nearest Neighbour Index") + xlab("Period")
+    
+    
+    saveRDS(spatBias, file = paste0(db_table, "_periods_length_", periods_length, "_assessSpatialBias_output.RDS"))
+    source("~/Desktop/Documents/GitHub/bias assessment/killing_DB_connections.R")
+  }
+  
+  
   
   
   if(!(paste(db_table, "periods_length", periods_length, "assessSpatialCov_output.RDS", sep = "_") %in% directory_files)){
@@ -212,7 +252,19 @@ Bias_assessment_function = function(db_table, con = aws_con, periods_length = 50
   
   
   paste("Bias analysis for", db_table, "complete!") |> print()
+  paste("Updating", db_table, ".RDs files to Drive") |> print()
   
+  drive_path = "https://drive.google.com/drive/u/2/folders/1sX54z9p5fw-X8QxaMvzkB09dAxGec30R"
+  uploaded = drive_ls(as_id(drive_path))$name
+  
+  directory_files2 = directory_files[-grep(".Rmd", directory_files)]
+  for (i in 1:length(directory_files2)) {
+    if(!(directory_files2[i] %in% uploaded)){
+      drive_upload(directory_files2[i], as_id(drive_path))
+    }
+  }
+  
+  paste(".RDs file updated in Drive ") |> print()
 }
 
 

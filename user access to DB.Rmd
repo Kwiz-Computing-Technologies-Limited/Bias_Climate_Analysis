@@ -14,7 +14,7 @@ tables = dbListTables(aws_con)
 ```{r}
 table_rows = function(table){
   # tables tin the database to ignore (lag results data)
-  other_tables = tables[grep("lag", tables)]
+  other_tables = c(tables[grep("lag", tables)], tables[grep("backbone", tables)])
   
   if(!(table %in% other_tables)){
     query = paste("SELECT COUNT(*) AS rows, MIN(year) AS earliest_record FROM", table)
@@ -31,5 +31,6 @@ for (table in tables) {
 
 # View tables
 h = Reduce(dplyr::full_join, table_list) |> dplyr::arrange(table)
+h |> dplyr::arrange(rows) -> h
 h |> View()
 ```
