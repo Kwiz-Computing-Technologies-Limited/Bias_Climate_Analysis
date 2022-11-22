@@ -257,7 +257,9 @@ Bias_assessment_function = function(db_table, con = aws_con, periods_length = 10
   drive_path = "https://drive.google.com/drive/u/2/folders/1sX54z9p5fw-X8QxaMvzkB09dAxGec30R"
   uploaded = drive_ls(as_id(drive_path))$name
   
+  directory_files = list.files("~/Desktop/Documents/GitHub/bias assessment/13.  bias assessment results")
   directory_files2 = directory_files[-grep(".Rmd", directory_files)]
+  
   for (i in 1:length(directory_files2)) {
     if(!(directory_files2[i] %in% uploaded)){
       drive_upload(directory_files2[i], as_id(drive_path))
