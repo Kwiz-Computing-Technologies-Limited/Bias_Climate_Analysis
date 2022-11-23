@@ -252,7 +252,7 @@ Bias_assessment_function = function(db_table, con = aws_con, periods_length = 10
   
   
   paste("Bias analysis for", db_table, "complete!") |> print()
-  paste("Updating", db_table, ".RDs files to Drive") |> print()
+  paste("Updating", db_table, ".RDS files to Drive") |> print()
   
   drive_path = "https://drive.google.com/drive/u/2/folders/1sX54z9p5fw-X8QxaMvzkB09dAxGec30R"
   uploaded = drive_ls(as_id(drive_path))$name
