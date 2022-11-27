@@ -251,6 +251,31 @@ Bias_assessment_function = function(db_table, con = aws_con, periods_length = 10
   }
   
   
+  paste("Fetch complete! Fetching environmental bias from", db_table, "...") |> print()
+    if(!(paste0(db_table, "_periods_length_", periods_length, "_assessEnvBias_output.RDS") %in% directory_files)){
+    
+    # get spatial bias
+    env_data = geodata::worldclim_country(country = country, res = 2.5, var = "bio",
+                                      path = paste0("~/Desktop/Documents/GitHub/bias assessment/", 
+                                                    substr(db_table, 1, 3))) |> raster::stack()
+    
+    source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
+    paste("Fetch complete! Fetching environment bias from", db_table, "...") |> print()
+    envBias <- assessEnvBias(dat = dbGetQuery(aws_con, paste('SELECT * FROM', db_table, 'LEFT JOIN', paste0(db_table, '_backbone_order'), 'USING (species) WHERE "V1" IS NOT NULL AND year IS NOT NULL')),
+                             species = "species",
+                             y = "decimalLatitude",
+                             x = "decimalLongitude",
+                             year = "year", 
+                             spatialUncertainty = "coordinateUncertaintyInMeters",
+                             identifier = "V1",
+                             periods = periods,
+                             envDat = terra::extract(env_data, dbGetQuery(aws_con, paste('SELECT "decimalLongitude", "decimalLatitude" FROM (SELECT * FROM', db_table, 'LEFT JOIN', paste0(db_table, '_backbone_order'), 'USING (species) WHERE "V1" IS NOT NULL AND year IS NOT NULL) n1'))),
+                             backgroundEnvDat = raster::sampleRandom(env_data, size = 100000, xy = F))
+    
+    saveRDS(envBias$plot, file = paste0(db_table, "_periods_length_", periods_length, "_assessEnvBias_output.RDS"))
+    source("~/Desktop/Documents/GitHub/bias assessment/killing_DB_connections.R")
+  }
+
   paste("Bias analysis for", db_table, "complete!") |> print()
   paste("Updating", db_table, ".RDS files to Drive") |> print()
   
@@ -262,11 +287,13 @@ Bias_assessment_function = function(db_table, con = aws_con, periods_length = 10
   
   for (i in 1:length(directory_files2)) {
     if(!(directory_files2[i] %in% uploaded)){
+      paste("uploading", directory_files2[i]) |> print()
       drive_upload(directory_files2[i], as_id(drive_path))
     }
   }
   
   paste(".RDs file updated in Drive ") |> print()
+  gc()
 }
 
 
