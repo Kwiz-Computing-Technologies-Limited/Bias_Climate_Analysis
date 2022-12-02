@@ -81,20 +81,19 @@ Bias_assessment_function = function(db_table, con = aws_con, periods_length = 10
     paste("Fetching species name backbone for", db_table) |> print()
     family = sapply((dbGetQuery(aws_con, paste("SELECT DISTINCT species AS species FROM", db_table))$species |>
                        na.omit()),
-                    function(x) name_backbone(name = x, kingdom = "plants")["family"], simplify = TRUE)
+                    function(x) name_backbone(name = x, kingdom = "plants"), simplify = TRUE) |> bind_rows() 
+    
+    aaa = family |>
+      dplyr::select(species, family)
+    
     paste("Fetch complete! Transforming data ...") |> print()
     
     ## Bind the rows
-    aa<-family %>% bind_rows()
-    aaa=as.data.frame(t(aa))
-    aaa$species<-rownames(aaa)
-    aaa$species<-gsub(aaa$species,pattern = ".family",replacement = "")
     rownames(aaa) <- NULL
     
     paste("uploading species name backbone for", db_table, "to DB") |> print()
     
     source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
-    
     dbWriteTable(aws_con, paste0(db_table, "_backbone_family"), aaa)
     dbSendQuery(aws_con, paste('ALTER TABLE', paste0(db_table, "_backbone_family"), 'DROP COLUMN "row.names"'))
     source("~/Desktop/Documents/GitHub/bias assessment/killing_DB_connections.R")
@@ -107,14 +106,14 @@ Bias_assessment_function = function(db_table, con = aws_con, periods_length = 10
     
     source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
     paste("Fetching number of records in each year for", db_table, "...") |> print()
-    nRec <- assessRecordNumber(dat = dbGetQuery(aws_con, paste('SELECT * FROM', db_table, 'LEFT JOIN', paste0(db_table, '_backbone_family'), 'USING (species) WHERE "V1" IS NOT NULL')),
+    nRec <- assessRecordNumber(dat = dbGetQuery(aws_con, paste('SELECT * FROM', db_table, 'LEFT JOIN', paste0(db_table, '_backbone_family'), 'USING (species) WHERE "family" IS NOT NULL')),
                                periods = periods,
                                species = "species",
                                y = "decimalLatitude",
                                x = "decimalLongitude",
                                year = "year", 
                                spatialUncertainty = "coordinateUncertaintyInMeters",
-                               identifier = "V1",
+                               identifier = "family",
                                normalize = FALSE)
     
    
@@ -128,14 +127,14 @@ Bias_assessment_function = function(db_table, con = aws_con, periods_length = 10
     
     source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
     paste("Fetch complete! Fetching number of species in each year from", db_table, "...") |> print()
-    nSpec <- assessSpeciesNumber(dat = dbGetQuery(aws_con, paste('SELECT * FROM', db_table, 'LEFT JOIN', paste0(db_table, '_backbone_family'), 'USING (species) WHERE "V1" IS NOT NULL')),
+    nSpec <- assessSpeciesNumber(dat = dbGetQuery(aws_con, paste('SELECT * FROM', db_table, 'LEFT JOIN', paste0(db_table, '_backbone_family'), 'USING (species) WHERE "family" IS NOT NULL')),
                                  periods = periods,
                                  species = "species",
                                  y = "decimalLatitude",
                                  x = "decimalLongitude",
                                  year = "year", 
                                  spatialUncertainty = "coordinateUncertaintyInMeters",
-                                 identifier = "V1",
+                                 identifier = "family",
                                  normalize = FALSE)
     
     saveRDS(nSpec, file = paste(db_table, "periods_length", periods_length, "assessSpeciesNumber_output.RDS", sep = "_"))
@@ -149,7 +148,7 @@ Bias_assessment_function = function(db_table, con = aws_con, periods_length = 10
     paste("Fetch complete! Fetching rarity from", db_table, "...") |> print()
     
     source("~/Desktop/Documents/GitHub/bias assessment/assessRarityBias_modified.R")
-    taxBias <- assessRarityBias_modified(dat = dbGetQuery(aws_con, paste('SELECT * FROM', db_table, 'LEFT JOIN', paste0(db_table, '_backbone_family'), 'USING (species) WHERE "V1" IS NOT NULL')),
+    taxBias <- assessRarityBias_modified(dat = dbGetQuery(aws_con, paste('SELECT * FROM', db_table, 'LEFT JOIN', paste0(db_table, '_backbone_family'), 'USING (species) WHERE "family" IS NOT NULL')),
                                 periods = periods,
                                 res = 0.5,
                                 prevPerPeriod = FALSE,
@@ -158,7 +157,7 @@ Bias_assessment_function = function(db_table, con = aws_con, periods_length = 10
                                 x = "decimalLongitude",
                                 year = "year", 
                                 spatialUncertainty = "coordinateUncertaintyInMeters",
-                                identifier = "V1")
+                                identifier = "family")
     
     saveRDS(taxBias, file = paste(db_table, "periods_length", periods_length, "assessRarityBias_output.RDS", sep = "_"))
     source("~/Desktop/Documents/GitHub/bias assessment/killing_DB_connections.R")
@@ -174,13 +173,13 @@ Bias_assessment_function = function(db_table, con = aws_con, periods_length = 10
     
     source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
     paste("Fetch complete! Fetching spatial bias from", db_table, "...") |> print()
-    spatBias <- assessSpatialBias(dat = dbGetQuery(aws_con, paste('SELECT * FROM', db_table, 'LEFT JOIN', paste0(db_table, '_backbone_family'), 'USING (species) WHERE "V1" IS NOT NULL')),
+    spatBias <- assessSpatialBias(dat = dbGetQuery(aws_con, paste('SELECT * FROM', db_table, 'LEFT JOIN', paste0(db_table, '_backbone_family'), 'USING (species) WHERE "family" IS NOT NULL')),
                                   species = "species",
                                   y = "decimalLatitude",
                                   x = "decimalLongitude",
                                   year = "year", 
                                   spatialUncertainty = "coordinateUncertaintyInMeters",
-                                  identifier = "V1",
+                                  identifier = "family",
                                   periods = periods,
                                   mask = mask2,
                                   nSamps = 1,
@@ -207,7 +206,7 @@ Bias_assessment_function = function(db_table, con = aws_con, periods_length = 10
     
     source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
     paste("Fetch complete! mapping species occurence from", db_table, "...") |> print()
-    maps <- assessSpatialCov(dat = dbGetQuery(aws_con, paste('SELECT * FROM', db_table, 'LEFT JOIN', paste0(db_table, '_backbone_family'), 'USING (species) WHERE "V1" IS NOT NULL')),
+    maps <- assessSpatialCov(dat = dbGetQuery(aws_con, paste('SELECT * FROM', db_table, 'LEFT JOIN', paste0(db_table, '_backbone_family'), 'USING (species) WHERE "family" IS NOT NULL')),
                              periods = periods,
                              res = 0.5,
                              logCount = TRUE,
@@ -217,7 +216,7 @@ Bias_assessment_function = function(db_table, con = aws_con, periods_length = 10
                              x = "decimalLongitude",
                              year = "year", 
                              spatialUncertainty = "coordinateUncertaintyInMeters",
-                             identifier = "V1")
+                             identifier = "family")
     
     
     saveRDS(maps, file = paste(db_table, "periods_length", periods_length, "assessSpatialCov_output.RDS", sep = "_"))
@@ -241,15 +240,15 @@ Bias_assessment_function = function(db_table, con = aws_con, periods_length = 10
     
     source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
     paste("Fetch complete! Fetching environment bias from", db_table, "...") |> print()
-    envBias <- assessEnvBias(dat = dbGetQuery(aws_con, paste('SELECT * FROM', db_table, 'LEFT JOIN', paste0(db_table, '_backbone_family'), 'USING (species) WHERE "V1" IS NOT NULL AND year IS NOT NULL')),
+    envBias <- assessEnvBias(dat = dbGetQuery(aws_con, paste('SELECT * FROM', db_table, 'LEFT JOIN', paste0(db_table, '_backbone_family'), 'USING (species) WHERE "family" IS NOT NULL AND year IS NOT NULL')),
                              species = "species",
                              y = "decimalLatitude",
                              x = "decimalLongitude",
                              year = "year", 
                              spatialUncertainty = "coordinateUncertaintyInMeters",
-                             identifier = "V1",
+                             identifier = "family",
                              periods = periods,
-                             envDat = terra::extract(env_data, dbGetQuery(aws_con, paste('SELECT "decimalLongitude", "decimalLatitude" FROM (SELECT * FROM', db_table, 'LEFT JOIN', paste0(db_table, '_backbone_family'), 'USING (species) WHERE "V1" IS NOT NULL AND year IS NOT NULL) n1'))),
+                             envDat = terra::extract(env_data, dbGetQuery(aws_con, paste('SELECT "decimalLongitude", "decimalLatitude" FROM (SELECT * FROM', db_table, 'LEFT JOIN', paste0(db_table, '_backbone_family'), 'USING (species) WHERE "family" IS NOT NULL AND year IS NOT NULL) n1'))),
                              backgroundEnvDat = raster::sampleRandom(env_data, size = 100000, xy = F))
     
     saveRDS(envBias$plot, file = paste0(db_table, "_periods_length_", periods_length, "_assessEnvBias_output.RDS"))
