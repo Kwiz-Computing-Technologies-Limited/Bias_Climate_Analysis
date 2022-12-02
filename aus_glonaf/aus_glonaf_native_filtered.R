@@ -27,11 +27,15 @@ for (n in N) {
     if(!("aus_glonaf_native_filtered" %in% dbListTables(aws_con))){
       print("fetching new")
       
+      start = Sys.time()
       value = read.csv(file = drop_url, header = T,
                        colClasses = c("NULL", "NULL", "NULL", "character","NULL", "NULL", "NULL", "NULL", 
                                       "numeric", "numeric", "NULL", "NULL", "numeric", "NULL",
                                       "numeric", "numeric", "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", "NULL"),
                        nrows = 1000000)
+      finished = Sys.time()
+      paste("completed in", (finished - start), "at", finished) |> print()
+      
       rownames(value) = NULL
       
       source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
