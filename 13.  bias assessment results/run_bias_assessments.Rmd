@@ -11,6 +11,23 @@ source("~/Desktop/Documents/GitHub/bias assessment/occAssess_bias_function.R")
 # Tables to analyse
 tables = dbListTables(conn = aws_con)
 tables = tables[-grep("lag", tables)][-grep("backbone", tables)] |> sort()
+
+table_rows = function(table){
+  query = paste("SELECT COUNT(*) AS rows, MIN(year) AS earliest_record FROM", table)
+  query_output = dbGetQuery(aws_con, query)
+  data.frame(table = table, rows = query_output$rows, earliest_record = query_output$earliest_record)
+}
+
+# check tables
+table_list = list()
+for (table in tables) {
+  table_list[[table]] = table_rows(table = table)
+}
+
+# View tables
+h = Reduce(dplyr::full_join, table_list) |> dplyr::arrange(table)
+h |> dplyr::arrange(desc(rows)) -> h
+tables = h$table
 ```
 
 
