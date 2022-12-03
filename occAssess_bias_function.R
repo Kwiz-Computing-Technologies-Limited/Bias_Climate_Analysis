@@ -245,7 +245,7 @@ Bias_assessment_function = function(db_table, con = aws_con, periods_length = 10
       paste("Fetching 'bio' data") |> print()
       env_data = geodata::worldclim_country(country = country, res = 2.5, var = "bio",
                                             path = paste0("~/Desktop/Documents/GitHub/bias assessment/", 
-                                                          substr(db_table, 1, 3))) 
+                                                          substr(db_table, 1, 3))) |> raster::stack()
       
       source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
       paste("Fetch environmental data complete! Fetching environment bias from", db_table, "...") |> print()
