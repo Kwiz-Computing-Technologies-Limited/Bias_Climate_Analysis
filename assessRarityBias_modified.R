@@ -1,26 +1,3 @@
-#' \code{assessRarityBias}
-#'
-#' This function assesses the proportionality of species observed range sizes and number of records. For each period, the function regresses
-#' the number of grid cells with records (proxy for range size) on the number of records. It uses the r2 value from these regressions
-#' as an index proportionality between the two measures. A lower r2 indicates lower proportionality between range size and the number of records relative
-#' to a higher score. Note that an index will not be calculated for any period/ identifier combination with fewer than 5 species. In these cases the regressions on which the indices are based are likely meaningless.
-#' @param dat string. A data.frame containing columns for species name, x coordinates, y coordinates, spatialUncertainty, year and an identifier (used to group the data - heuristic will be calculated for each group). 
-#' @param species Character string. column name in dat giving species names.
-#' @param x string. Column name in dat giving x coordinates. Any coordinate and spatial reference systems are permitted.
-#' @param y string. Column name in dat giving y coordinates. Any coordinate and spatial reference systems are permitted.
-#' @param year string. Column name in dat giving years.
-#' @param spatialUncertainty String. Column name in dat giving uncertainty associated with x and y. Any units are permitted. 
-#' @param identifier String. Column name in dat giving record "identifiers". Identifiers are used to group the data; heuristics will be calculated separately for each group.
-#' @param periods String. A list of time periods. For example, for two periods, the first spanning 1950 to 1990, and the second 1991 to 2019: periods = list(1950:1990, 1991:2019).
-#' @param res Numeric. Spatial resolution at which to grid the data for estimation of range size.
-#' @return A list with two elements: a ggplot2 object and the data underpinning the plot.
-#' @param prevPerPeriod Logical. If TRUE then prevalence (number of grid cells with data) is calculated per period and if FALSE then prevalence is calculated over all periods.
-#' @param maxSpatUncertainty Numeric. Maximum permitted spatial uncertainty. All records more uncertain than this value will be dropped. Units must match the units in your data.
-#' @param metric String. One of "r2" (coefficient of variation) or "cor" (Pearson's correlation coefficient). Two ways of summarising the linear regressions of sample size on recorded range size. 
-#'               Note that, for large sample size, use of "cor" is more computationally demanding than "r2".
-#' @export
-#' 
-
 
 #### internal function to convert users' data to occAssess-friendly format
 
@@ -42,18 +19,18 @@ createData <- function(data,
 }
 
 
-assessRarityBias <- function(dat,
-                             species,
-                             x,
-                             y,
-                             year,
-                             spatialUncertainty,
-                             identifier,
-                             periods, 
-                             res, 
-                             prevPerPeriod, 
-                             maxSpatUncertainty = NULL,
-                             metric = "r2") {
+assessRarityBias_modified <- function(dat,
+                                      species,
+                                      x,
+                                      y,
+                                      year,
+                                      spatialUncertainty,
+                                      identifier,
+                                      periods, 
+                                      res, 
+                                      prevPerPeriod, 
+                                      maxSpatUncertainty = NULL,
+                                      metric = "r2") {
   
   if (any(!(c(species, x, y, year, spatialUncertainty, identifier) %in% colnames(dat)))) stop("You have specified columns that don't exist in dat.")
   
@@ -153,19 +130,17 @@ assessRarityBias <- function(dat,
                                     })
                     
                     stats <- do.call("rbind", stats)
-                    
-                    # residuals
                     model <- summary(stats::lm(stats$recs ~ stats$cells))
-                    mod_residuals <- model$residuals
-                      
+                    
                     if(metric == "r2") {
                       
                       mod <- model$r.squared
+                      res <- model$residuals
                       
                     } else {
                       
                       mod <- cor(stats$recs, stats$cells)
-                      
+                      res <- model$residuals
                     }
                     
                     
@@ -178,9 +153,10 @@ assessRarityBias <- function(dat,
                   }
                   
                   
-                  data.frame(period = y, 
-                             id = i,
-                             index = mod)
+                  tibble::tibble(period = y, 
+                                 id = i,
+                                 index = mod,
+                                 res = res)
                 })
     
     assign(paste0("out", i), do.call("rbind", x))
@@ -191,8 +167,10 @@ assessRarityBias <- function(dat,
                 function(x) {get(paste0("out", x))})
   
   out <- do.call("rbind", out)
+  out2 <- out |>
+    dplyr::select(-res) |> dplyr::distinct()
   
-  p <- ggplot2::ggplot(data = out, ggplot2::aes(x = period, y = index, colour = id, group = id)) +
+  p <- ggplot2::ggplot(data = out2, ggplot2::aes(x = period, y = index, colour = id, group = id)) +
     ggplot2::theme_linedraw() +
     ggplot2::geom_point() +
     ggplot2::geom_line() + 
@@ -201,7 +179,6 @@ assessRarityBias <- function(dat,
     ggplot2::labs(colour = "")
   
   return(list(plot = p, 
-              data = out,
-              regression_residuals = mod_residuals))
+              data = out))
   
 }

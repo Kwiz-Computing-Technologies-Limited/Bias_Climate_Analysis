@@ -1,3 +1,4 @@
+
 options(timeout = max(10000, getOption("timeout")))
 if (!"occAssess" %in% installed.packages()) devtools::install_github("https://github.com/robboyd/occAssess")
 library(occAssess)
@@ -33,7 +34,7 @@ Bias_assessment_function = function(db_table, con = aws_con, periods_length = 10
   source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
   
   directory_files = list.files("~/Desktop/Documents/GitHub/bias assessment/13.  bias assessment results")
-
+  
   x = dbGetQuery(aws_con, paste("SELECT COUNT(*) FROM", db_table))$count
   
   if(((x/1000000) - floor(x/1000000)) == 0){
@@ -86,7 +87,7 @@ Bias_assessment_function = function(db_table, con = aws_con, periods_length = 10
     aaa = family |>
       dplyr::select(species, family)
     
-    paste("Fetch complete! Transforming data ...") |> print()
+    paste("Fetch name backbone complete! Transforming data ...") |> print()
     
     ## Bind the rows
     rownames(aaa) <- NULL
@@ -116,7 +117,7 @@ Bias_assessment_function = function(db_table, con = aws_con, periods_length = 10
                                identifier = "family",
                                normalize = FALSE)
     
-   
+    
     saveRDS(nRec, file = paste(db_table, "periods_length", periods_length, "assessRecordNumber_output.RDS", sep = "_"))
     source("~/Desktop/Documents/GitHub/bias assessment/killing_DB_connections.R")
   }
@@ -126,7 +127,7 @@ Bias_assessment_function = function(db_table, con = aws_con, periods_length = 10
     # get number of species recorded in each year
     
     source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
-    paste("Fetch complete! Fetching number of species in each year from", db_table, "...") |> print()
+    paste("Fetch number of records complete! Fetching number of species in each year from", db_table, "...") |> print()
     nSpec <- assessSpeciesNumber(dat = dbGetQuery(aws_con, paste('SELECT * FROM', db_table, 'LEFT JOIN', paste0(db_table, '_backbone_family'), 'USING (species) WHERE "family" IS NOT NULL')),
                                  periods = periods,
                                  species = "species",
@@ -145,19 +146,19 @@ Bias_assessment_function = function(db_table, con = aws_con, periods_length = 10
     # get rarity
     
     source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
-    paste("Fetch complete! Fetching rarity from", db_table, "...") |> print()
+    paste("Fetch number of species complete! Fetching rarity index from", db_table, "...") |> print()
     
     source("~/Desktop/Documents/GitHub/bias assessment/assessRarityBias_modified.R")
     taxBias <- assessRarityBias_modified(dat = dbGetQuery(aws_con, paste('SELECT * FROM', db_table, 'LEFT JOIN', paste0(db_table, '_backbone_family'), 'USING (species) WHERE "family" IS NOT NULL')),
-                                periods = periods,
-                                res = 0.5,
-                                prevPerPeriod = FALSE,
-                                species = "species",
-                                y = "decimalLatitude",
-                                x = "decimalLongitude",
-                                year = "year", 
-                                spatialUncertainty = "coordinateUncertaintyInMeters",
-                                identifier = "family")
+                                         periods = periods,
+                                         res = 0.5,
+                                         prevPerPeriod = FALSE,
+                                         species = "species",
+                                         y = "decimalLatitude",
+                                         x = "decimalLongitude",
+                                         year = "year", 
+                                         spatialUncertainty = "coordinateUncertaintyInMeters",
+                                         identifier = "family")
     
     saveRDS(taxBias, file = paste(db_table, "periods_length", periods_length, "assessRarityBias_output.RDS", sep = "_"))
     source("~/Desktop/Documents/GitHub/bias assessment/killing_DB_connections.R")
@@ -166,13 +167,14 @@ Bias_assessment_function = function(db_table, con = aws_con, periods_length = 10
   
   if(!(paste0(db_table, "_periods_length_", periods_length, "_assessSpatialBias_output.RDS") %in% directory_files)){
     # get spatial bias
+    paste("Fetch rarity index complete! Fetching environment mask for spatial bias for", substr(db_table, 1, 3), "...") |> print()
     mask = geodata::worldclim_country(country = country, level = 0, res = 10, var = "tavg",
-                                             path = paste0("~/Desktop/Documents/GitHub/bias assessment/", 
-                                                           substr(db_table, 1, 3)))
+                                      path = paste0("~/Desktop/Documents/GitHub/bias assessment/", 
+                                                    substr(db_table, 1, 3)))
     mask2 = raster::brick(mask[[1]])
     
     source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
-    paste("Fetch complete! Fetching spatial bias from", db_table, "...") |> print()
+    paste("Fetch environment mask complete! Fetching spatial bias from", db_table, "...") |> print()
     spatBias <- assessSpatialBias(dat = dbGetQuery(aws_con, paste('SELECT * FROM', db_table, 'LEFT JOIN', paste0(db_table, '_backbone_family'), 'USING (species) WHERE "family" IS NOT NULL')),
                                   species = "species",
                                   y = "decimalLatitude",
@@ -205,7 +207,7 @@ Bias_assessment_function = function(db_table, con = aws_con, periods_length = 10
     # grid and map species occurrence data
     
     source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
-    paste("Fetch complete! mapping species occurence from", db_table, "...") |> print()
+    paste("Fetch spatial bias complete! mapping species occurence from", db_table, "...") |> print()
     maps <- assessSpatialCov(dat = dbGetQuery(aws_con, paste('SELECT * FROM', db_table, 'LEFT JOIN', paste0(db_table, '_backbone_family'), 'USING (species) WHERE "family" IS NOT NULL')),
                              periods = periods,
                              res = 0.5,
@@ -231,66 +233,40 @@ Bias_assessment_function = function(db_table, con = aws_con, periods_length = 10
   
   
   
+  
+  
+  # NOTE: the "bio" variable is not present for New Zealand in world_clim. For that, we fetch 
+  # "tmin", "tmax" and "prec" separately and use the "dismo::biovars()" function
+  
+  if(!(country %in% c("New Zealand", "Japan"))){
     if(!(paste0(db_table, "_periods_length_", periods_length, "_assessEnvBias_output.RDS") %in% directory_files)){
-      paste("Fetch complete! Fetching environmental data for", substr(db_table, 1, 3), "...") |> print()
-    # get spatial bias
-    env_data = geodata::worldclim_country(country = country, res = 2.5, var = "bio",
-                                      path = paste0("~/Desktop/Documents/GitHub/bias assessment/", 
-                                                    substr(db_table, 1, 3))) |> raster::stack()
-    
-    source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
-    paste("Fetch complete! Fetching environment bias from", db_table, "...") |> print()
-    envBias <- assessEnvBias(dat = dbGetQuery(aws_con, paste('SELECT * FROM', db_table, 'LEFT JOIN', paste0(db_table, '_backbone_family'), 'USING (species) WHERE "family" IS NOT NULL AND year IS NOT NULL')),
-                             species = "species",
-                             y = "decimalLatitude",
-                             x = "decimalLongitude",
-                             year = "year", 
-                             spatialUncertainty = "coordinateUncertaintyInMeters",
-                             identifier = "family",
-                             periods = periods,
-                             envDat = terra::extract(env_data, dbGetQuery(aws_con, paste('SELECT "decimalLongitude", "decimalLatitude" FROM (SELECT * FROM', db_table, 'LEFT JOIN', paste0(db_table, '_backbone_family'), 'USING (species) WHERE "family" IS NOT NULL AND year IS NOT NULL) n1'))),
-                             backgroundEnvDat = raster::sampleRandom(env_data, size = 100000, xy = F))
-    
-    saveRDS(envBias$plot, file = paste0(db_table, "_periods_length_", periods_length, "_assessEnvBias_output.RDS"))
-    source("~/Desktop/Documents/GitHub/bias assessment/killing_DB_connections.R")
+      paste("Fetch mapping species complete! Fetching environmental data for", substr(db_table, 1, 3), "...") |> print()
+      # get spatial bias
+      paste("Fetching 'bio' data") |> print()
+      env_data = geodata::worldclim_country(country = country, res = 2.5, var = "bio",
+                                            path = paste0("~/Desktop/Documents/GitHub/bias assessment/", 
+                                                          substr(db_table, 1, 3))) 
+      
+      source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
+      paste("Fetch environmental data complete! Fetching environment bias from", db_table, "...") |> print()
+      
+      envBias <- assessEnvBias(dat = dbGetQuery(aws_con, paste('SELECT * FROM', db_table, 'LEFT JOIN', paste0(db_table, '_backbone_family'), 'USING (species) WHERE "family" IS NOT NULL AND year IS NOT NULL')),
+                               species = "species",
+                               y = "decimalLatitude",
+                               x = "decimalLongitude",
+                               year = "year", 
+                               spatialUncertainty = "coordinateUncertaintyInMeters",
+                               identifier = "family",
+                               periods = periods,
+                               envDat = terra::extract(env_data, dbGetQuery(aws_con, paste('SELECT "decimalLongitude", "decimalLatitude" FROM (SELECT * FROM', db_table, 'LEFT JOIN', paste0(db_table, '_backbone_family'), 'USING (species) WHERE "family" IS NOT NULL AND year IS NOT NULL) n1'))),
+                               backgroundEnvDat = raster::sampleRandom(env_data, size = 100000, xy = F))
+      
+      saveRDS(envBias$plot, file = paste0(db_table, "_periods_length_", periods_length, "_assessEnvBias_output.RDS"))
+      source("~/Desktop/Documents/GitHub/bias assessment/killing_DB_connections.R")
+    } 
   }
-
+  
   paste("Bias analysis for", db_table, "complete!") |> print()
-  paste("Updating", db_table, ".RDS files to GH") |> print()
-  
-  
-  directory_files = list.files("~/Desktop/Documents/GitHub/bias assessment/13.  bias assessment results")
-  directory_files2 = directory_files[-grep(".Rmd", directory_files)]
-  
-  # auto commit results if internet is connected 
-  git2r::init()
-  
-  ## stage changes
-  unstaged = git2r::status()$unstaged |> unlist()
-  for (i in 1:length(unstaged)) {
-    paste("staging", as.character(unstaged[[i]]), "for upload to GH") |> print()
-    git2r::add(path = as.character(unstaged[[i]]))
-  }
-  
-  # stage un-tracked files and uncommitted
-  tracked = git2r::ls_tree()[, c("path", "name")] |>
-    mutate(file_path = paste0(path, name)) |> 
-    select(file_path)
-  staged = git2r::status()$staged |> unlist()
-  
-  for (i in 1:length(directory_files2)) {
-    if(!(paste0("13.  bias assessment results/", directory_files2[i]) %in% tracked) &
-       !(paste0("13.  bias assessment results/", directory_files2[i]) %in% staged)){
-      paste("staging", directory_files2[i], "for upload to GH") |> print()
-      git2r::add(path =  paste0("13.  bias assessment results/", directory_files2[i]))
-    }
-  }
-  
-  paste(".RDs file staged for commit:") |> print()
-  git2r::status()
-  git2r::commit(message = "Committed result .rds files")
-  git2r::push(refspec = "feature", name = git2r::remote_url())
-  
   gc()
 }
 
