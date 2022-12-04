@@ -167,6 +167,8 @@ Bias_assessment_function = function(db_table, con = aws_con, periods_length = 10
   
   if(!(paste0(db_table, "_periods_length_", periods_length, "_assessSpatialBias_output.RDS") %in% directory_files)){
     # get spatial bias
+    gc()
+    
     paste("Fetch rarity index complete! Fetching environment mask for spatial bias for", substr(db_table, 1, 3), "...") |> print()
     mask = geodata::worldclim_country(country = country, level = 0, res = 10, var = "tavg",
                                       path = paste0("~/Desktop/Documents/GitHub/bias assessment/", 
@@ -242,6 +244,9 @@ Bias_assessment_function = function(db_table, con = aws_con, periods_length = 10
     if(!(paste0(db_table, "_periods_length_", periods_length, "_assessEnvBias_output.RDS") %in% directory_files)){
       paste("Fetch mapping species complete! Fetching environmental data for", substr(db_table, 1, 3), "...") |> print()
       # get spatial bias
+      gc()
+      
+      options(timeout = (getOption("timeout"))^2)
       paste("Fetching 'bio' data") |> print()
       env_data = geodata::worldclim_country(country = country, res = 2.5, var = "bio",
                                             path = paste0("~/Desktop/Documents/GitHub/bias assessment/", 
@@ -260,6 +265,7 @@ Bias_assessment_function = function(db_table, con = aws_con, periods_length = 10
                                periods = periods,
                                envDat = terra::extract(env_data, dbGetQuery(aws_con, paste('SELECT "decimalLongitude", "decimalLatitude" FROM (SELECT * FROM', db_table, 'LEFT JOIN', paste0(db_table, '_backbone_family'), 'USING (species) WHERE "family" IS NOT NULL AND year IS NOT NULL) n1'))),
                                backgroundEnvDat = raster::sampleRandom(env_data, size = 100000, xy = F))
+      
       env_bias_data = envBias$data |>
         dplyr::select(Period, identifier, `scores.PC1`, `scores.PC2`, xVar, yVar)
       
