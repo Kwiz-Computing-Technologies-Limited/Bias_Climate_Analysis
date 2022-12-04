@@ -1,0 +1,330 @@
+---
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
+---
+# mdg_invaded_clean
+
+```{r, echo =FALSE, cache=TRUE, results='asis'}
+# read mdg_invaded_clean files from google drive folder
+library(ggplot2)
+```
+
+
+```{r, echo =FALSE, cache=TRUE, results='asis'}
+directory_files = list.files("~/Desktop/Documents/GitHub/bias assessment/13.  bias assessment results") 
+directory_files = directory_files[(directory_files |>
+  grepl(pattern = "mdg_invaded_clean"))]
+
+if(length(directory_files) < 7){
+  source("~/Desktop/Documents/GitHub/bias assessment/occAssess_bias_function.R")
+  Bias_assessment_function(db_table = "mdg_invaded_clean", con = aws_con, periods_length = 10)
+}
+```
+
+
+```{r, echo =FALSE, cache=TRUE, results='asis'}
+## 1. periods
+file_link = paste0("~/Desktop/Documents/GitHub/bias assessment/13.  bias assessment results/", directory_files[grepl("periods_output", directory_files)])
+periods = readRDS(file = file_link)
+```
+
+```{r, echo =FALSE, cache=TRUE, results='asis'}
+periods_range = data.frame(Period = 1:length(periods))
+for (i in 1:length(periods)) {
+  periods_range$range[i] = paste(min(periods[[i]], na.rm = T), 
+                                  max(periods[[i]], na.rm = T), sep = "-")
+}
+
+periods_range$range = as.factor(periods_range$range)
+```
+
+
+Occurrence records for the *mdg_invaded_clean* landscape were divided into `r length(periods)` 10-year periods between `r min(periods[[1]])` - `r max(periods[[length(periods)]])`. These periods provides information on *temporal variations* in the different biases. We use ANOVA and the Tukey multiple comparison test to test for these variations. The data are also grouped by their *Order (taxonomic rank)* which forms the basis of the assessments.
+
+# 1. Taxonomic biases
+
+We use the following measures to assess taxonomic bias:
+- differences in the number of occurrences identified between taxonomic groups
+- changes in the number of occurrences identified over time (temporal taxonomic bias)
+- whether rare species are over-represented in the data 
+
+
+The number of species identified for the different taxonomic groups also provides a measure of taxonomic coverage. This is obtained as the sum of all occurrence records identified to species level in each taxonomic group and time period. 
+
+```{r, echo =FALSE, cache=TRUE, results='asis'}
+## 3. assessSpeciesNumber
+file_link = paste0("~/Desktop/Documents/GitHub/bias assessment/13.  bias assessment results/", directory_files[grepl("assessSpeciesNumber_output", directory_files)])
+assessSpeciesNumber = readRDS(file = file_link)
+
+assessSpeciesNumber = assessSpeciesNumber |> 
+  merge(periods_range, by.x = "Period", by.y = "Period") |>
+  na.omit() |> dplyr::rename(Taxonomic_Group = group)
+```
+
+
+Figure 2: Taxonomic coverage (Number of species) for mdg_invaded_clean occurrence data
+```{r, echo =FALSE, cache=TRUE, results='asis', fig.show='asis'}
+library(ggplot2)
+assessSpeciesNumber |>
+  dplyr::filter(!is.na(val)) |>
+  ggplot(mapping = aes(x = Period, y = val, color = Taxonomic_Group)) +
+  geom_point( ) + geom_line() + 
+  theme_bw() + labs(y = "Number of species recorded", 
+                    title = "Taxonomic coverage (Number of species) by  Family") +
+  theme(legend.position = "none")
+```
+
+
+```{r, echo =FALSE, cache=TRUE, results='asis'}
+fit_species = aov(val ~ Taxonomic_Group , data = assessSpeciesNumber)
+summary_fit_species = fit_species |> summary()
+p.value = (summary_fit_species |> unlist() |> t() |> as.data.frame())$`Pr(>F)1` |> round(5)
+
+# tukey test
+tukey_species = TukeyHSD(fit_species, "Taxonomic_Group")
+species_differences = tukey_species$Taxonomic_Group[!(tukey_species$Taxonomic_Group[, "p adj"] > 0.05) , ] |> as.data.frame() |>  dplyr::arrange(desc(abs(diff)))
+```
+
+There exists variations in the number of species identified between the different taxonomic groups (Anova p-value = `r p.value` < 0.005). Table 1 gives the results of the multiple comparison test (tukey test) which ranks the taxonomic groups with different levels of coverage from the groups with the highest difference to those with the least difference.
+
+Table 1: Differences in the number of species identified between taxonomic groups
+```{r, echo =FALSE, cache=TRUE, results='asis'}
+species_differences |> knitr::kable()
+```
+
+## - Temporal biases in Taxonomic coverage
+
+From figure 2, we observe a positive slope in the number of species identified among most of the taxonomic groups over time. We estimate the slope of the number of species recorded for each taxonomic group. Table 2 below sorts the taxonomic groups with temporal bias in taxonomic coverage from groups with the highest bias to groups with the least amount of change in taxonomic coverage. (this are groups with statistically significant slope) 
+
+Table 2: Slope estimates of the number of species identified by taxonomic group
+```{r, echo =FALSE, cache=TRUE, results='asis'}
+library(broom)
+library(purrr)
+
+taxonomic_coverage_slope =split.data.frame(assessSpeciesNumber, assessSpeciesNumber$Taxonomic_Group)  |>
+  purrr::map(~lm(val ~ 1 + Period, data = .x))|>
+  purrr::map_df(tidy) |>
+  dplyr::filter(term == 'Period') |>
+  dplyr::mutate(term = sort(assessSpeciesNumber$Taxonomic_Group |> unique())) |>
+  dplyr::filter(p.value < 0.05 | p.value == 0.05) |>
+  dplyr::rename(Taxonomic_group = term) |> dplyr::arrange(desc(estimate))
+
+taxonomic_coverage_slope |> knitr::kable()
+```
+
+Note that the number of species identified increased in `r length(taxonomic_coverage_slope$Taxonomic_group)` out of the `r length(unique(assessSpeciesNumber$Taxonomic_Group))` (`r (100 * length(taxonomic_coverage_slope$Taxonomic_group) / length(unique(assessSpeciesNumber$Taxonomic_Group))) |> round(4)`%) taxonomic groups in the mdg_invaded_clean occurrence dataset.
+
+## - representation of rare species
+
+Here, we measure the congruence of the number of times species have been recorded and their estimated commonness (i.e range sizes). We obtain the taxonomic bias index as the *R-square* value from regression of the number of records on range sizes. A higher R-square value  indicate that species' are sampled in proportion to their range sizes while lower values indicate presence of over-sampled or under-sampled species. 
+
+```{r, echo =FALSE, cache=TRUE, results='asis'}
+## 4. assessRarityBias
+file_link = paste0("~/Desktop/Documents/GitHub/bias assessment/13.  bias assessment results/", directory_files[grepl("assessRarityBias_output", directory_files)])
+assessRarityBias = readRDS(file = file_link)
+
+assessRarityBias = assessRarityBias |> 
+  merge(periods_range, by.x = "period", by.y = "Period") |>
+  dplyr::filter(!is.na(index)) |>
+  dplyr::rename(Taxonomic_Group = id)
+```
+
+Figure 3: Taxonomic bias index (Rare species representation) for mdg_invaded_clean occurrence data
+```{r, echo =FALSE, cache=TRUE, results='asis', fig.show='asis'}
+assessRarityBias |>
+  ggplot(mapping = aes(x = period, y = index, color = Taxonomic_Group)) +
+  geom_point( ) + geom_line() + 
+  theme_bw() + labs(y = "Taxonomic bias index", 
+                    title = "Taxonomic coverage (Rare species representation)")
+```
+
+
+Table 3(a): 3rd Quantile values of the coverage index of rare species by taxonomic group
+```{r, echo =FALSE, cache=TRUE, results='asis'}
+rare_coverage_ranges = assessRarityBias |>
+  dplyr::group_by(Taxonomic_Group)|>
+  dplyr::summarise(quartile_0.75 = ((100 * index) |> quantile(0.75))) |>
+  dplyr::arrange(quartile_0.75)
+
+rare_coverage_ranges |> knitr::kable()
+```
+
+Table 3(a) above gives the 75% quartile values for the taxonomic bias index for the different taxonomic groups. This means that 75% of species within each of the taxonomic groups had a taxonomic bias index below the indicated value. This implies that there exist some level of over-sampling or under-sampling of species within this taxonomic groups.
+
+Table 3(b): Identifying Oversampled vs Unsersampled families in mdg_invaded_clean dataset
+```{r}
+families = assessRarityBias$Taxonomic_Group |> unique()
+
+family_residual = list()
+for (family in families) {
+  resid_fam = assessRarityBias |>
+    dplyr::filter(Taxonomic_Group == family) |>
+    dplyr::select(res)
+  
+  res_means = t.test(resid_fam$res, assessRarityBias$res, conf.level = 0.68)
+  family_residual[[family]] = data.frame(family = family,
+                               mean_family = res_means$estimate[1] ,
+                               mean_all = res_means$estimate[2] ,
+                               conf_lower_diff = res_means$conf.int[1] ,
+                               conf_upper_diff = res_means$conf.int[2] ,
+                               p.value = res_means$p.value  )
+}
+
+family_residual = family_residual |> dplyr::bind_rows()
+family_residual |> knitr::kable()
+```
+
+Following Barends et al. (2020), we compare the residual values of each family to the range (mean ± standard deviation) of all residual values from the model regressing the number of records on range sizes in order to identify undersampled and oversampled families. Residuals "greater than" the range (mean ± standard deviation of all residuals) indicate oversampling while residuals "lower than" the range indicate under-sampling. From table 3 above, non of the families are found to be either under-sampled or over-sampled in mdg_invaded_clean.
+
+Table 4: Slope estimates of the coverage index of rare species by taxonomic group
+```{r, echo =FALSE, cache=TRUE, results='asis'}
+library(broom)
+library(purrr)
+
+rare_coverage_slope =  split.data.frame(assessRarityBias, assessRarityBias$Taxonomic_Group)|>
+  purrr::map(~lm(index ~ 1 + period, data = .x))|>
+  purrr::map_df(tidy) |>
+  dplyr::filter(term == 'period') |>
+  dplyr::mutate(term = sort(assessRarityBias$Taxonomic_Group |> unique())) |>
+  dplyr::filter(p.value < 0.05 | p.value == 0.05) |>
+  dplyr::rename(Taxonomic_group = term) |> dplyr::arrange(desc(estimate))
+
+rare_coverage_slope |> knitr::kable()
+```
+
+We observve that coverage of rare species did not change except in `r nrow(rare_coverage_slope)` taxonomic groups in the mdg_invaded_clean dataset where over-representation or under-representation of some species reduced over time. 
+
+
+# 2. Spatial Biases
+
+We use the following measures to assess spatial bias:
+- check whether the data resemble a random distribution in the geographic space of interest
+- check whether a representative portion of the spatial domain of interest has been sampled and whether the same portion of geographic space has been sampled over time.
+
+## - randomness sampling distribution in the geographic space
+
+We assessed whether occurrence records resemble a random distribution within the Madagascar's extent. The method compares the average nearest neighbour distance of the data with the average nearest neighbour distances of simulated random distributions of the same density. The nearest neighbour index is obtained by; dividing the average nearest neighbour distance across the occurrence data points by the average nearest neighbour distance from the random sample. An index $<1$ shows more clustered observations compared to the random sample while an index $>1$ indicates occurrences are more dispersed than the random sample.
+
+```{r, echo =FALSE, cache=TRUE, results='asis'}
+## 5. assessSpatialBias
+file_link = paste0("~/Desktop/Documents/GitHub/bias assessment/13.  bias assessment results/", directory_files[grepl("assessSpatialBias_output", directory_files)])
+assessSpatialBias = readRDS(file = file_link)
+
+assessSpatialBias = assessSpatialBias |> 
+  merge(periods_range, by.x = "Period", by.y = "Period") |>
+  dplyr::filter(!is.na(mean)) |>
+  dplyr::rename(Taxonomic_Group = identifier)
+```
+
+Figure 4: Nearest neighbour index for mdg_invaded_clean occurrence data
+```{r, echo =FALSE, cache=TRUE, results='asis', fig.show='asis'}
+assessSpatialBias |>
+  ggplot(mapping = aes(x = Period, y = mean, color = Taxonomic_Group)) +
+  geom_point( ) + geom_line() + 
+  theme_bw() + labs(y = "Nearest neighbour index", 
+                    title = "Randomness of the Occurrence records")
+```
+
+We note that the "Nearest neighbour index $< 1$" for all taxonomic groups across most of the periods. This implies that spatial observations were over-sampled in some areas compared to others within the spatial range analysed; therefore spatial biases were present.
+
+Table 5: Slope estimates of the nearest neighbour index by taxonomic group
+```{r, echo =FALSE, cache=TRUE, results='asis'}
+library(broom)
+library(purrr)
+
+spatial_index_slope = split.data.frame(assessSpatialBias, assessSpatialBias$Taxonomic_Group) |>
+  purrr::map(~lm(mean ~ 1 + Period, data = .x))|>
+  purrr::map_df(tidy) |>
+  dplyr::filter(term == 'Period') |>
+  dplyr::mutate(term = sort(assessSpatialBias$Taxonomic_Group |> unique())) |>
+  dplyr::filter(p.value < 0.05 | p.value == 0.05) |>
+  dplyr::rename(Taxonomic_group = term) |> dplyr::arrange(desc(estimate))
+
+spatial_index_slope |> knitr::kable()
+```
+
+We also note more clustered sampling among `r nrow(spatial_index_slope)` taxonomic groups over time suggesting an increase in spatial bias within these groups.
+
+We map the occurrence records at a 0.5 resolution grid to visualize the distribution of the different taxonomic group records over time.
+
+Figure 5: Spatial map for mdg_invaded_clean occurrence data
+```{r, echo =FALSE, cache=TRUE, results='asis', fig.show='asis'}
+## 6. assessSpatialCov
+file_link = paste0("~/Desktop/Documents/GitHub/bias assessment/13.  bias assessment results/", directory_files[grepl("assessSpatialCov_output", directory_files)])
+assessSpatialCov = readRDS(file = file_link)
+
+
+for (i in 1:length(assessSpatialCov)) {
+  assessSpatialCov[[i]] = assessSpatialCov[[i]] + ggplot2::labs(title = names(assessSpatialCov)[i])
+}
+
+for (i in 1:length(assessSpatialCov)) {
+  assessSpatialCov[[i]] |> print()
+}
+```
+
+
+# 3. biases in Sampling intensity 
+
+
+We use the Sums the number of records in the dataset in each time period to identify temporal variation in sampling intensity. 
+
+Figure 6: sampling intensity by taxonomic group
+```{r, echo =FALSE, cache=TRUE, results='asis', fig.show='asis'}
+## 7. assessRecordNumber
+file_link = paste0("~/Desktop/Documents/GitHub/bias assessment/13.  bias assessment results/", directory_files[grepl("assessRecordNumber_output", directory_files)])
+assessRecordNumber = readRDS(file = file_link)
+
+assessRecordNumber = assessRecordNumber |> 
+  merge(periods_range, by.x = "Period", by.y = "Period") |>
+  dplyr::rename(Taxonomic_Group = group)
+
+## plot
+```
+
+
+```{r, echo =FALSE, cache=TRUE, results='asis'}
+library(broom)
+library(purrr)
+
+sampling_intensity_slope = split.data.frame(assessRecordNumber, assessRecordNumber$Taxonomic_Group) |>
+  purrr::map(~lm(val ~ 1 + Period, data = .x))|>
+  purrr::map_df(tidy) |>
+  dplyr::filter(term == 'Period') |>
+  dplyr::mutate(term = sort(assessRecordNumber$Taxonomic_Group |> unique())) |>
+  dplyr::filter(p.value < 0.05 | p.value == 0.05) |>
+  dplyr::rename(Taxonomic_group = term) |> dplyr::arrange(desc(estimate))
+```
+
+We observe significant positive slopes indicating an increase in sampling intensity among `r nrow(sampling_intensity_slope)` out of the `r length(unique(assessRecordNumber$Taxonomic_Group))` (`r (100 * nrow(sampling_intensity_slope) / length(unique(assessRecordNumber$Taxonomic_Group))) |> round(4)`) taxonomic groups in the mdg_invaded_clean occurrence dataset, as shown in table 6 below.
+
+Table 7 identifies the taxonomic groups whose sampling intensity differ significantly from each other.
+
+
+Table 6: Slope estimates of the sampling intensity by taxonomic group
+```{r, echo =FALSE, cache=TRUE, results='asis'}
+sampling_intensity_slope |> knitr::kable()
+```
+
+Table 7: Differences sampling intensity by taxonomic group
+```{r, echo =FALSE, cache=TRUE, results='asis'}
+fit_records = aov(val ~ Taxonomic_Group , data = assessRecordNumber)
+summary_fit_records = fit_records |> summary()
+p.value = (summary_fit_records |> unlist() |> t() |> as.data.frame())$`Pr(>F)1` |> round(5)
+
+# tukey test
+tukey_species = TukeyHSD(fit_records, "Taxonomic_Group")
+records_differences = tukey_species$Taxonomic_Group[!(tukey_species$Taxonomic_Group[, "p adj"] > 0.05) , ] |> as.data.frame() |>  dplyr::arrange(desc(diff))
+
+records_differences |> knitr::kable()
+```
+
+## correlation between sampling intensity and number of species
+
+```{r, echo=FALSE, cache=TRUE}
+correlation = cor.test(assessSpeciesNumber$val, assessRecordNumber$val)
+```
+
+We observe a positive correlation $cor =$ `r correlation$estimate` (p.value = `r correlation$p.value`). This indicates presence of sampling bias (higher sampling intensities) in families with more species.
