@@ -275,6 +275,11 @@ Bias_assessment_function = function(db_table, con = aws_con, periods_length = 10
   }
   
   paste("Bias analysis for", db_table, "complete!") |> print()
+  
+  paste("Updating", db_table, ".RDs files to Drive") |> print()
+  source("~/Desktop/Documents/GitHub/bias assessment/drive_results_upload.R")
+  paste(".RDs file updated in Drive ") |> print()
+  
   gc()
 }
 
