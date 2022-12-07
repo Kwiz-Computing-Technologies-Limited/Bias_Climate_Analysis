@@ -1,4 +1,4 @@
-options(timeout = getOption("timeout")^4)
+options(timeout = getOption("timeout")^5)
 if (!"occAssess" %in% installed.packages()) devtools::install_github("https://github.com/robboyd/occAssess")
 library(occAssess)
 library(rgbif)
@@ -46,7 +46,7 @@ Bias_assessment_function = function(db_table, con = aws_con, periods_length = 10
   } else if(grepl("usa", db_table)) {
     country = "USA"
   } else if(grepl("gbr", db_table)){
-    country = "UK"
+    country = "United Kingdom"
   } else if(grepl("irl", db_table)){
     country = "Ireland"
   } else if(grepl("aus", db_table)){
@@ -75,7 +75,7 @@ Bias_assessment_function = function(db_table, con = aws_con, periods_length = 10
   
   # add backbone record to database if not present
   if(!(paste0(db_table, "_backbone_family") %in% list_tables)){
-    options(timeout = getOption("timeout")^4)
+    options(timeout = getOption("timeout")^5)
     # get the "name_backbone"/grouping variable ("family") from GBIF
     source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
     paste("Fetching species name backbone for", db_table) |> print()
@@ -103,7 +103,7 @@ Bias_assessment_function = function(db_table, con = aws_con, periods_length = 10
   
   if(!(paste(db_table, "periods_length", periods_length, "assessRecordNumber_output.RDS", sep = "_") %in% directory_files)){
     # get number of records in each year.
-    options(timeout = getOption("timeout")^4)
+    options(timeout = getOption("timeout")^5)
     
     source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
     paste("Fetching number of records in each year for", db_table, "...") |> print()
@@ -125,7 +125,7 @@ Bias_assessment_function = function(db_table, con = aws_con, periods_length = 10
   
   if(!(paste(db_table, "periods_length", periods_length, "assessSpeciesNumber_output.RDS", sep = "_") %in% directory_files)){
     # get number of species recorded in each year
-    options(timeout = getOption("timeout")^4)
+    options(timeout = getOption("timeout")^5)
     
     source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
     paste("Fetch number of records complete! Fetching number of species in each year from", db_table, "...") |> print()
@@ -145,7 +145,7 @@ Bias_assessment_function = function(db_table, con = aws_con, periods_length = 10
   
   if(!(paste(db_table, "periods_length", periods_length, "assessRarityBias_output.RDS", sep = "_") %in% directory_files)){
     # get rarity
-    options(timeout = getOption("timeout")^4)
+    options(timeout = getOption("timeout")^5)
     
     source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
     paste("Fetch number of species complete! Fetching rarity index from", db_table, "...") |> print()
@@ -170,7 +170,7 @@ Bias_assessment_function = function(db_table, con = aws_con, periods_length = 10
   if(!(paste0(db_table, "_periods_length_", periods_length, "_assessSpatialBias_output.RDS") %in% directory_files)){
     # get spatial bias
     gc()
-    options(timeout = getOption("timeout")^4)
+    options(timeout = getOption("timeout")^5)
     
     paste("Fetch rarity index complete! Fetching environment mask for spatial bias for", substr(db_table, 1, 3), "...") |> print()
     mask = geodata::worldclim_country(country = country, level = 0, res = 10, var = "tavg",
@@ -178,7 +178,7 @@ Bias_assessment_function = function(db_table, con = aws_con, periods_length = 10
                                                     substr(db_table, 1, 3)))
     mask2 = raster::brick(mask[[1]])
     
-    options(timeout = getOption("timeout")^4)
+    options(timeout = getOption("timeout")^5)
     source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
     paste("Fetch environment mask complete! Fetching spatial bias from", db_table, "...") |> print()
     spatBias <- assessSpatialBias(dat = dbGetQuery(aws_con, paste('SELECT * FROM', db_table, 'LEFT JOIN', paste0(db_table, '_backbone_family'), 'USING (species) WHERE "family" IS NOT NULL')),
@@ -211,7 +211,7 @@ Bias_assessment_function = function(db_table, con = aws_con, periods_length = 10
   
   if(!(paste(db_table, "periods_length", periods_length, "assessSpatialCov_output.RDS", sep = "_") %in% directory_files)){
     # grid and map species occurrence data
-    options(timeout = getOption("timeout")^4)
+    options(timeout = getOption("timeout")^5)
     
     source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
     paste("Fetch spatial bias complete! mapping species occurence from", db_table, "...") |> print()
@@ -251,7 +251,7 @@ Bias_assessment_function = function(db_table, con = aws_con, periods_length = 10
       # get spatial bias
       gc()
       
-      options(timeout = getOption("timeout")^4)
+      options(timeout = getOption("timeout")^5)
       paste("Fetching 'bio' data") |> print()
       env_data = geodata::worldclim_country(country = country, res = 2.5, var = "bio",
                                             path = paste0("~/Desktop/Documents/GitHub/bias assessment/", 
