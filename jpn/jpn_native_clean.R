@@ -1,11 +1,15 @@
 
+options(timeout = getOption("timeout")^5)
 if (!"occAssess" %in% installed.packages()) devtools::install_github("https://github.com/robboyd/occAssess")
 library(occAssess)
+if (!"rgbif" %in% installed.packages()) install.packages("rgbif")
 library(rgbif)
+if (!"readr" %in% installed.packages()) install.packages("readr")
 library(readr)
+if (!"rdrop2" %in% installed.packages()) install.packages("rdrop2")
 library(rdrop2)
+if (!"tidyverse" %in% installed.packages()) install.packages("tidyverse")
 library(tidyverse)
-
 
 
 # Get jpn native clean

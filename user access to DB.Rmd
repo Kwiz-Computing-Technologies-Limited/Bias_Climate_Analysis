@@ -18,8 +18,8 @@ table_rows = function(table){
   
   if(!(table %in% other_tables)){
     query = paste("SELECT COUNT(*) AS rows, MIN(year) AS earliest_record FROM", table)
-    query_output = dbGetQuery(aws_con, query)
-    data.frame(table = table, rows = query_output$rows, earliest_record = query_output$earliest_record)
+    query_output = dbSendQuery(aws_con, query)
+    fetch(query_output) |> dplyr::mutate(table = table)
   }
 }
 
@@ -32,6 +32,6 @@ for (table in tables) {
 # View tables
 h = Reduce(dplyr::full_join, table_list) |> dplyr::arrange(table)
 h |> dplyr::arrange(rows) -> h
-h
 tables = h$table
+h |> View()
 ```

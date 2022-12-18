@@ -1,4 +1,10 @@
+if(!("DBI" %in% installed.packages())){
+  install.packages("DBI")
+}
 library(DBI)
+if(!("RPostgreSQL" %in% installed.packages())){
+  install.packages("RPostgreSQL")
+}
 library(RPostgreSQL)
 
 AWS_POSTGRES_DRV = Sys.getenv("AWS_POSTGRES_DRV")

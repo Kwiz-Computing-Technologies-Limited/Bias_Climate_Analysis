@@ -1,3 +1,6 @@
+if(!("googledrive" %in% installed.packages())){
+  install.packages("googledrive")
+}
 library(googledrive)
 
 # Authenticate google
