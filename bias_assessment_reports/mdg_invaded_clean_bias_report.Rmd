@@ -103,7 +103,7 @@ Table 2: Slope estimates of the number of species identified by taxonomic group
 library(broom)
 library(purrr)
 
-taxonomic_coverage_slope =split.data.frame(assessSpeciesNumber, assessSpeciesNumber$Taxonomic_Group)  |>
+taxonomic_coverage_slope = split.data.frame(assessSpeciesNumber, assessSpeciesNumber$Taxonomic_Group)  |>
   purrr::map(~lm(val ~ 1 + Period, data = .x))|>
   purrr::map_df(tidy) |>
   dplyr::filter(term == 'Period') |>
