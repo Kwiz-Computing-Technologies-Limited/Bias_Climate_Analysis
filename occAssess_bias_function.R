@@ -37,7 +37,18 @@ Bias_assessment_function = function(db_table, con = aws_con, periods_length = 10
   x = dbGetQuery(aws_con, paste("SELECT COUNT(*) FROM", db_table))$count
   
   if(((x/1000000) - floor(x/1000000)) == 0){
-    paste("data upload for", db_table, "is Incomplete. Complete upload and retry")
+    paste("data upload for", db_table, "is Incomplete. Completing upload before retrying")
+    
+    directory_files2 = list.files("~/Desktop/Documents/GitHub/bias assessment/")
+    for (i in 1:length(directory_files2)) {
+      if(grepl(directory_files2[i], db_table)) {
+        path = paste0("~/Desktop/Documents/GitHub/bias assessment/", directory_files2[i],
+                      "/", db_table, ".R")
+      }
+    }
+    
+    source(path)
+    paste("data upload for", db_table, "is now complete") |> print()
   }
   
   # get habitat
@@ -251,7 +262,7 @@ Bias_assessment_function = function(db_table, con = aws_con, periods_length = 10
       # get spatial bias
       gc()
       
-      options(timeout = getOption("timeout")^5)
+      options(timeout = getOption("timeout")^10)
       paste("Fetching 'bio' data") |> print()
       env_data = geodata::worldclim_country(country = country, res = 2.5, var = "bio",
                                             path = paste0("~/Desktop/Documents/GitHub/bias assessment/", 
