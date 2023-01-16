@@ -76,7 +76,7 @@ Bias_assessment_function = function(db_table,
   #}
   
   # download occurrence files
-  source(here("template.R"))
+  source(here("occurrence_download_template.R"))
   value = get_data(dataset = occ_data[occ_data$dataset == db_table, ]$dataset,
            drop_url = occ_data[occ_data$dataset == db_table, ]$drop_url) 
   
