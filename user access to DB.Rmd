@@ -26,6 +26,7 @@ table_rows = function(table){
 # check tables
 table_list = list()
 for (table in tables) {
+  paste("Counting rows in", table) |> print()
   table_list[[table]] = table_rows(table = table)
 }
 
