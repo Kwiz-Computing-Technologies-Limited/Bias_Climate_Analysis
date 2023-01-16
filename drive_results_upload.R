@@ -8,13 +8,21 @@ drive_auth(email = "biasoutputfiles@gmail.com")
 
 # file list to upload
 directory_files = list.files("~/Desktop/Documents/GitHub/bias assessment/13.  bias assessment results")
-directory_files2 = directory_files[grepl(".RDS", directory_files)]
+directory_files2 = directory_files[!grepl(".Rmd", directory_files)]
+directory_files2 = directory_files2[!grepl(".txt", directory_files2)]
 
 # Already uploaded files
 uploaded = drive_ls()$name
 
-for (i in 1:length(directory_files2)) {
-  if(!(directory_files2[i] %in% uploaded)){
-    drive_upload("~/Desktop/Documents/GitHub/bias assessment/13.  bias assessment results/", paste0(directory_files2[i]))
+directory_files3 = directory_files2[!(directory_files2 %in% uploaded)]
+# directory_files3 = directory_files3[!grepl("periods_output", directory_files3)]
+
+if(length(directory_files3) != 0) {
+  for (i in 1:length(directory_files3)) {
+    if(!(directory_files3[i] %in% uploaded)){
+      paste("uploading", directory_files3[i]) |>
+        print()
+      drive_upload(directory_files3[i])
+    }
   }
 }

@@ -51,18 +51,21 @@ for (n in N) {
     if(((x/1000000) - floor(x/1000000)) == 0) {
       
       paste("reading", 1000000, "rows from", x) |> print()
-      start = Sys.time()
+      start_download = Sys.time()
       
       value = read.csv(file = drop_url, header = F,
                        colClasses = c("NULL", "character","NULL", "NULL", "NULL", "NULL", 
                                       "numeric", "numeric", "NULL", "NULL", "numeric", "NULL",
                                       "numeric", "numeric", "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", "NULL"), 
                        nrows = 1000000, skip = x)
+      finished_download = Sys.time()
+      paste("completed in", (finished_download - start_download), "at", finished_download) |> print()
+      
       if(!is_empty(value)) {
         rownames(value) = NULL
         
         source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
-        
+        start_upload = Sys.time()
         db_columns = dbGetQuery(conn=aws_con, statement = "SELECT column_name 
                         FROM information_schema.columns WHERE table_name = 'jpn_native_clean' 
                         ORDER BY ordinal_position")
@@ -76,8 +79,8 @@ for (n in N) {
       } else {
         paste("row", n, "not found") |> print() 
       }
-      finished = Sys.time()
-      paste("completed in", (finished - start), "at", finished) |> print()
+      finished_upload = Sys.time()
+      paste("completed in", (finished_upload - start_upload), "at", finished_upload) |> print()
     } else {
       paste("Upload is up-to-data") |> print()
       break

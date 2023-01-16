@@ -15,7 +15,6 @@ library(tidyverse)
 
 # Get gbr native filtered
 
-
 drop_url = "https://www.dropbox.com/sh/g7hbgbfyzocizmx/AAD3li8wLWSHBH9Vv7mYcO2ba/GBR/GBR-native-filtered.csv?dl=1"
 country = "gbr"
 habitat = "native-filtered"
