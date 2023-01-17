@@ -153,7 +153,7 @@ Bias_assessment_function = function(db_table,
   #}
   
   # merge occurrence and name backbone datasets
-    dat = value |> dplyr::left_join(aaa[!is.na(aaa$family), ], by = "species")
+    dat = value |> dplyr::left_join(aaa[!is.na(aaa$family), ], by = "species") |> data.frame()
   
     
     ## with family as taxonomic group
@@ -163,7 +163,7 @@ Bias_assessment_function = function(db_table,
     
     # source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
     paste("Fetching number of records in each year for", db_table, "...") |> print()
-    nRec <- assessRecordNumber(dat = dat,
+    nRec <- assessRecordNumber(dat = dat[!is.na(dat$family), ],
                                
                                # dat = dbGetQuery(aws_con, paste('SELECT * FROM', db_table, 'LEFT JOIN', paste0(db_table, '_backbone_family'), 'USING (species) WHERE "family" IS NOT NULL')),
                                periods = periods,
@@ -190,7 +190,7 @@ Bias_assessment_function = function(db_table,
       
       # source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
       paste("Fetching number of records in each year for", db_table, "...") |> print()
-      nRec2 <- assessRecordNumber(dat = dat,
+      nRec2 <- assessRecordNumber(dat = dat[!is.na(dat$species), ],
                                  
                                  # dat = dbGetQuery(aws_con, paste('SELECT * FROM', db_table, 'LEFT JOIN', paste0(db_table, '_backbone_family'), 'USING (species) WHERE "family" IS NOT NULL')),
                                  periods = periods,
@@ -217,7 +217,7 @@ Bias_assessment_function = function(db_table,
     
     # source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
     paste("Fetch number of records complete! Fetching number of species in each year from", db_table, "...") |> print()
-    nSpec <- assessSpeciesNumber(dat = dat,
+    nSpec <- assessSpeciesNumber(dat = dat[!is.na(dat$family), ],
                                  
                                  # dat = dbGetQuery(aws_con, paste('SELECT * FROM', db_table, 'LEFT JOIN', paste0(db_table, '_backbone_family'), 'USING (species) WHERE "family" IS NOT NULL')),
                                  periods = periods,
@@ -242,7 +242,7 @@ Bias_assessment_function = function(db_table,
       
       # source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
       paste("Fetch number of records complete! Fetching number of species in each year from", db_table, "...") |> print()
-      nSpec2 <- assessSpeciesNumber(dat = dat,
+      nSpec2 <- assessSpeciesNumber(dat = dat[!is.na(dat$species), ],
                                    
                                    # dat = dbGetQuery(aws_con, paste('SELECT * FROM', db_table, 'LEFT JOIN', paste0(db_table, '_backbone_family'), 'USING (species) WHERE "family" IS NOT NULL')),
                                    periods = periods,
@@ -270,7 +270,7 @@ Bias_assessment_function = function(db_table,
     paste("Fetch number of species complete! Fetching rarity index from", db_table, "...") |> print()
     
     source("~/Desktop/Documents/GitHub/bias assessment/assessRarityBias_modified.R")
-    taxBias <- assessRarityBias_modified(dat = dat,
+    taxBias <- assessRarityBias_modified(dat = dat[!is.na(dat$family), ],
                                          
                                          # dat = dbGetQuery(aws_con, paste('SELECT * FROM', db_table, 'LEFT JOIN', paste0(db_table, '_backbone_family'), 'USING (species) WHERE "family" IS NOT NULL')),
                                          periods = periods,
@@ -298,7 +298,7 @@ Bias_assessment_function = function(db_table,
       paste("Fetch number of species complete! Fetching rarity index from", db_table, "...") |> print()
       
       source("~/Desktop/Documents/GitHub/bias assessment/assessRarityBias_modified.R")
-      taxBias2 <- assessRarityBias_modified(dat = dat,
+      taxBias2 <- assessRarityBias_modified(dat = dat[!is.na(dat$species), ],
                                            
                                            # dat = dbGetQuery(aws_con, paste('SELECT * FROM', db_table, 'LEFT JOIN', paste0(db_table, '_backbone_family'), 'USING (species) WHERE "family" IS NOT NULL')),
                                            periods = periods,
@@ -332,7 +332,7 @@ Bias_assessment_function = function(db_table,
     options(timeout = getOption("timeout")^5)
     # source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
     paste("Fetch environment mask complete! Fetching spatial bias from", db_table, "...") |> print()
-    spatBias <- assessSpatialBias(dat = dat,
+    spatBias <- assessSpatialBias(dat = dat[!is.na(dat$family), ],
                                   
                                   # dat = dbGetQuery(aws_con, paste('SELECT * FROM', db_table, 'LEFT JOIN', paste0(db_table, '_backbone_family'), 'USING (species) WHERE "family" IS NOT NULL')),
                                   species = "species",
@@ -375,7 +375,7 @@ Bias_assessment_function = function(db_table,
       options(timeout = getOption("timeout")^5)
       # source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
       paste("Fetch environment mask complete! Fetching spatial bias from", db_table, "...") |> print()
-      spatBias2 <- assessSpatialBias(dat = dat,
+      spatBias2 <- assessSpatialBias(dat = dat[!is.na(dat$species), ],
                                     
                                     # dat = dbGetQuery(aws_con, paste('SELECT * FROM', db_table, 'LEFT JOIN', paste0(db_table, '_backbone_family'), 'USING (species) WHERE "family" IS NOT NULL')),
                                     species = "species",
@@ -412,7 +412,7 @@ Bias_assessment_function = function(db_table,
     
     # source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
     paste("Fetch spatial bias complete! mapping species occurrence from", db_table, "...") |> print()
-    maps <- assessSpatialCov(dat = dat,
+    maps <- assessSpatialCov(dat = dat[!is.na(dat$family), ],
                              
                              # dat = dbGetQuery(aws_con, paste('SELECT * FROM', db_table, 'LEFT JOIN', paste0(db_table, '_backbone_family'), 'USING (species) WHERE "family" IS NOT NULL')),
                              periods = periods,
@@ -444,7 +444,7 @@ Bias_assessment_function = function(db_table,
       
       # source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
       paste("Fetch spatial bias complete! mapping species occurrence from", db_table, "...") |> print()
-      maps <- assessSpatialCov(dat = dat,
+      maps <- assessSpatialCov(dat = dat[!is.na(dat$species), ],
                                
                                # dat = dbGetQuery(aws_con, paste('SELECT * FROM', db_table, 'LEFT JOIN', paste0(db_table, '_backbone_family'), 'USING (species) WHERE "family" IS NOT NULL')),
                                periods = periods,
@@ -508,7 +508,7 @@ Bias_assessment_function = function(db_table,
       paste("Fetch environmental data complete! Fetching environment bias from", db_table, "...") |> print()
       
       # source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
-      envBias <- assessEnvBias(dat = dat,
+      envBias <- assessEnvBias(dat = dat[!is.na(dat$family), ],
                                
                                # dat = dbGetQuery(aws_con, paste('SELECT * FROM', db_table, 'LEFT JOIN', paste0(db_table, '_backbone_family'), 'USING (species) WHERE family IS NOT NULL AND year IS NOT NULL')),
                                species = "species",
@@ -556,7 +556,7 @@ Bias_assessment_function = function(db_table,
         paste("Fetch environmental data complete! Fetching environment bias from", db_table, "...") |> print()
         
         # source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
-        envBias <- assessEnvBias(dat = dat,
+        envBias <- assessEnvBias(dat = dat[!is.na(dat$species), ],
                                  
                                  # dat = dbGetQuery(aws_con, paste('SELECT * FROM', db_table, 'LEFT JOIN', paste0(db_table, '_backbone_family'), 'USING (species) WHERE family IS NOT NULL AND year IS NOT NULL')),
                                  species = "species",
