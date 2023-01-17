@@ -3,8 +3,8 @@
 source(here("occAssess_bias_function.R"))
 
 # urls to be downloaded from Dropbox
-occ_data = tibble(dataset = c("aus_glonaf_invaded_clean",
-                              "aus_randal_invaded_clean", 
+occ_data = tibble(dataset = c("aus_randal_invaded_clean", 
+                              "aus_glonaf_invaded_clean",
                               "gbr_invaded_clean",
                               "irl_Invaded_clean", 
                               "jpn_invaded_clean", 
