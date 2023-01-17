@@ -131,7 +131,7 @@ Bias_assessment_function = function(db_table,
     #                   na.omit()),
     #                function(x) name_backbone(name = x, kingdom = "plants"), simplify = TRUE) |> bind_rows() 
     
-    family = sapply((value3$species |> unique() |> na.omit()), 
+    family = sapply((value$species |> unique() |> na.omit()), 
                     function(x) name_backbone(name = x, kingdom = "plants"), 
                     simplify = FALSE) |> bind_rows()
       
@@ -542,9 +542,11 @@ Bias_assessment_function = function(db_table,
         env_data = geodata::worldclim_country(country = country, res = 2.5, var = "bio",
                                               path = here(substr(db_table, 1, 3))) |> raster::stack()
         # select the climate variables of interest
+        paste("Selecting 8 'bio' variables") |> print()
         env_data2 = env_data[[c(1, 4, 10, 11, 12, 15, 16, 17)]]
         
         # source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
+        paste("extracting 'bio' data at occurrence coordinates") |> print()
         env_data3 = terra::extract(env_data2, dat[, c("decimalLongitude", "decimalLatitude")]
                                    # dbGetQuery(aws_con, paste('SELECT "decimalLongitude", "decimalLatitude" FROM (SELECT * FROM', db_table, 
                                    #                                      'LEFT JOIN', paste0(db_table, '_backbone_family'), 'USING (species) WHERE 
