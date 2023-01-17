@@ -34,24 +34,16 @@ get_data = function(dataset, drop_url) {
   
   paste("fetching", dataset, "occurrences") |> print()
   if(dataset %in% set_a) {
-    value = read.csv(file = drop_url, header = T,
-                     colClasses = c("NULL", "character","NULL", "NULL", "NULL", "NULL", 
-                                    "numeric", "numeric", "NULL", "NULL", "numeric", "NULL",
-                                    "numeric", "numeric", "NULL", "NULL", "NULL", "NULL", "NULL", "NULL"),
-                     nrows = 5) 
+    value = read.csv(file = drop_url, header = T) 
   } else {
     tryCatch({
-      value = read.csv(file = drop_url, header = T,
-                       colClasses = c("NULL", "NULL", "NULL", "character","NULL", "NULL", "NULL", "NULL", 
-                                      "numeric", "numeric", "NULL", "NULL", "numeric", "NULL",
-                                      "numeric", "numeric", "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", "NULL"),
-                       nrows = 5)
+      value = read.csv(file = drop_url)
     })
   }
   
   value = value[complete.cases(value$species), ] 
-  paste("Fetch complete! Saving", dataset, "occurrences to file") |> print()
-  readr::write_csv(x = value, file = here("occurrence_files", paste0(dataset, ".csv")))
+  # paste("Fetch complete! Saving", dataset, "occurrences to file") |> print()
+  # readr::write_csv(x = value, file = here("occurrence_files", paste0(dataset, ".csv")))
   return(value)
 }
 
