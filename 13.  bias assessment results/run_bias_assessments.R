@@ -1,6 +1,6 @@
 
 # source bias function
-source(here("occAssess_bias_function.R"))
+source("~/Desktop/Documents/GitHub/bias assessment/occAssess_bias_function.R")
 
 # urls to be downloaded from Dropbox
 occ_data = tibble(dataset = c("aus_randal_invaded_clean", 
@@ -30,7 +30,7 @@ occ_data = tibble(dataset = c("aus_randal_invaded_clean",
 
 
 # generate bias output files
-tables = occ_data$dataset
+tables = occ_data$dataset[2]
 for (db_table in tables) {
   Bias_assessment_function(db_table = db_table, 
                            periods_length = 10)
