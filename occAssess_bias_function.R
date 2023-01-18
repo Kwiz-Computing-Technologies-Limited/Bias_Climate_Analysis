@@ -76,7 +76,7 @@ Bias_assessment_function = function(db_table,
   #}
   
   # create folder for the location's fetched environment files
-  dir.create(here("db_table"))
+  dir.create(here(substr(db_table, 1, 3)))
   
   # download occurrence files
   source(here("occurrence_download_template.R"))
