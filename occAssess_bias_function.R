@@ -75,6 +75,9 @@ Bias_assessment_function = function(db_table,
   #  paste("data upload for", db_table, "is now complete") |> print()
   #}
   
+  # create folder for the location's fetched environment files
+  dir.create(here(substr(db_table, 1, 3)))
+  
   # download occurrence files
   source(here("occurrence_download_template.R"))
   value = get_data(dataset = occ_data[occ_data$dataset == db_table, ]$dataset,
