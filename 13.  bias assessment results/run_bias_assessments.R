@@ -1,6 +1,6 @@
 
 # source bias function
-source("~/Desktop/Documents/GitHub/bias assessment/occAssess_bias_function.R")
+source("occAssess_bias_function.R")
 
 # urls to be downloaded from Dropbox
 occ_data = tibble(dataset = c("aus_glonaf_invaded_clean",
