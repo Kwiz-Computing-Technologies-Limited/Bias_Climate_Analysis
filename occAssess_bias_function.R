@@ -87,7 +87,7 @@ Bias_assessment_function = function(db_table,
   if(grepl("mdg", db_table)){
     country = "Madagascar"
   } else if(grepl("usa", db_table)) {
-    country = "USA"
+    country = "US"
   } else if(grepl("gbr", db_table)){
     country = "United Kingdom"
   } else if(grepl("irl", db_table)){
@@ -488,7 +488,7 @@ Bias_assessment_function = function(db_table,
   
     
     ## with family as taxonomic group
-  if(!(country %in% c("New Zealand", "Japan", "USA"))){
+  if(!(country %in% c("New Zealand"))){
     if(!(paste0(db_table, "_periods_length_", periods_length, "_assessEnvBias_output.csv") %in% list.files(here("13.  bias assessment results", db_table)))){
       paste("Fetch mapping species complete! Fetching environmental data for", substr(db_table, 1, 3), "...") |> print()
       # get spatial bias
@@ -535,7 +535,7 @@ Bias_assessment_function = function(db_table,
   }
     
     ## with species as taxonomic group
-    if(!(country %in% c("New Zealand", "Japan", "USA"))){
+    if(!(country %in% c("New Zealand"))){
       if(!(paste0(db_table, "_periods_length_", periods_length, "_by_species_assessEnvBias_output.csv") %in% list.files(here("13.  bias assessment results", db_table)))){
         paste("Fetch mapping species complete! Fetching environmental data for", substr(db_table, 1, 3), "...") |> print()
         # get spatial bias
