@@ -12,7 +12,7 @@ occ_data = tibble(dataset = c("aus_glonaf_invaded_clean",
                               "usa_invaded_clean",
                               "zaf_invaded_clean"), 
                   
-                  drop_url = c("https://www.dropbox.com/sh/g7hbgbfyzocizmx/AAAB4mDO8o1lZyW20EVBaUGEa/AUS-Glonaf/AUS-Glonaf-invaded-clean-v1.csv?dl=1",
+                  drop_url = c("https://www.dropbox.com/s/rg1h1wm1ctje9dh/AUS-Glonaf-invaded-clean-v1.csv?dl=1",
                                "https://www.dropbox.com/s/rbyvnu3wap6wyh7/GBR-invaded-clean-v1.csv?dl=1",
                                "https://www.dropbox.com/s/6093mg9vl4ibhrj/IRL-NIR-invaded-clean.csv?dl=1",
                                "https://www.dropbox.com/s/c6y84zikkrvtqjs/JPN-invaded-clean.csv?dl=1",
@@ -24,7 +24,7 @@ occ_data = tibble(dataset = c("aus_glonaf_invaded_clean",
 
 
 # generate bias output files
-tables = occ_data$dataset[2]
+tables = occ_data$dataset
 for (db_table in tables) {
   Bias_assessment_function(db_table = db_table, 
                            periods_length = 10)
