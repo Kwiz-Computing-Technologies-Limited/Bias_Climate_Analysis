@@ -160,7 +160,7 @@ Bias_assessment_function = function(db_table,
   
     
     ## with family as taxonomic group
-  if(!(paste(db_table, "periods_length", periods_length, "assessRecordNumber_output.csv", sep = "_") %in% directory_files)){
+  if(!(paste(db_table, "periods_length", periods_length, "assessRecordNumber_output.csv", sep = "_") %in% list.files(here("13.  bias assessment results", db_table)))){
     # get number of records in each year.
     options(timeout = getOption("timeout")^5)
     
@@ -187,7 +187,7 @@ Bias_assessment_function = function(db_table,
 
     
     ## With species as taxonomic group
-    if(!(paste(db_table, "periods_length", periods_length, "by_species_assessRecordNumber_output.csv", sep = "_") %in% directory_files)){
+    if(!(paste(db_table, "periods_length", periods_length, "by_species_assessRecordNumber_output.csv", sep = "_") %in% list.files(here("13.  bias assessment results", db_table)))){
       # get number of records in each year.
       options(timeout = getOption("timeout")^5)
       
@@ -214,7 +214,7 @@ Bias_assessment_function = function(db_table,
   
   
     ## with family as taxonomic group
-  if(!(paste(db_table, "periods_length", periods_length, "assessSpeciesNumber_output.csv", sep = "_") %in% directory_files)){
+  if(!(paste(db_table, "periods_length", periods_length, "assessSpeciesNumber_output.csv", sep = "_") %in% list.files(here("13.  bias assessment results", db_table)))){
     # get number of species recorded in each year
     options(timeout = getOption("timeout")^5)
     
@@ -239,7 +239,7 @@ Bias_assessment_function = function(db_table,
   }
     
     ## with species as taxonomic group
-    if(!(paste(db_table, "periods_length", periods_length, "by_species_assessSpeciesNumber_output.csv", sep = "_") %in% directory_files)){
+    if(!(paste(db_table, "periods_length", periods_length, "by_species_assessSpeciesNumber_output.csv", sep = "_") %in% list.files(here("13.  bias assessment results", db_table)))){
       # get number of species recorded in each year
       options(timeout = getOption("timeout")^5)
       
@@ -265,7 +265,7 @@ Bias_assessment_function = function(db_table,
   
     
     ## with family as taxonomic group
-  if(!(paste(db_table, "periods_length", periods_length, "assessRarityBias_output.csv", sep = "_") %in% directory_files)){
+  if(!(paste(db_table, "periods_length", periods_length, "assessRarityBias_output.csv", sep = "_") %in% list.files(here("13.  bias assessment results", db_table)))){
     # get rarity
     options(timeout = getOption("timeout")^5)
     
@@ -293,7 +293,7 @@ Bias_assessment_function = function(db_table,
   }
     
     ## with species as taxonomic group
-    if(!(paste(db_table, "periods_length", periods_length, "by_species_assessRarityBias_output.csv", sep = "_") %in% directory_files)){
+    if(!(paste(db_table, "periods_length", periods_length, "by_species_assessRarityBias_output.csv", sep = "_") %in% list.files(here("13.  bias assessment results", db_table)))){
       # get rarity
       options(timeout = getOption("timeout")^5)
       
@@ -322,7 +322,7 @@ Bias_assessment_function = function(db_table,
   
   
     ## with family as taxonomic group
-  if(!(paste0(db_table, "_periods_length_", periods_length, "_assessSpatialBias_output.csv") %in% directory_files)){
+  if(!(paste0(db_table, "_periods_length_", periods_length, "_assessSpatialBias_output.csv") %in% list.files(here("13.  bias assessment results", db_table)))){
     # get spatial bias
     gc()
     options(timeout = getOption("timeout")^5)
@@ -365,7 +365,7 @@ Bias_assessment_function = function(db_table,
   }
     
     ## with species as the taxonomic group
-    if(!(paste0(db_table, "_periods_length_", periods_length, "_by_species__assessSpatialBias_output.csv") %in% directory_files)){
+    if(!(paste0(db_table, "_periods_length_", periods_length, "_by_species__assessSpatialBias_output.csv") %in% list.files(here("13.  bias assessment results", db_table)))){
       # get spatial bias
       gc()
       options(timeout = getOption("timeout")^5)
@@ -473,7 +473,7 @@ Bias_assessment_function = function(db_table,
     }
   
     
-  if(!(paste(db_table, "periods_length", periods_length, "periods_output.csv", sep = "_") %in% directory_files)){
+  if(!(paste(db_table, "periods_length", periods_length, "periods_output.csv", sep = "_") %in% list.files(here("13.  bias assessment results", db_table)))){
     periods[[length(periods)]] = c(periods[[length(periods)]], rep(NA, (10 - length(periods[[length(periods)]]))))
     periods = periods |> bind_cols()
     names(periods) = 1:ncol(periods)
@@ -489,7 +489,7 @@ Bias_assessment_function = function(db_table,
     
     ## with family as taxonomic group
   if(!(country %in% c("New Zealand", "Japan", "USA"))){
-    if(!(paste0(db_table, "_periods_length_", periods_length, "_assessEnvBias_output.csv") %in% directory_files)){
+    if(!(paste0(db_table, "_periods_length_", periods_length, "_assessEnvBias_output.csv") %in% list.files(here("13.  bias assessment results", db_table)))){
       paste("Fetch mapping species complete! Fetching environmental data for", substr(db_table, 1, 3), "...") |> print()
       # get spatial bias
       gc()
@@ -502,7 +502,8 @@ Bias_assessment_function = function(db_table,
       env_data2 = env_data[[c(1, 4, 10, 11, 12, 15, 16, 17)]]
       
       # source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
-      env_data3 = terra::extract(env_data2, dat[, c("decimalLongitude", "decimalLatitude")]
+      dat2 = dat[!is.na(dat$family), ]
+      env_data3 = terra::extract(env_data2, dat2[, c("decimalLongitude", "decimalLatitude")]
                                  # dbGetQuery(aws_con, paste('SELECT "decimalLongitude", "decimalLatitude" FROM (SELECT * FROM', db_table, 
                                  #                                      'LEFT JOIN', paste0(db_table, '_backbone_family'), 'USING (species) WHERE 
                                  #                                    "family" IS NOT NULL AND year IS NOT NULL) n1'))
@@ -511,7 +512,7 @@ Bias_assessment_function = function(db_table,
       paste("Fetch environmental data complete! Fetching environment bias from", db_table, "...") |> print()
       
       # source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
-      envBias <- assessEnvBias(dat = dat[!is.na(dat$family), ],
+      envBias <- assessEnvBias(dat = dat2,
                                
                                # dat = dbGetQuery(aws_con, paste('SELECT * FROM', db_table, 'LEFT JOIN', paste0(db_table, '_backbone_family'), 'USING (species) WHERE family IS NOT NULL AND year IS NOT NULL')),
                                species = "species",
@@ -521,8 +522,8 @@ Bias_assessment_function = function(db_table,
                                spatialUncertainty = "coordinateUncertaintyInMeters",
                                identifier = "family",
                                periods = periods,
-                               envDat = env_data2,
-                               backgroundEnvDat = raster::sampleRandom(env_data3, size = 100000, xy = F))
+                               envDat = (env_data3 |> as.data.frame()),
+                               backgroundEnvDat = raster::sampleRandom(env_data2, size = 100000, xy = F))
       
       env_bias_data = envBias$data |>
         dplyr::select(Period, identifier, `scores.PC1`, `scores.PC2`, xVar, yVar)
@@ -535,7 +536,7 @@ Bias_assessment_function = function(db_table,
     
     ## with species as taxonomic group
     if(!(country %in% c("New Zealand", "Japan", "USA"))){
-      if(!(paste0(db_table, "_periods_length_", periods_length, "_by_species_assessEnvBias_output.csv") %in% directory_files)){
+      if(!(paste0(db_table, "_periods_length_", periods_length, "_by_species_assessEnvBias_output.csv") %in% list.files(here("13.  bias assessment results", db_table)))){
         paste("Fetch mapping species complete! Fetching environmental data for", substr(db_table, 1, 3), "...") |> print()
         # get spatial bias
         gc()
@@ -550,7 +551,8 @@ Bias_assessment_function = function(db_table,
         
         # source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
         paste("extracting 'bio' data at occurrence coordinates") |> print()
-        env_data3 = terra::extract(env_data2, dat[, c("decimalLongitude", "decimalLatitude")]
+        dat2 = dat[!is.na(dat$species), ]
+        env_data3 = terra::extract(env_data2, dat2[, c("decimalLongitude", "decimalLatitude")]
                                    # dbGetQuery(aws_con, paste('SELECT "decimalLongitude", "decimalLatitude" FROM (SELECT * FROM', db_table, 
                                    #                                      'LEFT JOIN', paste0(db_table, '_backbone_family'), 'USING (species) WHERE 
                                    #                                    "family" IS NOT NULL AND year IS NOT NULL) n1'))
@@ -559,7 +561,7 @@ Bias_assessment_function = function(db_table,
         paste("Fetch environmental data complete! Fetching environment bias from", db_table, "...") |> print()
         
         # source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
-        envBias <- assessEnvBias(dat = dat[!is.na(dat$species), ],
+        envBias <- assessEnvBias(dat = dat2,
                                  
                                  # dat = dbGetQuery(aws_con, paste('SELECT * FROM', db_table, 'LEFT JOIN', paste0(db_table, '_backbone_family'), 'USING (species) WHERE family IS NOT NULL AND year IS NOT NULL')),
                                  species = "species",
@@ -569,8 +571,8 @@ Bias_assessment_function = function(db_table,
                                  spatialUncertainty = "coordinateUncertaintyInMeters",
                                  identifier = "species",
                                  periods = periods,
-                                 envDat = env_data2,
-                                 backgroundEnvDat = raster::sampleRandom(env_data3, size = 100000, xy = F))
+                                 envDat = (env_data3 |> as.data.frame()),
+                                 backgroundEnvDat = raster::sampleRandom(env_data2, size = 100000, xy = F))
         
         env_bias_data = envBias$data |>
           dplyr::select(Period, identifier, `scores.PC1`, `scores.PC2`, xVar, yVar)
