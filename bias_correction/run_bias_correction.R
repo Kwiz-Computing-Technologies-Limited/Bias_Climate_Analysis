@@ -23,7 +23,9 @@ occ_data = tibble(dataset = c("aus_glonaf_invaded_clean",
 tables = occ_data$dataset
 
 source(here("bias_correction", "spatial_bias_correction_function.R"))
+
+min_distances_km = c(0.01, 1, 5, 10, 20)
 for (db_table in tables) {
   bias_correction(db_table = db_table, 
-                           periods_length = 10)
+                           min_distance = min_distances_km)
 }
