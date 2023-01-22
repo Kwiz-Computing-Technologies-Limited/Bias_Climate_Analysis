@@ -149,8 +149,6 @@ Bias_assessment_function = function(db_table,
     paste("saving species name backbone for", db_table) |> print()
     readr::write_csv(x = aaa, file = here("13.  bias assessment results", db_table, paste0(db_table, "_backbone_family.csv")))
     
-    # remove used R objects from environment
-    rm(family, aaa)
     
     # source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
     # dbWriteTable(aws_con, paste0(db_table, "_backbone_family"), aaa)
@@ -161,6 +159,8 @@ Bias_assessment_function = function(db_table,
   # merge occurrence and name backbone datasets
     dat = value |> dplyr::left_join(aaa[!is.na(aaa$family), ], by = "species") |> data.frame()
   
+    # remove used R objects from environment
+    rm(family, aaa)
     
     ## with family as taxonomic group
   if(!(paste(db_table, "periods_length", periods_length, "assessRecordNumber_output.csv", sep = "_") %in% list.files(here("13.  bias assessment results", db_table)))){
