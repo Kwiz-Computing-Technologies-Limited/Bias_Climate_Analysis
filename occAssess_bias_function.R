@@ -149,6 +149,9 @@ Bias_assessment_function = function(db_table,
     paste("saving species name backbone for", db_table) |> print()
     readr::write_csv(x = aaa, file = here("13.  bias assessment results", db_table, paste0(db_table, "_backbone_family.csv")))
     
+    # remove used R objects from environment
+    rm(family, aaa)
+    
     # source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
     # dbWriteTable(aws_con, paste0(db_table, "_backbone_family"), aaa)
     # dbSendQuery(aws_con, paste('ALTER TABLE', paste0(db_table, "_backbone_family"), 'DROP COLUMN "row.names"'))
@@ -183,6 +186,9 @@ Bias_assessment_function = function(db_table,
                                             paste(db_table, "periods_length", periods_length, 
                                                   "assessRecordNumber_output.csv", sep = "_")))
     # source("~/Desktop/Documents/GitHub/bias assessment/killing_DB_connections.R")
+    
+    # remove used R objects from environment
+    rm(nRec)
   }
 
     
@@ -210,6 +216,9 @@ Bias_assessment_function = function(db_table,
                                               paste(db_table, "periods_length", periods_length, 
                                                     "by_species_assessRecordNumber_output.csv", sep = "_")))
       # source("~/Desktop/Documents/GitHub/bias assessment/killing_DB_connections.R")
+      
+      # remove used R objects from environment
+      rm(nRec2)
     }
   
   
@@ -236,6 +245,9 @@ Bias_assessment_function = function(db_table,
                                              paste(db_table, "periods_length", periods_length,
                                                    "assessSpeciesNumber_output.csv", sep = "_")))
     # source("~/Desktop/Documents/GitHub/bias assessment/killing_DB_connections.R")
+    
+    # remove used R objects from environment
+    rm(nSpec)
   }
     
     ## with species as taxonomic group
@@ -261,6 +273,9 @@ Bias_assessment_function = function(db_table,
                                                paste(db_table, "periods_length", periods_length,
                                                      "by_species_assessSpeciesNumber_output.csv", sep = "_")))
       # source("~/Desktop/Documents/GitHub/bias assessment/killing_DB_connections.R")
+      
+      # remove used R objects from environment
+      rm(nSpec2)
     }
   
     
@@ -290,6 +305,9 @@ Bias_assessment_function = function(db_table,
                                                paste(db_table, "periods_length", periods_length,
                                                      "assessRarityBias_output.csv", sep = "_")))
     # source("~/Desktop/Documents/GitHub/bias assessment/killing_DB_connections.R")
+    
+    # remove used R objects from environment
+    rm(taxBias)
   }
     
     ## with species as taxonomic group
@@ -318,6 +336,10 @@ Bias_assessment_function = function(db_table,
                                                  paste(db_table, "periods_length", periods_length,
                                                        "by_species_assessRarityBias_output.csv", sep = "_")))
       # source("~/Desktop/Documents/GitHub/bias assessment/killing_DB_connections.R")
+      
+      
+      # remove used R objects from environment
+      rm(taxBias2)
     }
   
   
@@ -362,6 +384,9 @@ Bias_assessment_function = function(db_table,
                                                 paste0(db_table, "_periods_length_", periods_length, 
                                                        "_assessSpatialBias_output.csv")))
     # source("~/Desktop/Documents/GitHub/bias assessment/killing_DB_connections.R")
+    
+    # remove used R objects from environment
+    rm(spatBias, mask, mask2)
   }
     
     ## with species as the taxonomic group
@@ -405,6 +430,10 @@ Bias_assessment_function = function(db_table,
                                                   paste0(db_table, "_periods_length_", periods_length, 
                                                          "_by_species__assessSpatialBias_output.csv")))
       # source("~/Desktop/Documents/GitHub/bias assessment/killing_DB_connections.R")
+      
+      
+      # remove used R objects from environment
+      rm(spatBias2, mask, mask2)
     }
     
     
@@ -438,6 +467,9 @@ Bias_assessment_function = function(db_table,
                  path = here("13.  bias assessment results", db_table, "spatial_cov"))
     
     # source("~/Desktop/Documents/GitHub/bias assessment/killing_DB_connections.R")
+    
+    # remove used R objects from environment
+    rm(maps)
   }
   
   ## with species as the taxonomic group
@@ -470,6 +502,9 @@ Bias_assessment_function = function(db_table,
                    path = here("13.  bias assessment results", db_table, "spatial_cov"))
       
       # source("~/Desktop/Documents/GitHub/bias assessment/killing_DB_connections.R")
+      
+      # remove used R objects from environment
+      rm(maps)
     }
   
     
@@ -531,6 +566,10 @@ Bias_assessment_function = function(db_table,
       readr::write_csv(env_bias_data, file = here("13.  bias assessment results", db_table,
                                                   paste0(db_table, "_periods_length_", periods_length, "_assessEnvBias_output.csv")))
       # source("~/Desktop/Documents/GitHub/bias assessment/killing_DB_connections.R")
+      
+      
+      # remove used R objects from environment
+      rm(env_data, env_data2, env_data3, dat2, envBias, env_bias_data)
     } 
   }
     
@@ -580,6 +619,9 @@ Bias_assessment_function = function(db_table,
         readr::write_csv(env_bias_data, file = here("13.  bias assessment results", db_table,
                                                     paste0(db_table, "_periods_length_", periods_length, "_by_species_assessEnvBias_output.csv")))
         # source("~/Desktop/Documents/GitHub/bias assessment/killing_DB_connections.R")
+        
+        # remove used R objects from environment
+        rm(env_data, env_data2, env_data3, dat2, envBias, env_bias_data)
       } 
     }
   
