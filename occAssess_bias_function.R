@@ -56,7 +56,7 @@ Bias_assessment_function = function(db_table,
   # uploaded = drive_ls()$name
 
   # bias assessment results stored locally
-  directory_files = list.files(here("13.  bias assessment results"))
+  # directory_files = list.files(here("13.  bias assessment results"))
   
   # x = dbGetQuery(aws_con, paste("SELECT COUNT(*) FROM", db_table))$count
   
@@ -121,8 +121,12 @@ Bias_assessment_function = function(db_table,
     periods[[i]] = seq(from = n_periods[i]+1, to = n_periods[i+1], by = 1)
   }
   
+  if(!(here("13.  bias assessment results", db_table) %in% list.files(here("13.  bias assessment results")))){
+    dir.create(here("13.  bias assessment results", db_table))
+  }
+  
   # add backbone record to database if not present
-  # if(!(paste0(db_table, "_backbone_family") %in% list_tables)){
+  if(!(paste0(db_table, "_backbone_family.csv") %in% list.files(here("13.  bias assessment results", db_table)))){
     
     options(timeout = getOption("timeout")^5)
     # get the "name_backbone"/grouping variable ("family") from GBIF
@@ -154,13 +158,16 @@ Bias_assessment_function = function(db_table,
     # dbWriteTable(aws_con, paste0(db_table, "_backbone_family"), aaa)
     # dbSendQuery(aws_con, paste('ALTER TABLE', paste0(db_table, "_backbone_family"), 'DROP COLUMN "row.names"'))
     # source("~/Desktop/Documents/GitHub/bias assessment/killing_DB_connections.R")
-  #}
+    
+    
+  }
   
   # merge occurrence and name backbone datasets
-    dat = value |> dplyr::left_join(aaa[!is.na(aaa$family), ], by = "species") |> data.frame()
+  aaa = readr::read_csv(file = here("13.  bias assessment results", db_table, paste0(db_table, "_backbone_family.csv")))
+  dat = value |> dplyr::left_join(aaa[!is.na(aaa$family), ], by = "species") |> data.frame()
   
-    # remove used R objects from environment
-    rm(family, aaa)
+  # remove used R objects from environment
+  rm(family, aaa)
     
     ## with family as taxonomic group
   if(!(paste(db_table, "periods_length", periods_length, "assessRecordNumber_output.csv", sep = "_") %in% list.files(here("13.  bias assessment results", db_table)))){
@@ -438,7 +445,8 @@ Bias_assessment_function = function(db_table,
     
     
     ## with family as the taxonomic group
-  if(((grepl(pattern = paste(db_table, "periods_length", periods_length, "assessSpatialCov_output", sep = "_"), directory_files) |> sum()) < 1)){
+  dir.create(here("13.  bias assessment results", db_table, "spatial_cov"))  
+  if(((grepl(pattern = paste(db_table, "periods_length", periods_length, "by_family_assessSpatialCov_output", sep = "_"), list.files(here("13.  bias assessment results", db_table, "spatial_cov"))) |> sum()) < 1)){
     # grid and map species occurrence data
     options(timeout = getOption("timeout")^5)
     
@@ -459,7 +467,7 @@ Bias_assessment_function = function(db_table,
                              identifier = "family")
     
     
-    filenames = stringr::str_c(db_table, "_periods_length_", periods_length, "_assessSpatialCov_output_",
+    filenames = stringr::str_c(db_table, "_periods_length_", periods_length, "_by_family_assessSpatialCov_output_",
                                names(maps), ".png")
     
     dir.create(here("13.  bias assessment results", db_table, "spatial_cov"))                           
@@ -473,7 +481,7 @@ Bias_assessment_function = function(db_table,
   }
   
   ## with species as the taxonomic group
-    if(((grepl(pattern = paste(db_table, "periods_length", periods_length, "by_species_assessSpatialCov_output", sep = "_"), directory_files) |> sum()) < 1)){
+    if(((grepl(pattern = paste(db_table, "periods_length", periods_length, "by_species_assessSpatialCov_output", sep = "_"), list.files(here("13.  bias assessment results", db_table, "spatial_cov"))) |> sum()) < 1)){
       # grid and map species occurrence data
       options(timeout = getOption("timeout")^5)
       
@@ -494,7 +502,7 @@ Bias_assessment_function = function(db_table,
                                identifier = "species")
       
       
-      filenames = stringr::str_c(db_table, "_periods_length_", periods_length, "by_species_assessSpatialCov_output_",
+      filenames = stringr::str_c(db_table, "_periods_length_", periods_length, "_by_species_assessSpatialCov_output_",
                                  names(maps), ".png")
       
       dir.create(here("13.  bias assessment results", db_table, "spatial_cov"))                           
@@ -531,9 +539,10 @@ Bias_assessment_function = function(db_table,
       
       options(timeout = getOption("timeout")^10)
       paste("Fetching 'bio' data") |> print()
-      env_data = geodata::worldclim_country(country = country, res = 2.5, var = "bio",
+      env_data = geodata::worldclim_country(country = country, res = 5, var = "bio",
                                             path = here(substr(db_table, 1, 3))) |> raster::stack()
       # select the climate variables of interest
+      paste("Selecting 8 'bio' variables") |> print()
       env_data2 = env_data[[c(1, 4, 10, 11, 12, 15, 16, 17)]]
       
       # source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
@@ -582,7 +591,7 @@ Bias_assessment_function = function(db_table,
         
         options(timeout = getOption("timeout")^10)
         paste("Fetching 'bio' data") |> print()
-        env_data = geodata::worldclim_country(country = country, res = 2.5, var = "bio",
+        env_data = geodata::worldclim_country(country = country, res = 5, var = "bio",
                                               path = here(substr(db_table, 1, 3))) |> raster::stack()
         # select the climate variables of interest
         paste("Selecting 8 'bio' variables") |> print()
@@ -600,28 +609,28 @@ Bias_assessment_function = function(db_table,
         paste("Fetch environmental data complete! Fetching environment bias from", db_table, "...") |> print()
         
         # source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
-        envBias <- assessEnvBias(dat = dat2,
-                                 
-                                 # dat = dbGetQuery(aws_con, paste('SELECT * FROM', db_table, 'LEFT JOIN', paste0(db_table, '_backbone_family'), 'USING (species) WHERE family IS NOT NULL AND year IS NOT NULL')),
-                                 species = "species",
-                                 y = "decimalLatitude",
-                                 x = "decimalLongitude",
-                                 year = "year", 
-                                 spatialUncertainty = "coordinateUncertaintyInMeters",
-                                 identifier = "species",
-                                 periods = periods,
-                                 envDat = (env_data3 |> as.data.frame()),
-                                 backgroundEnvDat = raster::sampleRandom(env_data2, size = 100000, xy = F))
+        # envBias <- assessEnvBias(dat = dat2,
+        #                          
+        #                          # dat = dbGetQuery(aws_con, paste('SELECT * FROM', db_table, 'LEFT JOIN', paste0(db_table, '_backbone_family'), 'USING (species) WHERE family IS NOT NULL AND year IS NOT NULL')),
+        #                          species = "species",
+        #                          y = "decimalLatitude",
+        #                          x = "decimalLongitude",
+        #                          year = "year", 
+        #                          spatialUncertainty = "coordinateUncertaintyInMeters",
+        #                          identifier = "species",
+        #                          periods = periods,
+        #                          envDat = (env_data3 |> as.data.frame()),
+        #                          backgroundEnvDat = raster::sampleRandom(env_data2, size = 100000, xy = F))
         
-        env_bias_data = envBias$data |>
-          dplyr::select(Period, identifier, `scores.PC1`, `scores.PC2`, xVar, yVar)
+        # env_bias_data = envBias$data |>
+        #   dplyr::select(Period, identifier, `scores.PC1`, `scores.PC2`, xVar, yVar)
         
-        readr::write_csv(env_bias_data, file = here("13.  bias assessment results", db_table,
-                                                    paste0(db_table, "_periods_length_", periods_length, "_by_species_assessEnvBias_output.csv")))
+        # readr::write_csv(env_bias_data, file = here("13.  bias assessment results", db_table,
+        #                                             paste0(db_table, "_periods_length_", periods_length, "_by_species_assessEnvBias_output.csv")))
         # source("~/Desktop/Documents/GitHub/bias assessment/killing_DB_connections.R")
         
         # remove used R objects from environment
-        rm(env_data, env_data2, env_data3, dat2, envBias, env_bias_data)
+#  rm(env_data, env_data2, env_data3, dat2, envBias, env_bias_data)
       } 
     }
   

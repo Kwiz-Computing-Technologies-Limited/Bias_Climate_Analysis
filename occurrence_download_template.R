@@ -26,12 +26,18 @@ if(!("name_backbone" %in% list.files(here()))) {
 # function to download the relevant columns from dropbox
 get_data = function(dataset, drop_url) {
   paste("fetching", dataset, "occurrences") |> print()
-  value = readr::read_csv(file = drop_url)
-   
-  value = value[complete.cases(value$species), ] 
-  #paste("Fetch complete! Saving", dataset, "occurrences to file") |> print()
-  #readr::write_csv(x = value, file = here("occurrence_files", paste0(dataset, ".csv")))
-  return(value)
+  
+  # if(!(paste0(dataset, ".csv") %in% list.files(here("occurrence_files")))) {
+    value = readr::read_csv(file = drop_url)
+  #  value = value[complete.cases(value$species), ] 
+  # paste("Fetch complete! Saving", dataset, "occurrences to file") |> print()
+  # readr::write_csv(x = value, file = here("occurrence_files", paste0(dataset, ".csv")))
+  # }
+  
+  # note: only required if we want to save the occurrence data locally (i.e downloading from net)
+  # value = readr::read_csv(file = here("occurrence_files", paste0(dataset, ".csv")))
+  
+    return(value)
 }
 
 
