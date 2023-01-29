@@ -294,7 +294,7 @@ Bias_assessment_function = function(db_table,
     # source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
     paste("Fetch number of species complete! Fetching rarity index from", db_table, "...") |> print()
     
-    source("~/Desktop/Documents/GitHub/bias assessment/assessRarityBias_modified.R")
+    source("assessRarityBias_modified.R")
     taxBias <- assessRarityBias_modified(dat = dat[!is.na(dat$family), ],
                                          
                                          # dat = dbGetQuery(aws_con, paste('SELECT * FROM', db_table, 'LEFT JOIN', paste0(db_table, '_backbone_family'), 'USING (species) WHERE "family" IS NOT NULL')),
@@ -325,7 +325,7 @@ Bias_assessment_function = function(db_table,
       # source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
       paste("Fetch number of species complete! Fetching rarity index from", db_table, "...") |> print()
       
-      source("~/Desktop/Documents/GitHub/bias assessment/assessRarityBias_modified.R")
+      source("assessRarityBias_modified.R")
       taxBias2 <- assessRarityBias_modified(dat = dat[!is.na(dat$species), ],
                                            
                                            # dat = dbGetQuery(aws_con, paste('SELECT * FROM', db_table, 'LEFT JOIN', paste0(db_table, '_backbone_family'), 'USING (species) WHERE "family" IS NOT NULL')),
