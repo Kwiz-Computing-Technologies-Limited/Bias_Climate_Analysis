@@ -105,8 +105,8 @@ Bias_assessment_function = function(db_table,
   dataset = db_table
   paste("creating", dataset, "periods") |> print()
   # periods to split data on
-  min_period = floor(min(value$year) / 10) * 10
-  max_period = ceiling(max(value$year) / 10) * 10
+  min_period = floor(min(value$year, na.rm = TRUE) / 10) * 10
+  max_period = ceiling(max(value$year, na.rm = TRUE) / 10) * 10
   
   # min_period = ((dbGetQuery(aws_con, paste("SELECT MIN(year) AS min_period FROM", db_table))$min_period /10) |> floor()) * 10
   # max_period = dbGetQuery(aws_con, paste("SELECT MAX(year) AS max_period FROM", db_table))$max_period
