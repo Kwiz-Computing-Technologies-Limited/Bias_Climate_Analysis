@@ -162,14 +162,14 @@ Bias_assessment_function = function(db_table,
     
   }
   
-  # merge occurrence and name backbone datasets
+  # merge occurrence and name backbone data sets
   aaa = readr::read_csv(file = here("13.  bias assessment results", db_table, paste0(db_table, "_backbone_family.csv")))
   dat = value |> dplyr::left_join(aaa[!is.na(aaa$family), ], by = "species") |> data.frame()
   
   # remove used R objects from environment
   rm(family, aaa)
     
-    ## with family as taxonomic group
+  ## with family as taxonomic group
   if(!(paste(db_table, "periods_length", periods_length, "assessRecordNumber_output.csv", sep = "_") %in% list.files(here("13.  bias assessment results", db_table)))){
     # get number of records in each year.
     options(timeout = getOption("timeout")^5)
@@ -363,9 +363,10 @@ Bias_assessment_function = function(db_table,
     
     options(timeout = getOption("timeout")^5)
     # source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
+    
     paste("Fetch environment mask complete! Fetching spatial bias from", db_table, "...") |> print()
+    
     spatBias <- assessSpatialBias(dat = dat[!is.na(dat$family), ],
-                                  
                                   # dat = dbGetQuery(aws_con, paste('SELECT * FROM', db_table, 'LEFT JOIN', paste0(db_table, '_backbone_family'), 'USING (species) WHERE "family" IS NOT NULL')),
                                   species = "species",
                                   y = "decimalLatitude",
@@ -397,54 +398,54 @@ Bias_assessment_function = function(db_table,
   }
     
     ## with species as the taxonomic group
-    if(!(paste0(db_table, "_periods_length_", periods_length, "_by_species__assessSpatialBias_output.csv") %in% list.files(here("13.  bias assessment results", db_table)))){
-      # get spatial bias
-      gc()
-      options(timeout = getOption("timeout")^5)
-      
-      paste("Fetch rarity index complete! Fetching environment mask for spatial bias for", substr(db_table, 1, 3), "...") |> print()
-      mask = geodata::worldclim_country(country = country, level = 0, res = 2.5, var = "tavg",
-                                        path = here(substr(db_table, 1, 3)))
-      mask2 = raster::brick(mask[[1]])
-      
-      options(timeout = getOption("timeout")^5)
-      # source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
-      paste("Fetch environment mask complete! Fetching spatial bias from", db_table, "...") |> print()
-      spatBias2 <- assessSpatialBias(dat = dat[!is.na(dat$species), ],
-                                    
-                                    # dat = dbGetQuery(aws_con, paste('SELECT * FROM', db_table, 'LEFT JOIN', paste0(db_table, '_backbone_family'), 'USING (species) WHERE "family" IS NOT NULL')),
-                                    species = "species",
-                                    y = "decimalLatitude",
-                                    x = "decimalLongitude",
-                                    year = "year", 
-                                    spatialUncertainty = "coordinateUncertaintyInMeters",
-                                    identifier = "species",
-                                    periods = periods,
-                                    mask = mask2,
-                                    nSamps = 1,
-                                    degrade = TRUE)
-      
-      spatBias2$data = spatBias2$data |> 
-        dplyr::mutate(Period = as.integer(Period))
-      
-      # spatBias$data |>
-      # ggplot(mapping = aes(x = Period, y = mean, col = identifier)) +
-      # geom_line() + geom_point() + theme_bw() +
-      # ylab("Nearest Neighbour Index") + xlab("Period")
-      
-      
-      readr::write_csv(spatBias2$data, file = here("13.  bias assessment results", db_table,
-                                                  paste0(db_table, "_periods_length_", periods_length, 
-                                                         "_by_species__assessSpatialBias_output.csv")))
-      # source("~/Desktop/Documents/GitHub/bias assessment/killing_DB_connections.R")
-      
-      
-      # remove used R objects from environment
-      rm(spatBias2, mask, mask2)
-    }
+    # if(!(paste0(db_table, "_periods_length_", periods_length, "_by_species__assessSpatialBias_output.csv") %in% list.files(here("13.  bias assessment results", db_table)))){
+    #   # get spatial bias
+    #   gc()
+    #   options(timeout = getOption("timeout")^5)
+    #   
+    #   paste("Fetch rarity index complete! Fetching environment mask for spatial bias for", substr(db_table, 1, 3), "...") |> print()
+    #   mask = geodata::worldclim_country(country = country, level = 0, res = 2.5, var = "tavg",
+    #                                     path = here(substr(db_table, 1, 3)))
+    #   mask2 = raster::brick(mask[[1]])
+    #   
+    #   options(timeout = getOption("timeout")^5)
+    #   # source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
+    #   paste("Fetch environment mask complete! Fetching spatial bias from", db_table, "...") |> print()
+    #   spatBias2 <- assessSpatialBias(dat = dat[!is.na(dat$species), ],
+    #                                 
+    #                                 # dat = dbGetQuery(aws_con, paste('SELECT * FROM', db_table, 'LEFT JOIN', paste0(db_table, '_backbone_family'), 'USING (species) WHERE "family" IS NOT NULL')),
+    #                                 species = "species",
+    #                                 y = "decimalLatitude",
+    #                                 x = "decimalLongitude",
+    #                                 year = "year", 
+    #                                 spatialUncertainty = "coordinateUncertaintyInMeters",
+    #                                 identifier = "species",
+    #                                 periods = periods,
+    #                                 mask = mask2,
+    #                                 nSamps = 1,
+    #                                 degrade = TRUE)
+    #   
+    #   spatBias2$data = spatBias2$data |> 
+    #     dplyr::mutate(Period = as.integer(Period))
+    #   
+    #   # spatBias$data |>
+    #   # ggplot(mapping = aes(x = Period, y = mean, col = identifier)) +
+    #   # geom_line() + geom_point() + theme_bw() +
+    #   # ylab("Nearest Neighbour Index") + xlab("Period")
+    #   
+    #   
+    #   readr::write_csv(spatBias2$data, file = here("13.  bias assessment results", db_table,
+    #                                               paste0(db_table, "_periods_length_", periods_length, 
+    #                                                      "_by_species__assessSpatialBias_output.csv")))
+    #   # source("~/Desktop/Documents/GitHub/bias assessment/killing_DB_connections.R")
+    #   
+    #   
+    #   # remove used R objects from environment
+    #   rm(spatBias2, mask, mask2)
+    # }
     
     
-    ## with family as the taxonomic group
+  ## with family as the taxonomic group
   dir.create(here("13.  bias assessment results", db_table, "spatial_cov"))  
   if(((grepl(pattern = paste(db_table, "periods_length", periods_length, "by_family_assessSpatialCov_output", sep = "_"), list.files(here("13.  bias assessment results", db_table, "spatial_cov"))) |> sum()) < 1)){
     # grid and map species occurrence data
@@ -481,39 +482,39 @@ Bias_assessment_function = function(db_table,
   }
   
   ## with species as the taxonomic group
-    if(((grepl(pattern = paste(db_table, "periods_length", periods_length, "by_species_assessSpatialCov_output", sep = "_"), list.files(here("13.  bias assessment results", db_table, "spatial_cov"))) |> sum()) < 1)){
+    ### if(((grepl(pattern = paste(db_table, "periods_length", periods_length, "by_species_assessSpatialCov_output", sep = "_"), list.files(here("13.  bias assessment results", db_table, "spatial_cov"))) |> sum()) < 1)){
       # grid and map species occurrence data
-      options(timeout = getOption("timeout")^5)
+  ### options(timeout = getOption("timeout")^5)
       
       # source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
-      paste("Fetch spatial bias complete! mapping species occurrence from", db_table, "...") |> print()
-      maps <- assessSpatialCov(dat = dat[!is.na(dat$species), ],
+  ### paste("Fetch spatial bias complete! mapping species occurrence from", db_table, "...") |> print()
+  ###  maps <- assessSpatialCov(dat = dat[!is.na(dat$species), ],
                                
                                # dat = dbGetQuery(aws_con, paste('SELECT * FROM', db_table, 'LEFT JOIN', paste0(db_table, '_backbone_family'), 'USING (species) WHERE "family" IS NOT NULL')),
-                               periods = periods,
-                               res = 0.5,
-                               logCount = TRUE,
-                               countries = c(country),
-                               species = "species",
-                               y = "decimalLatitude",
-                               x = "decimalLongitude",
-                               year = "year", 
-                               spatialUncertainty = "coordinateUncertaintyInMeters",
-                               identifier = "species")
+  ###                         periods = periods,
+  ###                         res = 0.5,
+  ###                          logCount = TRUE,
+  ###                          countries = c(country),
+  ###                          species = "species",
+  ###                          y = "decimalLatitude",
+  ###                          x = "decimalLongitude",
+  ###                          year = "year", 
+  ###                          spatialUncertainty = "coordinateUncertaintyInMeters",
+  ###                          identifier = "species")
       
       
-      filenames = stringr::str_c(db_table, "_periods_length_", periods_length, "_by_species_assessSpatialCov_output_",
-                                 names(maps), ".png")
+  ### filenames = stringr::str_c(db_table, "_periods_length_", periods_length, "_by_species_assessSpatialCov_output_",
+  ###                            names(maps), ".png")
       
-      dir.create(here("13.  bias assessment results", db_table, "spatial_cov"))                           
-      purrr::pwalk(list(filenames, maps), ggplot2::ggsave, 
-                   path = here("13.  bias assessment results", db_table, "spatial_cov"))
+  ### dir.create(here("13.  bias assessment results", db_table, "spatial_cov"))                           
+  ###  purrr::pwalk(list(filenames, maps), ggplot2::ggsave, 
+  ###               path = here("13.  bias assessment results", db_table, "spatial_cov"))
       
       # source("~/Desktop/Documents/GitHub/bias assessment/killing_DB_connections.R")
       
       # remove used R objects from environment
-      rm(maps)
-    }
+  ### rm(maps)
+  ### }
   
     
   if(!(paste(db_table, "periods_length", periods_length, "periods_output.csv", sep = "_") %in% list.files(here("13.  bias assessment results", db_table)))){
@@ -544,9 +545,11 @@ Bias_assessment_function = function(db_table,
       # select the climate variables of interest
       paste("Selecting 8 'bio' variables") |> print()
       env_data2 = env_data[[c(1, 4, 10, 11, 12, 15, 16, 17)]]
+      print(nrow(env_data2))
       
       # source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
       dat2 = dat[!is.na(dat$family), ]
+      print(nrow(dat2))
       env_data3 = terra::extract(env_data2, dat2[, c("decimalLongitude", "decimalLatitude")]
                                  # dbGetQuery(aws_con, paste('SELECT "decimalLongitude", "decimalLatitude" FROM (SELECT * FROM', db_table, 
                                  #                                      'LEFT JOIN', paste0(db_table, '_backbone_family'), 'USING (species) WHERE 
@@ -554,10 +557,9 @@ Bias_assessment_function = function(db_table,
                                  )
       # source("~/Desktop/Documents/GitHub/bias assessment/killing_DB_connections.R")
       paste("Fetch environmental data complete! Fetching environment bias from", db_table, "...") |> print()
-      
+      print(nrow(env_data3))
       # source("~/Desktop/Documents/GitHub/bias assessment/connect_db.R")
       envBias <- assessEnvBias(dat = dat2,
-                               
                                # dat = dbGetQuery(aws_con, paste('SELECT * FROM', db_table, 'LEFT JOIN', paste0(db_table, '_backbone_family'), 'USING (species) WHERE family IS NOT NULL AND year IS NOT NULL')),
                                species = "species",
                                y = "decimalLatitude",
@@ -583,7 +585,7 @@ Bias_assessment_function = function(db_table,
   }
     
     ## with species as taxonomic group
-    if(!(country %in% c("New Zealand"))){
+    if(!(country %in% c("New Zealand", "USA"))){
       if(!(paste0(db_table, "_periods_length_", periods_length, "_by_species_assessEnvBias_output.csv") %in% list.files(here("13.  bias assessment results", db_table)))){
         paste("Fetch mapping species complete! Fetching environmental data for", substr(db_table, 1, 3), "...") |> print()
         # get spatial bias
