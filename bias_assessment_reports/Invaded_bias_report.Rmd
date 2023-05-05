@@ -352,6 +352,8 @@ grid.arrange(record_number_usa, record_number_zaf, ncol = 2)
 **(Species)**
   
 ```{r, echo =FALSE, cache=TRUE, results='asis', message=FALSE, warning=FALSE}
+library(dplyr)
+
 ## AUS GLONAF
 file_link_aus_glonaf_by_species = here("13.  bias assessment results", "aus_glonaf_invaded_clean", directory_files_aus_glonaf[grepl("assessRecordNumber_output", directory_files_aus_glonaf)])
 
@@ -555,14 +557,14 @@ We observe:
 # **(Family)**
 
 # AUS GLONAF
-fit_records_aus_glonaf = aov(val ~ Taxonomic_Group , data = assessRecordNumber_aus_glonaf)
+fit_records_aus_glonaf = aov(val ~ Taxonomic_Group , data = assessRecordNumber_aus_glonaf_by_species)
 summary_fit_records_aus_glonaf = fit_records_aus_glonaf |> summary()
 p.value_aus_glonaf = (summary_fit_records_aus_glonaf |> unlist() |> t() |> as.data.frame())$`Pr(>F)1` |> round(5)
 
 ## tukey test
 tukey_species_aus_glonaf = TukeyHSD(fit_records_aus_glonaf, "Taxonomic_Group")
 
-x = table(assessRecordNumber_aus_glonaf$Taxonomic_Group)
+x = table(assessRecordNumber_aus_glonaf_by_species$Taxonomic_Group)
 species_differences_aus_glonaf2 = tukey_species_aus_glonaf$Taxonomic_Group |> as.data.frame() 
 for (i in length(x):1) {
     species_differences_aus_glonaf2[grepl(x = species_differences_aus_glonaf2 |> row.names(), pattern = names(x)[i]), "count"] = paste(species_differences_aus_glonaf2[grepl(x = species_differences_aus_glonaf2 |> row.names(), pattern = names(x)[i]), "count"], x[i], sep = ", ")
@@ -583,14 +585,14 @@ biased_groups_aus_glonaf = rownames(species_differences_aus_glonaf) |> strsplit(
 
 
 # GBR
-fit_records_gbr = aov(val ~ Taxonomic_Group , data = assessRecordNumber_gbr)
+fit_records_gbr = aov(val ~ Taxonomic_Group , data = assessRecordNumber_gbr_by_species)
 summary_fit_records_gbr = fit_records_gbr |> summary()
 p.value_gbr = (summary_fit_records_gbr |> unlist() |> t() |> as.data.frame())$`Pr(>F)1` |> round(5)
 
 ## tukey test
 tukey_species_gbr = TukeyHSD(fit_records_gbr, "Taxonomic_Group")
 
-x = table(assessRecordNumber_gbr$Taxonomic_Group) 
+x = table(assessRecordNumber_gbr_by_species$Taxonomic_Group) 
 species_differences_gbr2 = tukey_species_gbr$Taxonomic_Group |> as.data.frame() 
 
 for (i in length(x):1) {
@@ -614,14 +616,14 @@ biased_groups_gbr = rownames(species_differences_gbr) |> strsplit(split = "-") |
 
 
 # IRL
-fit_records_irl = aov(val ~ Taxonomic_Group , data = assessRecordNumber_irl)
+fit_records_irl = aov(val ~ Taxonomic_Group , data = assessRecordNumber_irl_by_species)
 summary_fit_records_irl = fit_records_irl |> summary()
 p.value_irl = (summary_fit_records_irl |> unlist() |> t() |> as.data.frame())$`Pr(>F)1` |> round(5)
 
 ## tukey test
 tukey_species_irl = TukeyHSD(fit_records_irl, "Taxonomic_Group")
 
-x = table(assessRecordNumber_irl$Taxonomic_Group) 
+x = table(assessRecordNumber_irl_by_species$Taxonomic_Group) 
 species_differences_irl2 = tukey_species_irl$Taxonomic_Group |> as.data.frame() 
 
 for (i in length(x):1) {
@@ -645,14 +647,14 @@ biased_groups_irl = rownames(species_differences_irl) |> strsplit(split = "-") |
 
 
 # JPN
-fit_records_jpn = aov(val ~ Taxonomic_Group , data = assessRecordNumber_jpn)
+fit_records_jpn = aov(val ~ Taxonomic_Group , data = assessRecordNumber_jpn_by_species)
 summary_fit_records_jpn = fit_records_jpn |> summary()
 p.value_jpn = (summary_fit_records_jpn |> unlist() |> t() |> as.data.frame())$`Pr(>F)1` |> round(5)
 
 ## tukey test
 tukey_species_jpn = TukeyHSD(fit_records_jpn, "Taxonomic_Group")
 
-x = table(assessRecordNumber_jpn$Taxonomic_Group) 
+x = table(assessRecordNumber_jpn_by_species$Taxonomic_Group) 
 species_differences_jpn2 = tukey_species_jpn$Taxonomic_Group |> as.data.frame() 
 
 for (i in length(x):1) {
@@ -676,14 +678,14 @@ biased_groups_jpn = rownames(species_differences_jpn) |> strsplit(split = "-") |
 
 
 # MDG
-fit_records_mdg = aov(val ~ Taxonomic_Group , data = assessRecordNumber_mdg)
+fit_records_mdg = aov(val ~ Taxonomic_Group , data = assessRecordNumber_mdg_by_species)
 summary_fit_records_mdg = fit_records_mdg |> summary()
 p.value_mdg = (summary_fit_records_mdg |> unlist() |> t() |> as.data.frame())$`Pr(>F)1` |> round(5)
 
 ## tukey test
 tukey_species_mdg = TukeyHSD(fit_records_mdg, "Taxonomic_Group")
 
-x = table(assessRecordNumber_mdg$Taxonomic_Group) 
+x = table(assessRecordNumber_mdg_by_species$Taxonomic_Group) 
 species_differences_mdg2 = tukey_species_mdg$Taxonomic_Group |> as.data.frame() 
 
 for (i in length(x):1) {
@@ -707,14 +709,14 @@ biased_groups_mdg = rownames(species_differences_mdg) |> strsplit(split = "-") |
 
 
 # NZL GLONAF
-fit_records_nzl_glonaf = aov(val ~ Taxonomic_Group , data = assessRecordNumber_nzl_glonaf)
+fit_records_nzl_glonaf = aov(val ~ Taxonomic_Group , data = assessRecordNumber_nzl_glonaf_by_species)
 summary_fit_records_nzl_glonaf = fit_records_nzl_glonaf |> summary()
 p.value_nzl_glonaf = (summary_fit_records_nzl_glonaf |> unlist() |> t() |> as.data.frame())$`Pr(>F)1` |> round(5)
 
 ## tukey test
 tukey_species_nzl_glonaf = TukeyHSD(fit_records_nzl_glonaf, "Taxonomic_Group")
 
-x = table(assessRecordNumber_nzl_glonaf$Taxonomic_Group) 
+x = table(assessRecordNumber_nzl_glonaf_by_species$Taxonomic_Group) 
 species_differences_nzl_glonaf2 = tukey_species_nzl_glonaf$Taxonomic_Group |> as.data.frame() 
 
 for (i in length(x):1) {
@@ -738,14 +740,14 @@ biased_groups_nzl_glonaf = rownames(species_differences_nzl_glonaf) |> strsplit(
 
 
 # USA
-fit_records_usa = aov(val ~ Taxonomic_Group , data = assessRecordNumber_usa)
+fit_records_usa = aov(val ~ Taxonomic_Group , data = assessRecordNumber_usa_by_species)
 summary_fit_records_usa = fit_records_usa |> summary()
 p.value_usa = (summary_fit_records_usa |> unlist() |> t() |> as.data.frame())$`Pr(>F)1` |> round(5)
 
 ## tukey test
 tukey_species_usa = TukeyHSD(fit_records_usa, "Taxonomic_Group")
 
-x = table(assessRecordNumber_usa$Taxonomic_Group) 
+x = table(assessRecordNumber_usa_by_species$Taxonomic_Group) 
 species_differences_usa2 = tukey_species_usa$Taxonomic_Group |> as.data.frame() 
 
 for (i in length(x):1) {
@@ -769,14 +771,14 @@ biased_groups_usa = rownames(species_differences_usa) |> strsplit(split = "-") |
 
 
 # ZAF
-fit_records_zaf = aov(val ~ Taxonomic_Group , data = assessRecordNumber_zaf)
+fit_records_zaf = aov(val ~ Taxonomic_Group , data = assessRecordNumber_zaf_by_species)
 summary_fit_records_zaf = fit_records_zaf |> summary()
 p.value_zaf = (summary_fit_records_zaf |> unlist() |> t() |> as.data.frame())$`Pr(>F)1` |> round(5)
 
 ## tukey test
 tukey_species_zaf = TukeyHSD(fit_records_zaf, "Taxonomic_Group")
 
-x = table(assessRecordNumber_zaf$Taxonomic_Group) 
+x = table(assessRecordNumber_zaf_by_species$Taxonomic_Group) 
 species_differences_zaf2 = tukey_species_zaf$Taxonomic_Group |> as.data.frame() 
 
 for (i in length(x):1) {
@@ -787,7 +789,8 @@ for (i in length(x):1) {
 
 species_differences_zaf2$count = gsub("NA, ", "", species_differences_zaf2$count)
 
-species_differences_zaf = tukey_species_zaf$Taxonomic_Group[!(tukey_species_zaf$Taxonomic_Group[, "p adj"] > 0.05) , ] |> as.data.frame() |>  
+species_differences_zaf = tukey_species_zaf$Taxonomic_Group[!(tukey_species_zaf$Taxonomic_Group[, "p adj"] > 0.05) , ] |> 
+  t() |> as.data.frame() |>
   dplyr::arrange(desc(abs(diff))) |>
   dplyr::rename(difference = diff)
 
@@ -811,24 +814,24 @@ dplyr::tibble(
   range = c("AUS GLONAF", "GBR", "IRL", "JPN", "MDG", "NZL GLONAF", "USA", "ZAF"),
   
   `number of families` = c(
-    assessRecordNumber_aus_glonaf$Taxonomic_Group |> unique() |> length() ,
-    assessRecordNumber_gbr$Taxonomic_Group |> unique() |> length(),
-    assessRecordNumber_irl$Taxonomic_Group |> unique() |> length(),
-    assessRecordNumber_jpn$Taxonomic_Group |> unique() |> length(),
-    assessRecordNumber_mdg$Taxonomic_Group |> unique() |> length(),
-    assessRecordNumber_nzl_glonaf$Taxonomic_Group |> unique() |> length() ,
-    assessRecordNumber_usa$Taxonomic_Group |> unique() |> length(),
-    assessRecordNumber_zaf$Taxonomic_Group |> unique() |> length()),
+    assessRecordNumber_aus_glonaf_by_species$Taxonomic_Group |> unique() |> length() ,
+    assessRecordNumber_gbr_by_species$Taxonomic_Group |> unique() |> length(),
+    assessRecordNumber_irl_by_species$Taxonomic_Group |> unique() |> length(),
+    assessRecordNumber_jpn_by_species$Taxonomic_Group |> unique() |> length(),
+    assessRecordNumber_mdg_by_species$Taxonomic_Group |> unique() |> length(),
+    assessRecordNumber_nzl_glonaf_by_species$Taxonomic_Group |> unique() |> length() ,
+    assessRecordNumber_usa_by_species$Taxonomic_Group |> unique() |> length(),
+    assessRecordNumber_zaf_by_species$Taxonomic_Group |> unique() |> length()),
   
   `pairs of families compared` = c(
-    assessRecordNumber_aus_glonaf$Taxonomic_Group |> unique() |> length() |> choose(2),
-    assessRecordNumber_gbr$Taxonomic_Group |> unique() |> length() |> choose(2),
-    assessRecordNumber_irl$Taxonomic_Group |> unique() |> length() |> choose(2),
-    assessRecordNumber_jpn$Taxonomic_Group |> unique() |> length() |> choose(2),
-    assessRecordNumber_mdg$Taxonomic_Group |> unique() |> length() |> choose(2),
-    assessRecordNumber_nzl_glonaf$Taxonomic_Group |> unique() |> length() |> choose(2),
-    assessRecordNumber_usa$Taxonomic_Group |> unique() |> length() |> choose(2),
-    assessRecordNumber_zaf$Taxonomic_Group |> unique() |> length() |> choose(2)),
+    assessRecordNumber_aus_glonaf_by_species$Taxonomic_Group |> unique() |> length() |> choose(2),
+    assessRecordNumber_gbr_by_species$Taxonomic_Group |> unique() |> length() |> choose(2),
+    assessRecordNumber_irl_by_species$Taxonomic_Group |> unique() |> length() |> choose(2),
+    assessRecordNumber_jpn_by_species$Taxonomic_Group |> unique() |> length() |> choose(2),
+    assessRecordNumber_mdg_by_species$Taxonomic_Group |> unique() |> length() |> choose(2),
+    assessRecordNumber_nzl_glonaf_by_species$Taxonomic_Group |> unique() |> length() |> choose(2),
+    assessRecordNumber_usa_by_species$Taxonomic_Group |> unique() |> length() |> choose(2),
+    assessRecordNumber_zaf_by_species$Taxonomic_Group |> unique() |> length() |> choose(2)),
   
   `pairs of families with bias` = c(
     species_differences_aus_glonaf |> nrow(),
@@ -1151,29 +1154,11 @@ s_differences |>
 We observed a positive slope in the Number of records identified over time among some families across all the regions (figure 1). We estimate the slopes of the Number of records recorded for each family over time, and test the alternative hypothesis that there is a temporal change in sampling intensity (i.e slope > 0). 
 
 
+
 ```{r, echo =FALSE, cache=TRUE, results='asis', message=FALSE, warning=FALSE}
 library(broom)
 library(purrr)
 
-sampling_intensity_slope_mdg = split.data.frame(assessRecordNumber_mdg, assessRecordNumber_mdg$Taxonomic_Group)  |>
-  purrr::map(~lm(val ~ 1 + Period, data = .x)) |>
-  purrr::map_df(tidy) |>
-  dplyr::filter(term == 'Period') |>
-  dplyr::mutate(term = sort(assessRecordNumber_mdg$Taxonomic_Group |> unique()), region = "mdg") |>
-  dplyr::filter(p.value < 0.05 | p.value == 0.05) |>
-  dplyr::rename(Taxonomic_group = term) |> dplyr::arrange(desc(estimate)) |>
-  dplyr::select(region, Taxonomic_group, estimate, std.error, statistic, p.value)
-
-
-# number of groups with bias
-increasing_coverage_mdg = sampling_intensity_slope_mdg[sampling_intensity_slope_mdg$estimate > 0, "Taxonomic_group"]$Taxonomic_group |> unique() |> length()
-decreasing_coverage_mdg = sampling_intensity_slope_mdg[sampling_intensity_slope_mdg$estimate < 0, "Taxonomic_group"]$Taxonomic_group |> unique() |> length()
-```
-
-
-
-
-```{r, echo =FALSE, cache=TRUE, results='asis', message=FALSE, warning=FALSE}
 # BY FAMILY
 
 # aus_glonaf
@@ -1514,6 +1499,1068 @@ In contrast, when occurrences are aggregated at species level, instances of temp
 This suggests that aggregation at larger taxonomic scales makes temporal changes in sampling intensity more visible than at smaller scales. 
 
 # _____________________________________________________________
+
+# 2. Taxonomic Sampling biases
+
+We use the following measures to assess taxonomic sampling bias:
+
+- differences in the number of species identified between taxonomic groups
+- changes in the number of species identified over time (temporal Sampling intensity bias)
+- whether rare species are under/over-represented in the data 
+
+
+## (a) Number of species identified
+
+### (i) by taxonomic group 
+
+**(Family)**
+
+```{r, echo =FALSE, cache=TRUE, results='asis', message=FALSE, warning=FALSE}
+library(dplyr)
+## AUS GLONAF
+file_link_aus_glonaf = here("13.  bias assessment results", "aus_glonaf_invaded_clean", directory_files_aus_glonaf[grepl("assessSpeciesNumber_output", directory_files_aus_glonaf)])
+
+file_link_aus_glonaf = file_link_aus_glonaf[!grepl("species", file_link_aus_glonaf)]
+assessSpeciesNumber_aus_glonaf = read.csv(file = file_link_aus_glonaf) |>
+  group_by(group) |>
+  summarise(Period = Period, 
+            val = val / max(val, na.rm = T)) 
+  
+assessSpeciesNumber_aus_glonaf = assessSpeciesNumber_aus_glonaf |> 
+  merge(periods_range_aus_glonaf, by.x = "Period", by.y = "Period") |>
+  na.omit() |> dplyr::filter(val != 0) |> dplyr::rename(Taxonomic_Group = group) 
+
+## GBR
+file_link_gbr = here("13.  bias assessment results", "gbr_invaded_clean", directory_files_gbr[grepl("assessSpeciesNumber_output", directory_files_gbr)])
+
+file_link_gbr = file_link_gbr[!grepl("species", file_link_gbr)]
+assessSpeciesNumber_gbr = read.csv(file = file_link_gbr) |>
+  group_by(group) |>
+  summarise(Period = Period, 
+            val = val / max(val, na.rm = T)) 
+
+assessSpeciesNumber_gbr = assessSpeciesNumber_gbr |> 
+  merge(periods_range_gbr, by.x = "Period", by.y = "Period") |>
+  na.omit() |> dplyr::filter(val != 0) |> dplyr::rename(Taxonomic_Group = group)
+
+## IRL
+file_link_irl = here("13.  bias assessment results", "irl_invaded_clean", directory_files_irl[grepl("assessSpeciesNumber_output", directory_files_irl)])
+
+file_link_irl = file_link_irl[!grepl("species", file_link_irl)]
+assessSpeciesNumber_irl = read.csv(file = file_link_irl) |>
+  group_by(group) |>
+  summarise(Period = Period, 
+            val = val / max(val, na.rm = T)) 
+
+assessSpeciesNumber_irl = assessSpeciesNumber_irl |> 
+  merge(periods_range_irl, by.x = "Period", by.y = "Period") |>
+  na.omit() |> dplyr::filter(val != 0) |> dplyr::rename(Taxonomic_Group = group)
+
+## JPN
+file_link_jpn = here("13.  bias assessment results", "jpn_invaded_clean", directory_files_jpn[grepl("assessSpeciesNumber_output", directory_files_jpn)])
+
+file_link_jpn = file_link_jpn[!grepl("species", file_link_jpn)]
+assessSpeciesNumber_jpn = read.csv(file = file_link_jpn) |>
+  group_by(group) |>
+  summarise(Period = Period, 
+            val = val / max(val, na.rm = T)) 
+
+assessSpeciesNumber_jpn = assessSpeciesNumber_jpn |> 
+  merge(periods_range_jpn, by.x = "Period", by.y = "Period") |>
+  na.omit() |> dplyr::filter(val != 0) |> dplyr::rename(Taxonomic_Group = group)
+
+## MDG
+file_link_mdg = here("13.  bias assessment results", "mdg_invaded_clean", directory_files_mdg[grepl("assessSpeciesNumber_output", directory_files_mdg)])
+
+file_link_mdg = file_link_mdg[!grepl("species", file_link_mdg)]
+assessSpeciesNumber_mdg = read.csv(file = file_link_mdg) |>
+  group_by(group) |>
+  summarise(Period = Period, 
+            val = val / max(val, na.rm = T)) 
+
+assessSpeciesNumber_mdg = assessSpeciesNumber_mdg |> 
+  merge(periods_range_mdg, by.x = "Period", by.y = "Period") |>
+  na.omit() |> dplyr::filter(val != 0) |> dplyr::rename(Taxonomic_Group = group)
+
+## NZL GLONAF
+file_link_nzl_glonaf = here("13.  bias assessment results", "nzl_glonaf_invaded_clean", directory_files_nzl_glonaf[grepl("assessSpeciesNumber_output", directory_files_nzl_glonaf)])
+
+file_link_nzl_glonaf = file_link_nzl_glonaf[!grepl("species", file_link_nzl_glonaf)]
+assessSpeciesNumber_nzl_glonaf = read.csv(file = file_link_nzl_glonaf) |>
+  group_by(group) |>
+  summarise(Period = Period, 
+            val = val / max(val, na.rm = T)) 
+
+assessSpeciesNumber_nzl_glonaf = assessSpeciesNumber_nzl_glonaf |> 
+  merge(periods_range_nzl_glonaf, by.x = "Period", by.y = "Period") |>
+  na.omit() |> dplyr::filter(val != 0) |> dplyr::rename(Taxonomic_Group = group)
+
+## USA
+file_link_usa = here("13.  bias assessment results", "usa_invaded_clean", directory_files_usa[grepl("assessSpeciesNumber_output", directory_files_usa)])
+
+file_link_usa = file_link_usa[!grepl("species", file_link_usa)]
+assessSpeciesNumber_usa = read.csv(file = file_link_usa) |>
+  group_by(group) |>
+  summarise(Period = Period, 
+            val = val / max(val, na.rm = T)) 
+
+assessSpeciesNumber_usa = assessSpeciesNumber_usa |> 
+  merge(periods_range_usa, by.x = "Period", by.y = "Period") |>
+  na.omit() |> dplyr::filter(val != 0) |> dplyr::rename(Taxonomic_Group = group)
+
+## ZAF
+file_link_zaf = here("13.  bias assessment results", "zaf_invaded_clean", directory_files_zaf[grepl("assessSpeciesNumber_output", directory_files_zaf)])
+
+file_link_zaf = file_link_zaf[!grepl("species", file_link_zaf)]
+assessSpeciesNumber_zaf = read.csv(file = file_link_zaf) |>
+  group_by(group) |>
+  summarise(Period = Period, 
+            val = val / max(val, na.rm = T)) 
+
+assessSpeciesNumber_zaf = assessSpeciesNumber_zaf |> 
+  merge(periods_range_zaf, by.x = "Period", by.y = "Period") |>
+  na.omit() |> dplyr::filter(val != 0) |> dplyr::rename(Taxonomic_Group = group)
+```
+
+The set of figures below (Figure 1) visualize the cumulative number of observations recorded for different *families* over the occurrence periods in the respective occurrence ranges. 
+
+Figure 1: Number of recorded *species per family* over time
+```{r, echo =FALSE, cache=TRUE, results='asis', message=FALSE, warning=FALSE}
+library(ggplot2)
+
+## AUS GLONAF
+species_number_aus_glonaf = assessSpeciesNumber_aus_glonaf |>
+  dplyr::filter(!is.na(val)) |>
+  ggplot(mapping = aes(x = Period, y = val, color = Taxonomic_Group)) +
+  geom_point( ) + geom_line() + 
+  theme_bw() + labs(y = "Number of species recorded", 
+                    title = "AUS GLONAF - Sampling Intensity \n  (Number of species) by  Family") +
+  theme(legend.position = "none")
+
+## GBR
+species_number_gbr = assessSpeciesNumber_gbr |>
+  dplyr::filter(!is.na(val)) |>
+  ggplot(mapping = aes(x = Period, y = val, color = Taxonomic_Group)) +
+  geom_point( ) + geom_line() + 
+  theme_bw() + labs(y = "Number of species recorded", 
+                    title = "GBR - Sampling Intensity \n  (Number of species) by  Family") +
+  theme(legend.position = "none")
+
+## IRL
+species_number_irl = assessSpeciesNumber_irl |>
+  dplyr::filter(!is.na(val)) |>
+  ggplot(mapping = aes(x = Period, y = val, color = Taxonomic_Group)) +
+  geom_point( ) + geom_line() + 
+  theme_bw() + labs(y = "Number of species recorded", 
+                    title = "IRL - Sampling Intensity \n  (Number of species) by  Family") +
+  theme(legend.position = "none")
+
+## JPN
+species_number_jpn = assessSpeciesNumber_jpn |>
+  dplyr::filter(!is.na(val)) |>
+  ggplot(mapping = aes(x = Period, y = val, color = Taxonomic_Group)) +
+  geom_point( ) + geom_line() + 
+  theme_bw() + labs(y = "Number of species recorded", 
+                    title = "JPN - Sampling Intensity \n  (Number of species) by  Family") +
+  theme(legend.position = "none")
+
+## MDG
+species_number_mdg = assessSpeciesNumber_mdg |>
+  dplyr::filter(!is.na(val)) |>
+  ggplot(mapping = aes(x = Period, y = val, color = Taxonomic_Group)) +
+  geom_point( ) + geom_line() + 
+  theme_bw() + labs(y = "Number of species recorded", 
+                    title = "MDG - Sampling Intensity \n  (Number of species) by  Family") +
+  theme(legend.position = "none")
+
+## NZL GLONAF
+species_number_nzl_glonaf = assessSpeciesNumber_nzl_glonaf |>
+  dplyr::filter(!is.na(val)) |>
+  ggplot(mapping = aes(x = Period, y = val, color = Taxonomic_Group)) +
+  geom_point( ) + geom_line() + 
+  theme_bw() + labs(y = "Number of species recorded", 
+                    title = "NZL GLONAF - Sampling Intensity \n  (Number of species) by  Family") +
+  theme(legend.position = "none")
+
+## USA
+species_number_usa = assessSpeciesNumber_usa |>
+  dplyr::filter(!is.na(val)) |>
+  ggplot(mapping = aes(x = Period, y = val, color = Taxonomic_Group)) +
+  geom_point( ) + geom_line() + 
+  theme_bw() + labs(y = "Number of species recorded", 
+                    title = "USA - Sampling Intensity \n  (Number of species) by  Family") +
+  theme(legend.position = "none")
+
+## ZAF
+species_number_zaf = assessSpeciesNumber_zaf |>
+  dplyr::filter(!is.na(val)) |>
+  ggplot(mapping = aes(x = Period, y = val, color = Taxonomic_Group)) +
+  geom_point( ) + geom_line() + 
+  theme_bw() + labs(y = "Number of species recorded", 
+                    title = "ZAF - Sampling Intensity \n  (Number of species) by  Family") +
+  theme(legend.position = "none")
+
+
+grid.arrange(species_number_aus_glonaf, species_number_gbr, ncol = 2)
+grid.arrange(species_number_irl, species_number_jpn, ncol = 2)
+grid.arrange(species_number_mdg, species_number_nzl_glonaf, ncol = 2)
+grid.arrange(species_number_usa, species_number_zaf, ncol = 2)
+```
+
+
+
+
+
+We observe:
+
+(a) An apparent difference in the Number of records identified across taxonomic groups (families). We use the *Analysis of Variance (ANOVA)* to test whether the observed differences in the Number of records identified between families are significant. The *Tukey multiple comparison test* helps us compare pairs of taxonomic groups and identify those with significantly more samples (*presence of taxonomic bias*).
+
+(b) A general increase in the Number of records identified across the periods. We estimate the *slopes* of the per-period Number of records observations for the different families and identify the families with *slopes significantly different from 0*, which imply a change in the Number of records observations over time (*presence of temporal change in taxonomic bias*) 
+
+
+
+
+```{r, echo =FALSE, cache=TRUE, results='asis', message=FALSE, warning=FALSE}
+# **(Family)**
+
+# AUS GLONAF
+fit_species_aus_glonaf = aov(val ~ Taxonomic_Group , data = assessSpeciesNumber_aus_glonaf)
+summary_fit_species_aus_glonaf = fit_species_aus_glonaf |> summary()
+p.value_aus_glonaf = (summary_fit_species_aus_glonaf |> unlist() |> t() |> as.data.frame())$`Pr(>F)1` |> round(5)
+
+## tukey test
+tukey_species_aus_glonaf = TukeyHSD(fit_species_aus_glonaf, "Taxonomic_Group")
+
+x = table(assessSpeciesNumber_aus_glonaf$Taxonomic_Group)
+species_differences_aus_glonaf2 = tukey_species_aus_glonaf$Taxonomic_Group |> as.data.frame() 
+for (i in length(x):1) {
+    species_differences_aus_glonaf2[grepl(x = species_differences_aus_glonaf2 |> row.names(), pattern = names(x)[i]), "count"] = paste(species_differences_aus_glonaf2[grepl(x = species_differences_aus_glonaf2 |> row.names(), pattern = names(x)[i]), "count"], x[i], sep = ", ")
+} 
+
+species_differences_aus_glonaf2$count = gsub("NA, ", "", species_differences_aus_glonaf2$count)
+
+species_differences_aus_glonaf = tukey_species_aus_glonaf$Taxonomic_Group[!(tukey_species_aus_glonaf$Taxonomic_Group[, "p adj"] > 0.05) , ] |> as.data.frame() |>  
+  dplyr::arrange(desc(abs(diff))) |>
+  dplyr::rename(difference = diff)
+
+species_differences_aus_glonaf = cbind(data.frame(do.call(rbind, (rownames(species_differences_aus_glonaf) |> strsplit(split = "-")))),
+      species_differences_aus_glonaf)
+
+## groups with bias
+biased_groups_aus_glonaf = rownames(species_differences_aus_glonaf) |> strsplit(split = "-") |>
+  unlist()
+
+
+# GBR
+fit_species_gbr = aov(val ~ Taxonomic_Group , data = assessSpeciesNumber_gbr)
+summary_fit_species_gbr = fit_species_gbr |> summary()
+p.value_gbr = (summary_fit_species_gbr |> unlist() |> t() |> as.data.frame())$`Pr(>F)1` |> round(5)
+
+## tukey test
+tukey_species_gbr = TukeyHSD(fit_species_gbr, "Taxonomic_Group")
+
+x = table(assessSpeciesNumber_gbr$Taxonomic_Group) 
+species_differences_gbr2 = tukey_species_gbr$Taxonomic_Group |> as.data.frame() 
+
+for (i in length(x):1) {
+  species_differences_gbr2[grepl(x = species_differences_gbr2 |> row.names(), 
+                                        pattern = names(x)[i]), "count"] = paste(species_differences_gbr2[grepl(x = species_differences_gbr2 |>
+                                                                                                                         row.names(), pattern = names(x)[i]), "count"], x[i], sep = ", ")
+} 
+
+species_differences_gbr2$count = gsub("NA, ", "", species_differences_gbr2$count)
+
+species_differences_gbr = tukey_species_gbr$Taxonomic_Group[!(tukey_species_gbr$Taxonomic_Group[, "p adj"] > 0.05) , ] |> as.data.frame() |>  
+  dplyr::arrange(desc(abs(diff))) |>
+  dplyr::rename(difference = diff)
+
+species_differences_gbr = cbind(data.frame(do.call(rbind, (rownames(species_differences_gbr) |> strsplit(split = "-")))),
+      species_differences_gbr)
+
+## groups with bias
+biased_groups_gbr = rownames(species_differences_gbr) |> strsplit(split = "-") |>
+  unlist()
+
+
+# IRL
+fit_species_irl = aov(val ~ Taxonomic_Group , data = assessSpeciesNumber_irl)
+summary_fit_species_irl = fit_species_irl |> summary()
+p.value_irl = (summary_fit_species_irl |> unlist() |> t() |> as.data.frame())$`Pr(>F)1` |> round(5)
+
+## tukey test
+tukey_species_irl = TukeyHSD(fit_species_irl, "Taxonomic_Group")
+
+x = table(assessSpeciesNumber_irl$Taxonomic_Group) 
+species_differences_irl2 = tukey_species_irl$Taxonomic_Group |> as.data.frame() 
+
+for (i in length(x):1) {
+  species_differences_irl2[grepl(x = species_differences_irl2 |> row.names(), 
+                                        pattern = names(x)[i]), "count"] = paste(species_differences_irl2[grepl(x = species_differences_irl2 |>
+                                                                                                                         row.names(), pattern = names(x)[i]), "count"], x[i], sep = ", ")
+} 
+
+species_differences_irl2$count = gsub("NA, ", "", species_differences_irl2$count)
+
+species_differences_irl = tukey_species_irl$Taxonomic_Group[!(tukey_species_irl$Taxonomic_Group[, "p adj"] > 0.05) , ] |> as.data.frame() |>  
+  dplyr::arrange(desc(abs(diff))) |>
+  dplyr::rename(difference = diff)
+
+species_differences_irl = cbind(data.frame(do.call(rbind, (rownames(species_differences_irl) |> strsplit(split = "-")))),
+      species_differences_irl)
+
+## groups with bias
+biased_groups_irl = rownames(species_differences_irl) |> strsplit(split = "-") |>
+  unlist()
+
+
+# JPN
+fit_species_jpn = aov(val ~ Taxonomic_Group , data = assessSpeciesNumber_jpn)
+summary_fit_species_jpn = fit_species_jpn |> summary()
+p.value_jpn = (summary_fit_species_jpn |> unlist() |> t() |> as.data.frame())$`Pr(>F)1` |> round(5)
+
+## tukey test
+tukey_species_jpn = TukeyHSD(fit_species_jpn, "Taxonomic_Group")
+
+x = table(assessSpeciesNumber_jpn$Taxonomic_Group) 
+species_differences_jpn2 = tukey_species_jpn$Taxonomic_Group |> as.data.frame() 
+
+for (i in length(x):1) {
+  species_differences_jpn2[grepl(x = species_differences_jpn2 |> row.names(), 
+                                        pattern = names(x)[i]), "count"] = paste(species_differences_jpn2[grepl(x = species_differences_jpn2 |>
+                                                                                                                         row.names(), pattern = names(x)[i]), "count"], x[i], sep = ", ")
+} 
+
+species_differences_jpn2$count = gsub("NA, ", "", species_differences_jpn2$count)
+
+species_differences_jpn = tukey_species_jpn$Taxonomic_Group[!(tukey_species_jpn$Taxonomic_Group[, "p adj"] > 0.05) , ] |> as.data.frame() |>  
+  dplyr::arrange(desc(abs(diff))) |>
+  dplyr::rename(difference = diff)
+
+species_differences_jpn = cbind(data.frame(do.call(rbind, (rownames(species_differences_jpn) |> strsplit(split = "-")))),
+      species_differences_jpn)
+
+## groups with bias
+biased_groups_jpn = rownames(species_differences_jpn) |> strsplit(split = "-") |>
+  unlist()
+
+
+# MDG
+fit_species_mdg = aov(val ~ Taxonomic_Group , data = assessSpeciesNumber_mdg)
+summary_fit_species_mdg = fit_species_mdg |> summary()
+p.value_mdg = (summary_fit_species_mdg |> unlist() |> t() |> as.data.frame())$`Pr(>F)1` |> round(5)
+
+## tukey test
+tukey_species_mdg = TukeyHSD(fit_species_mdg, "Taxonomic_Group")
+
+x = table(assessSpeciesNumber_mdg$Taxonomic_Group) 
+species_differences_mdg2 = tukey_species_mdg$Taxonomic_Group |> as.data.frame() 
+
+for (i in length(x):1) {
+  species_differences_mdg2[grepl(x = species_differences_mdg2 |> row.names(), 
+                                        pattern = names(x)[i]), "count"] = paste(species_differences_mdg2[grepl(x = species_differences_mdg2 |>
+                                                                                                                         row.names(), pattern = names(x)[i]), "count"], x[i], sep = ", ")
+} 
+
+species_differences_mdg2$count = gsub("NA, ", "", species_differences_mdg2$count)
+
+species_differences_mdg = tukey_species_mdg$Taxonomic_Group[!(tukey_species_mdg$Taxonomic_Group[, "p adj"] > 0.05) , ] |> as.data.frame() |>  
+  dplyr::arrange(desc(abs(diff))) |>
+  dplyr::rename(difference = diff)
+
+species_differences_mdg = cbind(data.frame(do.call(rbind, (rownames(species_differences_mdg) |> strsplit(split = "-")))),
+      species_differences_mdg)
+
+## groups with bias
+biased_groups_mdg = rownames(species_differences_mdg) |> strsplit(split = "-") |>
+  unlist()
+
+
+# NZL GLONAF
+fit_species_nzl_glonaf = aov(val ~ Taxonomic_Group , data = assessSpeciesNumber_nzl_glonaf)
+summary_fit_species_nzl_glonaf = fit_species_nzl_glonaf |> summary()
+p.value_nzl_glonaf = (summary_fit_species_nzl_glonaf |> unlist() |> t() |> as.data.frame())$`Pr(>F)1` |> round(5)
+
+## tukey test
+tukey_species_nzl_glonaf = TukeyHSD(fit_species_nzl_glonaf, "Taxonomic_Group")
+
+x = table(assessSpeciesNumber_nzl_glonaf$Taxonomic_Group) 
+species_differences_nzl_glonaf2 = tukey_species_nzl_glonaf$Taxonomic_Group |> as.data.frame() 
+
+for (i in length(x):1) {
+  species_differences_nzl_glonaf2[grepl(x = species_differences_nzl_glonaf2 |> row.names(), 
+                                        pattern = names(x)[i]), "count"] = paste(species_differences_nzl_glonaf2[grepl(x = species_differences_nzl_glonaf2 |>
+                                                                                                                         row.names(), pattern = names(x)[i]), "count"], x[i], sep = ", ")
+} 
+
+species_differences_nzl_glonaf2$count = gsub("NA, ", "", species_differences_nzl_glonaf2$count)
+
+species_differences_nzl_glonaf = tukey_species_nzl_glonaf$Taxonomic_Group[!(tukey_species_nzl_glonaf$Taxonomic_Group[, "p adj"] > 0.05) , ] |> as.data.frame() |>  
+  dplyr::arrange(desc(abs(diff))) |>
+  dplyr::rename(difference = diff)
+
+species_differences_nzl_glonaf = cbind(data.frame(do.call(rbind, (rownames(species_differences_nzl_glonaf) |> strsplit(split = "-")))),
+      species_differences_nzl_glonaf)
+
+## groups with bias
+biased_groups_nzl_glonaf = rownames(species_differences_nzl_glonaf) |> strsplit(split = "-") |>
+  unlist()
+
+
+# USA
+fit_species_usa = aov(val ~ Taxonomic_Group , data = assessSpeciesNumber_usa)
+summary_fit_species_usa = fit_species_usa |> summary()
+p.value_usa = (summary_fit_species_usa |> unlist() |> t() |> as.data.frame())$`Pr(>F)1` |> round(5)
+
+## tukey test
+tukey_species_usa = TukeyHSD(fit_species_usa, "Taxonomic_Group")
+
+x = table(assessSpeciesNumber_usa$Taxonomic_Group) 
+species_differences_usa2 = tukey_species_usa$Taxonomic_Group |> as.data.frame() 
+
+for (i in length(x):1) {
+  species_differences_usa2[grepl(x = species_differences_usa2 |> row.names(), 
+                                        pattern = names(x)[i]), "count"] = paste(species_differences_usa2[grepl(x = species_differences_usa2 |>
+                                                                                                                         row.names(), pattern = names(x)[i]), "count"], x[i], sep = ", ")
+} 
+
+species_differences_usa2$count = gsub("NA, ", "", species_differences_usa2$count)
+
+species_differences_usa = tukey_species_usa$Taxonomic_Group[!(tukey_species_usa$Taxonomic_Group[, "p adj"] > 0.05) , ] |> as.data.frame() |>  
+  dplyr::arrange(desc(abs(diff))) |>
+  dplyr::rename(difference = diff)
+
+species_differences_usa = cbind(data.frame(do.call(rbind, (rownames(species_differences_usa) |> strsplit(split = "-")))),
+      species_differences_usa)
+
+## groups with bias
+biased_groups_usa = rownames(species_differences_usa) |> strsplit(split = "-") |>
+  unlist()
+
+
+# ZAF
+fit_species_zaf = aov(val ~ Taxonomic_Group , data = assessSpeciesNumber_zaf)
+summary_fit_species_zaf = fit_species_zaf |> summary()
+p.value_zaf = (summary_fit_species_zaf |> unlist() |> t() |> as.data.frame())$`Pr(>F)1` |> round(5)
+
+## tukey test
+tukey_species_zaf = TukeyHSD(fit_species_zaf, "Taxonomic_Group")
+
+x = table(assessSpeciesNumber_zaf$Taxonomic_Group) 
+species_differences_zaf2 = tukey_species_zaf$Taxonomic_Group |> as.data.frame() 
+
+for (i in length(x):1) {
+  species_differences_zaf2[grepl(x = species_differences_zaf2 |> row.names(), 
+                                        pattern = names(x)[i]), "count"] = paste(species_differences_zaf2[grepl(x = species_differences_zaf2 |>
+                                                                                                                         row.names(), pattern = names(x)[i]), "count"], x[i], sep = ", ")
+} 
+
+species_differences_zaf2$count = gsub("NA, ", "", species_differences_zaf2$count)
+
+species_differences_zaf = tukey_species_zaf$Taxonomic_Group[!(tukey_species_zaf$Taxonomic_Group[, "p adj"] > 0.05) , ] |> as.data.frame() |>  
+  dplyr::arrange(desc(abs(diff))) |>
+  dplyr::rename(difference = diff)
+
+species_differences_zaf = cbind(data.frame(do.call(rbind, (rownames(species_differences_zaf) |> strsplit(split = "-")))),
+      species_differences_zaf)
+
+## groups with bias
+biased_groups_zaf = rownames(species_differences_zaf) |> strsplit(split = "-") |>
+  unlist()
+```
+
+
+
+Table 3 below gives the p-value of the *ANOVA* tests for the different occurrence ranges. The *P-values < 0.05* imply presence of a significant variation in the Number of records identified between some of the families in the datasets. 
+
+Table 3: ANOVA p-values - Differences in the Number of records across taxonomic groups (families)
+```{r, echo =FALSE, cache=TRUE, results='asis', message=FALSE, warning=FALSE}
+## **(species)**
+
+dplyr::tibble(
+  range = c("AUS GLONAF", "GBR", "IRL", "JPN", "MDG", "NZL GLONAF", "USA", "ZAF"),
+  
+  `number of families` = c(
+    assessSpeciesNumber_aus_glonaf$Taxonomic_Group |> unique() |> length() ,
+    assessSpeciesNumber_gbr$Taxonomic_Group |> unique() |> length(),
+    assessSpeciesNumber_irl$Taxonomic_Group |> unique() |> length(),
+    assessSpeciesNumber_jpn$Taxonomic_Group |> unique() |> length(),
+    assessSpeciesNumber_mdg$Taxonomic_Group |> unique() |> length(),
+    assessSpeciesNumber_nzl_glonaf$Taxonomic_Group |> unique() |> length() ,
+    assessSpeciesNumber_usa$Taxonomic_Group |> unique() |> length(),
+    assessSpeciesNumber_zaf$Taxonomic_Group |> unique() |> length()),
+  
+  `pairs of families compared` = c(
+    assessSpeciesNumber_aus_glonaf$Taxonomic_Group |> unique() |> length() |> choose(2),
+    assessSpeciesNumber_gbr$Taxonomic_Group |> unique() |> length() |> choose(2),
+    assessSpeciesNumber_irl$Taxonomic_Group |> unique() |> length() |> choose(2),
+    assessSpeciesNumber_jpn$Taxonomic_Group |> unique() |> length() |> choose(2),
+    assessSpeciesNumber_mdg$Taxonomic_Group |> unique() |> length() |> choose(2),
+    assessSpeciesNumber_nzl_glonaf$Taxonomic_Group |> unique() |> length() |> choose(2),
+    assessSpeciesNumber_usa$Taxonomic_Group |> unique() |> length() |> choose(2),
+    assessSpeciesNumber_zaf$Taxonomic_Group |> unique() |> length() |> choose(2)),
+  
+  `pairs of families with bias` = c(
+    species_differences_aus_glonaf |> nrow(),
+    species_differences_gbr |> nrow(),
+    species_differences_irl |> nrow(),
+    species_differences_jpn |> nrow(),
+    species_differences_mdg |> nrow(),
+    species_differences_nzl_glonaf |> nrow(),
+    species_differences_usa |> nrow(),
+    species_differences_zaf |> nrow()),
+  
+  `number of families with bias` = c(
+    biased_groups_aus_glonaf |> unique() |> length(),
+    biased_groups_gbr |> unique() |> length(),
+    biased_groups_irl |> unique() |> length(),
+    biased_groups_jpn |> unique() |> length(),
+    biased_groups_mdg |> unique() |> length(),
+    biased_groups_nzl_glonaf |> unique() |> length(),
+    biased_groups_usa |> unique() |> length(),
+    biased_groups_zaf |> unique() |> length()),
+  
+  `% of families with bias` = round(100 * `number of families with bias` / `number of families`, 2),
+  
+  `% of family pairs with bias` = round(100 * `pairs of families with bias` / `pairs of families compared`, 2),
+  
+  `ANOVA p.value` = c(p.value_aus_glonaf, p.value_gbr, p.value_irl, p.value_jpn, p.value_mdg, p.value_nzl_glonaf, p.value_usa, p.value_zaf)) |> 
+  dplyr::mutate(`ANOVA p.value` = round(`ANOVA p.value`, 4)) |>
+  knitr::kable()
+```
+
+
+Note that although *all families (100% of families assessed)* had some level of taxonomic bias relative to atleast *1 other family* except in *IRL* where only $40\%$ of the families with bias, there is a high level of homogeneity in sampling between different families. Among the pairs of families compared, biases were observed in less than $11\%$ across all the invaded ranges. This implies that although some families may have more species records than others, majority of family pairs compared had no bias. 
+
+
+```{r, echo =FALSE, cache=TRUE, results='asis', message=FALSE, warning=FALSE}
+library(here)
+library(readr)
+library(ggplot2)
+library(gridExtra)
+```
+
+
+*Function to aggregate the number of observations in 10 year periods into 50 year periods*
+
+```{r, echo =FALSE, cache=TRUE, results='asis', message=FALSE, warning=FALSE}
+aggregate_50 = function(region) {
+  data_path = paste0(here(), "/13.  bias assessment results/", region, "_invaded_clean/", region, "_invaded_clean_periods_length_10_by_species_assessSpeciesNumber_output.csv")
+  data = readr::read_csv(data_path)
+  
+  periods = dplyr::tibble(Period = data$Period |> unique())
+  new_periods = NULL
+  
+  for (i in 1:ceiling(max(data$Period)/5)) {
+    new_periods = c(new_periods, rep(i, 5))
+  }
+  
+  periods$new_periods = new_periods[1:nrow(periods)]
+  data = data |>
+    dplyr::left_join(periods) |>
+    dplyr::select(-Period) |>
+    dplyr::group_by(group, new_periods) |>
+    dplyr::summarise(val = sum(val)) 
+  
+  return(data)
+}
+```
+
+
+*plot aggregated the data*
+
+```{r, echo =FALSE, cache=TRUE, results='asis', message=FALSE, warning=FALSE}
+regions = c("aus_glonaf", "gbr", "irl", "jpn", "mdg", "nzl_glonaf", "usa", "zaf")
+
+for (region in regions) {
+  plot = aggregate_50(region = region) |> assign(x = region) |>
+    dplyr::filter(!is.na(val)) |>
+    dplyr::rename(Period = new_periods) |>
+    ggplot(mapping = aes(x = Period, y = val, color = group)) +
+  geom_point( ) + geom_line() + 
+  theme_bw() + labs(y = "Number of species recorded", 
+                    title = paste(region, "- Taxonomic Sampling Bias (Number of species) for 50 year periods by  Family")) +
+  theme(legend.position = "none")
+  
+  assign(x = region, value = plot)
+}
+
+grid.arrange(aus_glonaf, gbr, ncol = 2)
+grid.arrange(irl, jpn, ncol = 2)
+grid.arrange(mdg, nzl_glonaf, ncol = 2)
+grid.arrange(usa, zaf, ncol = 2)
+```
+
+
+*ANOVA with aggregated data*
+
+```{r, echo =FALSE, cache=TRUE, results='asis', message=FALSE, warning=FALSE}
+anova_test = function(region) {
+  data = aggregate_50(region = region) |> dplyr::rename(Taxonomic_Group = group)
+  
+  # normalize
+  data$val = data$val / (max(data$val, na.rm = TRUE))
+  
+   fit_species = aov(val ~ Taxonomic_Group , 
+                     data = data)
+   summary_fit_species = fit_species |> summary()
+   p.value = (summary_fit_species |> unlist() |> t() |> as.data.frame())$`Pr(>F)1` |> round(5)
+
+   return(list(fit_species = fit_species, summary_fit_species = summary_fit_species,
+               p.value = p.value))
+}
+
+
+for (region in regions) {
+  anova_test(region = region) |> assign(x = paste0("anova_", region))
+}
+
+
+for (region in regions) {
+  (aggregate_50(region = region) |> dplyr::rename(Taxonomic_Group = group)) |> assign(x = paste0("assessSpeciesNumber_", region, "_by_species"))
+}
+
+
+# AnOVA table
+dplyr::tibble(
+  range = c("AUS GLONAF", "GBR", "IRL", "JPN", "MDG", "NZL GLONAF", "USA", "ZAF"),
+  
+  `Number of species` = c(
+    assessSpeciesNumber_aus_glonaf_by_species$Taxonomic_Group |> unique() |> length() ,
+    assessSpeciesNumber_gbr_by_species$Taxonomic_Group |> unique() |> length(),
+    assessSpeciesNumber_irl_by_species$Taxonomic_Group |> unique() |> length(),
+    assessSpeciesNumber_jpn_by_species$Taxonomic_Group |> unique() |> length(),
+    assessSpeciesNumber_mdg_by_species$Taxonomic_Group |> unique() |> length(),
+    assessSpeciesNumber_nzl_glonaf_by_species$Taxonomic_Group |> unique() |> length() ,
+    assessSpeciesNumber_usa_by_species$Taxonomic_Group |> unique() |> length(),
+    assessSpeciesNumber_zaf_by_species$Taxonomic_Group |> unique() |> length()),
+  
+  `pairs of species compared` = c(
+    assessSpeciesNumber_aus_glonaf_by_species$Taxonomic_Group |> unique() |> length() |> choose(2),
+    assessSpeciesNumber_gbr_by_species$Taxonomic_Group |> unique() |> length() |> choose(2),
+    assessSpeciesNumber_irl_by_species$Taxonomic_Group |> unique() |> length() |> choose(2),
+    assessSpeciesNumber_jpn_by_species$Taxonomic_Group |> unique() |> length() |> choose(2),
+    assessSpeciesNumber_mdg_by_species$Taxonomic_Group |> unique() |> length() |> choose(2),
+    assessSpeciesNumber_nzl_glonaf_by_species$Taxonomic_Group |> unique() |> length() |> choose(2),
+    assessSpeciesNumber_usa_by_species$Taxonomic_Group |> unique() |> length() |> choose(2),
+    assessSpeciesNumber_zaf_by_species$Taxonomic_Group |> unique() |> length() |> choose(2)),
+
+  `ANOVA p.value` = c(anova_aus_glonaf$p.value, anova_gbr$p.value, anova_irl$p.value, anova_jpn$p.value, 
+                      anova_mdg$p.value, anova_nzl_glonaf$p.value, anova_usa$p.value, anova_zaf$p.value)) |> 
+  dplyr::mutate(`ANOVA p.value` = round(`ANOVA p.value`, 4)) |>
+  knitr::kable()
+```
+
+This implies that differences in sampling intensity become more apparent when the species observations are aggregated at higher taxonomic levels (e.g the family level) or aggregated into periods with longer durations (e.g increasing duration of each period from 10 years to 50 years). This supports the assumption that differences in sampling intensity would be higher in aggregated groups rather than individuals. Therefore, aggregating occurrences at larger  taxonomic and temporal scales show more difference in sampling intensity than at smaller scales.
+
+Taxonomic groups (families) identified to have significant differences in sampling intensity are identified and ranked for the different regions based on the differences
+
+Table: Differences in the Number of species identified between families
+```{r, echo =FALSE, cache=TRUE, results='asis', message=FALSE, warning=FALSE}
+s_differences = (species_differences_aus_glonaf |>
+   dplyr::rename(group_1 = X1, group_2 = X2, lower_conf_limit = lwr, upper_conf_limit = upr, `p value` = `p adj`) |>
+  dplyr::mutate(region = "AUS GLONAF")) |>
+
+dplyr::full_join(species_differences_gbr |>
+   dplyr::rename(group_1 = X1, group_2 = X2, lower_conf_limit = lwr, upper_conf_limit = upr, `p value` = `p adj`) |>
+  dplyr::mutate(region = "GBR")) |>
+
+dplyr::full_join(species_differences_irl |>
+   dplyr::rename(group_1 = X1, group_2 = X2, lower_conf_limit = lwr, upper_conf_limit = upr, `p value` = `p adj`) |>
+  dplyr::mutate(region = "IRL")) |>
+
+dplyr::full_join(species_differences_jpn |>
+   dplyr::rename(group_1 = X1, group_2 = X2, lower_conf_limit = lwr, upper_conf_limit = upr, `p value` = `p adj`) |>
+  dplyr::mutate(region = "JPN")) |>
+
+dplyr::full_join(species_differences_mdg |>
+   dplyr::rename(group_1 = X1, group_2 = X2, lower_conf_limit = lwr, upper_conf_limit = upr, `p value` = `p adj`) |>
+  dplyr::mutate(region = "MDG")) |>
+
+dplyr::full_join(species_differences_nzl_glonaf |>
+   dplyr::rename(group_1 = X1, group_2 = X2, lower_conf_limit = lwr, upper_conf_limit = upr, `p value` = `p adj`) |>
+  dplyr::mutate(region = "NZL GLONAF")) |>
+
+dplyr::full_join(species_differences_usa |>
+   dplyr::rename(group_1 = X1, group_2 = X2, lower_conf_limit = lwr, upper_conf_limit = upr, `p value` = `p adj`) |>
+  dplyr::mutate(region = "USA")) |>
+
+dplyr::full_join(species_differences_zaf |>
+   dplyr::rename(group_1 = X1, group_2 = X2, lower_conf_limit = lwr, upper_conf_limit = upr, `p value` = `p adj`) |>
+  dplyr::mutate(region = "ZAF")) |>
+  
+  dplyr::select(region, group_1, group_2, difference, lower_conf_limit, upper_conf_limit, `p value`) 
+
+
+s_differences[ , c(4, 5, 6)] = s_differences[ , c(4, 5, 6)] |> round(2)
+s_differences[ , 7] = s_differences[ , 7] |> round(4)
+
+s_differences |>
+  knitr::kable()
+
+```
+
+```{r, echo =FALSE, cache=TRUE, results='asis', message=FALSE, warning=FALSE}
+s_differences |> as.data.frame() |> group_by(region) |> summarise(min_difference = min(difference),
+                                               mean_difference = mean(difference),
+                                               max_difference = max(difference))
+
+```
+
+
+
+## (b) Temporal biases in Sampling Intensity
+
+We observed a positive slope in the Number of records identified over time among some families across all the regions (figure 1). We estimate the slopes of the Number of records recorded for each family over time, and test the alternative hypothesis that there is a temporal change in sampling intensity (i.e slope > 0). 
+
+
+
+
+
+```{r, echo =FALSE, cache=TRUE, results='asis', message=FALSE, warning=FALSE}
+library(broom)
+library(purrr)
+
+# BY FAMILY
+
+# aus_glonaf
+sampling_intensity_slope_aus_glonaf = split.data.frame(assessSpeciesNumber_aus_glonaf, assessSpeciesNumber_aus_glonaf$Taxonomic_Group)  |>
+  purrr::map(~lm(val ~ 1 + Period, data = .x)) |>
+  purrr::map_df(tidy) |>
+  dplyr::filter(term == 'Period') |>
+  dplyr::mutate(term = sort(assessSpeciesNumber_aus_glonaf$Taxonomic_Group |> unique()), region = "aus_glonaf") |>
+  dplyr::filter(p.value < 0.05 | p.value == 0.05) |>
+  dplyr::rename(Taxonomic_group = term) |> dplyr::arrange(desc(estimate)) |>
+  dplyr::select(region, Taxonomic_group, estimate, std.error, statistic, p.value)
+
+
+# number of groups with bias
+increasing_coverage_aus_glonaf = sampling_intensity_slope_aus_glonaf[sampling_intensity_slope_aus_glonaf$estimate > 0, "Taxonomic_group"]$Taxonomic_group |> unique() |> length()
+decreasing_coverage_aus_glonaf = sampling_intensity_slope_aus_glonaf[sampling_intensity_slope_aus_glonaf$estimate < 0, "Taxonomic_group"]$Taxonomic_group |> unique() |> length()
+
+
+# gbr
+sampling_intensity_slope_gbr = split.data.frame(assessSpeciesNumber_gbr, assessSpeciesNumber_gbr$Taxonomic_Group)  |>
+  purrr::map(~lm(val ~ 1 + Period, data = .x)) |>
+  purrr::map_df(tidy) |>
+  dplyr::filter(term == 'Period') |>
+  dplyr::mutate(term = sort(assessSpeciesNumber_gbr$Taxonomic_Group |> unique()), region = "gbr") |>
+  dplyr::filter(p.value < 0.05 | p.value == 0.05) |>
+  dplyr::rename(Taxonomic_group = term) |> dplyr::arrange(desc(estimate)) |>
+  dplyr::select(region, Taxonomic_group, estimate, std.error, statistic, p.value)
+
+
+# number of groups with bias
+increasing_coverage_gbr = sampling_intensity_slope_gbr[sampling_intensity_slope_gbr$estimate > 0, "Taxonomic_group"]$Taxonomic_group |> unique() |> length()
+decreasing_coverage_gbr = sampling_intensity_slope_gbr[sampling_intensity_slope_gbr$estimate < 0, "Taxonomic_group"]$Taxonomic_group |> unique() |> length()
+
+
+# irl
+sampling_intensity_slope_irl = split.data.frame(assessSpeciesNumber_irl, assessSpeciesNumber_irl$Taxonomic_Group)  |>
+  purrr::map(~lm(val ~ 1 + Period, data = .x)) |>
+  purrr::map_df(tidy) |>
+  dplyr::filter(term == 'Period') |>
+  dplyr::mutate(term = sort(assessSpeciesNumber_irl$Taxonomic_Group |> unique()), region = "irl") |>
+  dplyr::filter(p.value < 0.05 | p.value == 0.05) |>
+  dplyr::rename(Taxonomic_group = term) |> dplyr::arrange(desc(estimate)) |>
+  dplyr::select(region, Taxonomic_group, estimate, std.error, statistic, p.value)
+
+
+# number of groups with bias
+increasing_coverage_irl = sampling_intensity_slope_irl[sampling_intensity_slope_irl$estimate > 0, "Taxonomic_group"]$Taxonomic_group |> unique() |> length()
+decreasing_coverage_irl = sampling_intensity_slope_irl[sampling_intensity_slope_irl$estimate < 0, "Taxonomic_group"]$Taxonomic_group |> unique() |> length()
+
+
+# jpn
+sampling_intensity_slope_jpn = split.data.frame(assessSpeciesNumber_jpn, assessSpeciesNumber_jpn$Taxonomic_Group)  |>
+  purrr::map(~lm(val ~ 1 + Period, data = .x)) |>
+  purrr::map_df(tidy) |>
+  dplyr::filter(term == 'Period') |>
+  dplyr::mutate(term = sort(assessSpeciesNumber_jpn$Taxonomic_Group |> unique()), region = "jpn") |>
+  dplyr::filter(p.value < 0.05 | p.value == 0.05) |>
+  dplyr::rename(Taxonomic_group = term) |> dplyr::arrange(desc(estimate)) |>
+  dplyr::select(region, Taxonomic_group, estimate, std.error, statistic, p.value)
+
+
+# number of groups with bias
+increasing_coverage_jpn = sampling_intensity_slope_jpn[sampling_intensity_slope_jpn$estimate > 0, "Taxonomic_group"]$Taxonomic_group |> unique() |> length()
+decreasing_coverage_jpn = sampling_intensity_slope_jpn[sampling_intensity_slope_jpn$estimate < 0, "Taxonomic_group"]$Taxonomic_group |> unique() |> length()
+
+
+# mdg
+sampling_intensity_slope_mdg = split.data.frame(assessSpeciesNumber_mdg, assessSpeciesNumber_mdg$Taxonomic_Group)  |>
+  purrr::map(~lm(val ~ 1 + Period, data = .x)) |>
+  purrr::map_df(tidy) |>
+  dplyr::filter(term == 'Period') |>
+  dplyr::mutate(term = sort(assessSpeciesNumber_mdg$Taxonomic_Group |> unique()), region = "mdg") |>
+  dplyr::filter(p.value < 0.05 | p.value == 0.05) |>
+  dplyr::rename(Taxonomic_group = term) |> dplyr::arrange(desc(estimate)) |>
+  dplyr::select(region, Taxonomic_group, estimate, std.error, statistic, p.value)
+
+
+# number of groups with bias
+increasing_coverage_mdg = sampling_intensity_slope_mdg[sampling_intensity_slope_mdg$estimate > 0, "Taxonomic_group"]$Taxonomic_group |> unique() |> length()
+decreasing_coverage_mdg = sampling_intensity_slope_mdg[sampling_intensity_slope_mdg$estimate < 0, "Taxonomic_group"]$Taxonomic_group |> unique() |> length()
+
+
+# nzl_glonaf
+sampling_intensity_slope_nzl_glonaf = split.data.frame(assessSpeciesNumber_nzl_glonaf, assessSpeciesNumber_nzl_glonaf$Taxonomic_Group)  |>
+  purrr::map(~lm(val ~ 1 + Period, data = .x)) |>
+  purrr::map_df(tidy) |>
+  dplyr::filter(term == 'Period') |>
+  dplyr::mutate(term = sort(assessSpeciesNumber_nzl_glonaf$Taxonomic_Group |> unique()), region = "nzl_glonaf") |>
+  dplyr::filter(p.value < 0.05 | p.value == 0.05) |>
+  dplyr::rename(Taxonomic_group = term) |> dplyr::arrange(desc(estimate)) |>
+  dplyr::select(region, Taxonomic_group, estimate, std.error, statistic, p.value)
+
+
+# number of groups with bias
+increasing_coverage_nzl_glonaf = sampling_intensity_slope_nzl_glonaf[sampling_intensity_slope_nzl_glonaf$estimate > 0, "Taxonomic_group"]$Taxonomic_group |> unique() |> length()
+decreasing_coverage_nzl_glonaf = sampling_intensity_slope_nzl_glonaf[sampling_intensity_slope_nzl_glonaf$estimate < 0, "Taxonomic_group"]$Taxonomic_group |> unique() |> length()
+
+
+# usa
+sampling_intensity_slope_usa = split.data.frame(assessSpeciesNumber_usa, assessSpeciesNumber_usa$Taxonomic_Group)  |>
+  purrr::map(~lm(val ~ 1 + Period, data = .x)) |>
+  purrr::map_df(tidy) |>
+  dplyr::filter(term == 'Period') |>
+  dplyr::mutate(term = sort(assessSpeciesNumber_usa$Taxonomic_Group |> unique()), region = "usa") |>
+  dplyr::filter(p.value < 0.05 | p.value == 0.05) |>
+  dplyr::rename(Taxonomic_group = term) |> dplyr::arrange(desc(estimate)) |>
+  dplyr::select(region, Taxonomic_group, estimate, std.error, statistic, p.value)
+
+
+# number of groups with bias
+increasing_coverage_usa = sampling_intensity_slope_usa[sampling_intensity_slope_usa$estimate > 0, "Taxonomic_group"]$Taxonomic_group |> unique() |> length()
+decreasing_coverage_usa = sampling_intensity_slope_usa[sampling_intensity_slope_usa$estimate < 0, "Taxonomic_group"]$Taxonomic_group |> unique() |> length()
+
+
+# zaf
+sampling_intensity_slope_zaf = split.data.frame(assessSpeciesNumber_zaf, assessSpeciesNumber_zaf$Taxonomic_Group)  |>
+  purrr::map(~lm(val ~ 1 + Period, data = .x)) |>
+  purrr::map_df(tidy) |>
+  dplyr::filter(term == 'Period') |>
+  dplyr::mutate(term = sort(assessSpeciesNumber_zaf$Taxonomic_Group |> unique()), region = "zaf") |>
+  dplyr::filter(p.value < 0.05 | p.value == 0.05) |>
+  dplyr::rename(Taxonomic_group = term) |> dplyr::arrange(desc(estimate)) |>
+  dplyr::select(region, Taxonomic_group, estimate, std.error, statistic, p.value)
+
+
+# number of groups with bias
+increasing_coverage_zaf = sampling_intensity_slope_zaf[sampling_intensity_slope_zaf$estimate > 0, "Taxonomic_group"]$Taxonomic_group |> unique() |> length()
+decreasing_coverage_zaf = sampling_intensity_slope_zaf[sampling_intensity_slope_zaf$estimate < 0, "Taxonomic_group"]$Taxonomic_group |> unique() |> length()
+
+
+dplyr::tibble(
+  range = c("AUS GLONAF", "GBR", "IRL", "JPN", "MDG", "NZL GLONAF", "USA", "ZAF"),
+  
+  `number of families` = c(
+    assessSpeciesNumber_aus_glonaf$Taxonomic_Group |> unique() |> length() ,
+    assessSpeciesNumber_gbr$Taxonomic_Group |> unique() |> length(),
+    assessSpeciesNumber_irl$Taxonomic_Group |> unique() |> length(),
+    assessSpeciesNumber_jpn$Taxonomic_Group |> unique() |> length(),
+    assessSpeciesNumber_mdg$Taxonomic_Group |> unique() |> length(),
+    assessSpeciesNumber_nzl_glonaf$Taxonomic_Group |> unique() |> length() ,
+    assessSpeciesNumber_usa$Taxonomic_Group |> unique() |> length(),
+    assessSpeciesNumber_zaf$Taxonomic_Group |> unique() |> length()),
+  
+  `families with increasing sampling` = c(
+    increasing_coverage_aus_glonaf, increasing_coverage_gbr, increasing_coverage_irl,
+    increasing_coverage_jpn, increasing_coverage_mdg, increasing_coverage_nzl_glonaf,
+    increasing_coverage_usa, increasing_coverage_zaf
+  ),
+  
+  `families with decreasing sampling` = c(
+    decreasing_coverage_aus_glonaf, decreasing_coverage_gbr, decreasing_coverage_irl,
+    decreasing_coverage_jpn, decreasing_coverage_mdg, decreasing_coverage_nzl_glonaf,
+    decreasing_coverage_usa, decreasing_coverage_zaf
+  ),
+  
+  `% of families with increasing sampling` = round(100 * `families with increasing sampling` / `number of families`, 2),
+  
+  `% of families with decreasing sampling` =  round(100 * `families with decreasing sampling` / `number of families`, 2),
+  
+  `% of families without temporal changes` = 100 - (`% of families with increasing sampling` + `% of families with decreasing sampling`)) |>
+  
+  knitr::kable()
+```
+
+
+Temporal changes in sampling intensity were observed in between 16% (IRL) and 62.39% (GBR) of families across the  8 invaded regions. Increases in sampling intensities were more dominant than decreases among the families where temporal changes were observed.  
+
+
+
+```{r, echo =FALSE, cache=TRUE, results='asis', message=FALSE, warning=FALSE}
+library(broom)
+# BY species
+
+# aus_glonaf
+sampling_intensity_slope_aus_glonaf_by_species = split.data.frame( assessSpeciesNumber_aus_glonaf_by_species |> dplyr::rename(Period = new_periods) ,  assessSpeciesNumber_aus_glonaf_by_species$Taxonomic_Group)   |>
+  purrr::map(~lm(val ~ 1 + Period, data = .x)) |>
+  purrr::map_df(tidy) |>
+  dplyr::filter(term == 'Period') |>
+  dplyr::mutate(term = sort( assessSpeciesNumber_aus_glonaf_by_species$Taxonomic_Group |> unique()), region = "aus_glonaf") |>
+  dplyr::filter(p.value < 0.05 | p.value == 0.05) |>
+  dplyr::rename(Taxonomic_group = term) |> dplyr::arrange(desc(estimate)) |>
+  dplyr::select(region, Taxonomic_group, estimate, std.error, statistic, p.value)
+
+
+# number of groups with bias
+increasing_coverage_aus_glonaf_by_species = sampling_intensity_slope_aus_glonaf_by_species[sampling_intensity_slope_aus_glonaf_by_species$estimate > 0, "Taxonomic_group"]$Taxonomic_group |> unique() |> length()
+decreasing_coverage_aus_glonaf_by_species = sampling_intensity_slope_aus_glonaf_by_species[sampling_intensity_slope_aus_glonaf_by_species$estimate < 0, "Taxonomic_group"]$Taxonomic_group |> unique() |> length()
+
+
+# gbr
+sampling_intensity_slope_gbr_by_species = split.data.frame(assessSpeciesNumber_gbr_by_species |> dplyr::rename(Period = new_periods) , assessSpeciesNumber_gbr_by_species$Taxonomic_Group)   |>
+  purrr::map(~lm(val ~ 1 + Period, data = .x)) |>
+  purrr::map_df(tidy) |>
+  dplyr::filter(term == 'Period') |>
+  dplyr::mutate(term = sort(assessSpeciesNumber_gbr_by_species$Taxonomic_Group |> unique()), region = "gbr") |>
+  dplyr::filter(p.value < 0.05 | p.value == 0.05) |>
+  dplyr::rename(Taxonomic_group = term) |> dplyr::arrange(desc(estimate)) |>
+  dplyr::select(region, Taxonomic_group, estimate, std.error, statistic, p.value)
+
+
+# number of groups with bias
+increasing_coverage_gbr_by_species = sampling_intensity_slope_gbr_by_species[sampling_intensity_slope_gbr_by_species$estimate > 0, "Taxonomic_group"]$Taxonomic_group |> unique() |> length()
+decreasing_coverage_gbr_by_species = sampling_intensity_slope_gbr_by_species[sampling_intensity_slope_gbr_by_species$estimate < 0, "Taxonomic_group"]$Taxonomic_group |> unique() |> length()
+
+
+# irl
+sampling_intensity_slope_irl_by_species = split.data.frame(assessSpeciesNumber_irl_by_species |> dplyr::rename(Period = new_periods) , assessSpeciesNumber_irl_by_species$Taxonomic_Group)   |>
+  purrr::map(~lm(val ~ 1 + Period, data = .x)) |>
+  purrr::map_df(tidy) |>
+  dplyr::filter(term == 'Period') |>
+  dplyr::mutate(term = sort(assessSpeciesNumber_irl_by_species$Taxonomic_Group |> unique()), region = "irl") |>
+  dplyr::filter(p.value < 0.05 | p.value == 0.05) |>
+  dplyr::rename(Taxonomic_group = term) |> dplyr::arrange(desc(estimate)) |>
+  dplyr::select(region, Taxonomic_group, estimate, std.error, statistic, p.value)
+
+
+# number of groups with bias
+increasing_coverage_irl_by_species = sampling_intensity_slope_irl_by_species[sampling_intensity_slope_irl_by_species$estimate > 0, "Taxonomic_group"]$Taxonomic_group |> unique() |> length()
+decreasing_coverage_irl_by_species = sampling_intensity_slope_irl_by_species[sampling_intensity_slope_irl_by_species$estimate < 0, "Taxonomic_group"]$Taxonomic_group |> unique() |> length()
+
+
+# jpn
+sampling_intensity_slope_jpn_by_species = split.data.frame(assessSpeciesNumber_jpn_by_species |> dplyr::rename(Period = new_periods) , assessSpeciesNumber_jpn_by_species$Taxonomic_Group)   |>
+  purrr::map(~lm(val ~ 1 + Period, data = .x)) |>
+  purrr::map_df(tidy) |>
+  dplyr::filter(term == 'Period') |>
+  dplyr::mutate(term = sort(assessSpeciesNumber_jpn_by_species$Taxonomic_Group |> unique()), region = "jpn") |>
+  dplyr::filter(p.value < 0.05 | p.value == 0.05) |>
+  dplyr::rename(Taxonomic_group = term) |> dplyr::arrange(desc(estimate)) |>
+  dplyr::select(region, Taxonomic_group, estimate, std.error, statistic, p.value)
+
+
+# number of groups with bias
+increasing_coverage_jpn_by_species = sampling_intensity_slope_jpn_by_species[sampling_intensity_slope_jpn_by_species$estimate > 0, "Taxonomic_group"]$Taxonomic_group |> unique() |> length()
+decreasing_coverage_jpn_by_species = sampling_intensity_slope_jpn_by_species[sampling_intensity_slope_jpn_by_species$estimate < 0, "Taxonomic_group"]$Taxonomic_group |> unique() |> length()
+
+
+# mdg
+sampling_intensity_slope_mdg_by_species = split.data.frame(assessSpeciesNumber_mdg_by_species |> dplyr::rename(Period = new_periods) , assessSpeciesNumber_mdg_by_species$Taxonomic_Group)   |>
+  purrr::map(~lm(val ~ 1 + Period, data = .x)) |>
+  purrr::map_df(tidy) |>
+  dplyr::filter(term == 'Period') |>
+  dplyr::mutate(term = sort(assessSpeciesNumber_mdg_by_species$Taxonomic_Group |> unique()), region = "mdg") |>
+  dplyr::filter(p.value < 0.05 | p.value == 0.05) |>
+  dplyr::rename(Taxonomic_group = term) |> dplyr::arrange(desc(estimate)) |>
+  dplyr::select(region, Taxonomic_group, estimate, std.error, statistic, p.value)
+
+
+# number of groups with bias
+increasing_coverage_mdg_by_species = sampling_intensity_slope_mdg_by_species[sampling_intensity_slope_mdg_by_species$estimate > 0, "Taxonomic_group"]$Taxonomic_group |> unique() |> length()
+decreasing_coverage_mdg_by_species = sampling_intensity_slope_mdg_by_species[sampling_intensity_slope_mdg_by_species$estimate < 0, "Taxonomic_group"]$Taxonomic_group |> unique() |> length()
+
+
+# nzl_glonaf
+sampling_intensity_slope_nzl_glonaf_by_species = split.data.frame(assessSpeciesNumber_nzl_glonaf_by_species |> dplyr::rename(Period = new_periods) , assessSpeciesNumber_nzl_glonaf_by_species$Taxonomic_Group)   |>
+  purrr::map(~lm(val ~ 1 + Period, data = .x)) |>
+  purrr::map_df(tidy) |>
+  dplyr::filter(term == 'Period') |>
+  dplyr::mutate(term = sort(assessSpeciesNumber_nzl_glonaf_by_species$Taxonomic_Group |> unique()), region = "nzl_glonaf") |>
+  dplyr::filter(p.value < 0.05 | p.value == 0.05) |>
+  dplyr::rename(Taxonomic_group = term) |> dplyr::arrange(desc(estimate)) |>
+  dplyr::select(region, Taxonomic_group, estimate, std.error, statistic, p.value)
+
+
+# number of groups with bias
+increasing_coverage_nzl_glonaf_by_species = sampling_intensity_slope_nzl_glonaf_by_species[sampling_intensity_slope_nzl_glonaf_by_species$estimate > 0, "Taxonomic_group"]$Taxonomic_group |> unique() |> length()
+decreasing_coverage_nzl_glonaf_by_species = sampling_intensity_slope_nzl_glonaf_by_species[sampling_intensity_slope_nzl_glonaf_by_species$estimate < 0, "Taxonomic_group"]$Taxonomic_group |> unique() |> length()
+
+
+# usa
+sampling_intensity_slope_usa_by_species = split.data.frame(assessSpeciesNumber_usa_by_species |> dplyr::rename(Period = new_periods) , assessSpeciesNumber_usa_by_species$Taxonomic_Group)    |>
+  purrr::map(~lm(val ~ 1 + Period, data = .x)) |>
+  purrr::map_df(tidy) |>
+  dplyr::filter(term == 'Period') |>
+  dplyr::mutate(term = sort(assessSpeciesNumber_usa_by_species$Taxonomic_Group |> unique()), region = "usa") |>
+  dplyr::filter(p.value < 0.05 | p.value == 0.05) |>
+  dplyr::rename(Taxonomic_group = term) |> dplyr::arrange(desc(estimate)) |>
+  dplyr::select(region, Taxonomic_group, estimate, std.error, statistic, p.value)
+
+
+# number of groups with bias
+increasing_coverage_usa_by_species = sampling_intensity_slope_usa_by_species[sampling_intensity_slope_usa_by_species$estimate > 0, "Taxonomic_group"]$Taxonomic_group |> unique() |> length()
+decreasing_coverage_usa_by_species = sampling_intensity_slope_usa_by_species[sampling_intensity_slope_usa_by_species$estimate < 0, "Taxonomic_group"]$Taxonomic_group |> unique() |> length()
+
+
+# zaf
+sampling_intensity_slope_zaf_by_species = split.data.frame(assessSpeciesNumber_zaf_by_species |> dplyr::rename(Period = new_periods) , assessSpeciesNumber_zaf_by_species$Taxonomic_Group)  |>
+  purrr::map(~lm(val ~ 1 + Period, data = .x)) |>
+  purrr::map_df(tidy) |>
+  dplyr::filter(term == 'Period') |>
+  dplyr::mutate(term = sort(assessSpeciesNumber_zaf_by_species$Taxonomic_Group |> unique()), region = "zaf") |>
+  dplyr::filter(p.value < 0.05 | p.value == 0.05) |>
+  dplyr::rename(Taxonomic_group = term) |> dplyr::arrange(desc(estimate)) |>
+  dplyr::select(region, Taxonomic_group, estimate, std.error, statistic, p.value)
+
+
+# number of groups with bias
+increasing_coverage_zaf_by_species = sampling_intensity_slope_zaf_by_species[sampling_intensity_slope_zaf_by_species$estimate > 0, "Taxonomic_group"]$Taxonomic_group |> unique() |> length()
+decreasing_coverage_zaf_by_species = sampling_intensity_slope_zaf_by_species[sampling_intensity_slope_zaf_by_species$estimate < 0, "Taxonomic_group"]$Taxonomic_group |> unique() |> length()
+
+
+dplyr::tibble(
+  range = c("AUS GLONAF", "GBR", "IRL", "JPN", "MDG", "NZL GLONAF", "USA", "ZAF"),
+  
+  `Number of records` = c(
+    assessSpeciesNumber_aus_glonaf_by_species$Taxonomic_Group |> unique() |> length() ,
+    assessSpeciesNumber_gbr_by_species$Taxonomic_Group |> unique() |> length(),
+    assessSpeciesNumber_irl_by_species$Taxonomic_Group |> unique() |> length(),
+    assessSpeciesNumber_jpn_by_species$Taxonomic_Group |> unique() |> length(),
+    assessSpeciesNumber_mdg_by_species$Taxonomic_Group |> unique() |> length(),
+    assessSpeciesNumber_nzl_glonaf_by_species$Taxonomic_Group |> unique() |> length() ,
+    assessSpeciesNumber_usa_by_species$Taxonomic_Group |> unique() |> length(),
+    assessSpeciesNumber_zaf_by_species$Taxonomic_Group |> unique() |> length()),
+  
+  `species with increasing sampling` = c(
+    increasing_coverage_aus_glonaf_by_species, increasing_coverage_gbr_by_species, increasing_coverage_irl_by_species,
+    increasing_coverage_jpn_by_species, increasing_coverage_mdg_by_species, increasing_coverage_nzl_glonaf_by_species,
+    increasing_coverage_usa_by_species, increasing_coverage_zaf_by_species
+  ),
+  
+  `species with decreasing sampling` = c(
+    decreasing_coverage_aus_glonaf_by_species, decreasing_coverage_gbr_by_species, decreasing_coverage_irl_by_species,
+    decreasing_coverage_jpn_by_species, decreasing_coverage_mdg_by_species, decreasing_coverage_nzl_glonaf_by_species,
+    decreasing_coverage_usa_by_species, decreasing_coverage_zaf_by_species
+  ),
+  
+  `% of species with increasing sampling` = round(100 * `species with increasing sampling` / `Number of records`, 2),
+  
+  `% of species with decreasing sampling` =  round(100 * `species with decreasing sampling` / `Number of records`, 2),
+  
+  `% of species without temporal changes` = 100 - (`% of species with increasing sampling` + `% of species with decreasing sampling`)) |>
+  
+  knitr::kable()
+```
+
+
+In contrast, when occurrences are aggregated at species level, instances of temporal change in sampling intensity decrease to between 0% (IRL) and 18.86% (GBR). Here, decreases in sampling intensities were more dominant than increases  among the species  where temporal changes were observed.  
+This suggests that aggregation at larger taxonomic scales makes temporal changes in sampling intensity more visible than at smaller scales. 
+
+
+
 
 
 ## (c) representation of rare species
@@ -2838,7 +3885,6 @@ spatial_index_slope_joined |>
 
 
 ```{r, echo =FALSE, cache=TRUE, results='asis', message=FALSE, warning=FALSE}
-here()
 ```
 
 
