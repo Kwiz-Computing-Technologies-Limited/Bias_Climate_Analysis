@@ -64,3 +64,7 @@ for(i in 1:length(native_ranges)) {
 
 thinned_records_invaded |> na.omit()
 thinned_records_native |> na.omit()
+
+# spatial bias analysis
+library(occAssess)
+
