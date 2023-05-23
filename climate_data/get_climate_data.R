@@ -45,9 +45,9 @@ climate_fun = function ( i, j) {
   bio_data_download(bio_var = bio_vars[i], time_id = time_IDs$time_id[j], year_from = time_IDs$year_from[j])
 }
 
-for(i in 1:length(bio_vars)) {
+for(i in 4:length(bio_vars)) {
   for(j in 1:length(time_IDs$year_from)) {
-    if(i == 1 & j == 1) {
+    if(i == 4 & j == 1) {
         NULL
       } else {
         climate_fun( i = i, j = j)
