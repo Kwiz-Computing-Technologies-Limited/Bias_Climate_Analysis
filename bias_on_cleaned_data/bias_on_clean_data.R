@@ -503,7 +503,7 @@ for(i in 1:length(native_ranges)) {
 
   readr::write_csv(nRec$data, file = here("bias_on_cleaned_data", "native", occ_data_native[i, 1],
                                           paste0(occ_data_native[i, 1], "_cleaned_by_species",
-                                                 "_assessRecordNumber_output.csv", sep = "_")))
+                                                 "_assessRecordNumber_output.csv")))
 
   # remove used R objects from environment
   rm(nRec)
@@ -597,6 +597,10 @@ for(i in 1:length(native_ranges)) {
 
 
   # by species
+  dat2 = dat[!is.na(dat$species), ]
+  print(nrow(dat2))
+  env_data3 = terra::extract(env_data2, dat2[, c("decimalLongitude", "decimalLatitude")])
+  
   envBias <- assessEnvBias(dat = dat2,
                            species = "species",
                            y = "decimalLatitude",
