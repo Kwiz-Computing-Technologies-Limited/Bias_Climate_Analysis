@@ -1,6 +1,6 @@
-# urls to data to be spatially corrected
-library(dplyr)
-library(here)
+
+# source bias function
+source("occAssess_spatial_env_bias_function.R")
 
 # urls to be downloaded from Dropbox
 occ_data = tibble(dataset = c("mdg_invaded_clean",
@@ -20,24 +20,13 @@ occ_data = tibble(dataset = c("mdg_invaded_clean",
                                "https://www.dropbox.com/scl/fi/5a0a1pepumq1t1ujwo7k8/ZAF-invaded-clean.rds?rlkey=ltdovycts12kvvyjt1smc1arg&dl=1",
                                "https://www.dropbox.com/scl/fi/ux9levicn4cx3pz43v9i0/NZL-Glonaf-invaded-clean.csv?rlkey=9223dy2cm3atbg0dgbp8s81y3&dl=1",
                                "https://www.dropbox.com/scl/fi/rxrutz13ogzpcu8h28ycu/USA-invaded-clean.rds?rlkey=ptf649kbc44nflu0nsv3sdvnh&dl=1"
-                  )) |>
+                               )) |>
   na.omit()
 
 
-
-
-# generate thinned datasets
-tables = occ_data$dataset
-source(here("bias_correction", "spatial_bias_correction_function.R"))
-
-## thinning distances
-min_distances_km = 1 # c(1, 5, 10, 20)
-
+# generate bias output files
+tables = occ_data$dataset[6] # 5, 4, 3, 2, 1
 for (db_table in tables) {
-  gc()
-  bias_correction(db_table = db_table, 
-                           min_distance = min_distances_km)
+  Bias_assessment_function(db_table = db_table, 
+                           periods_length = 10)
 }
-
-
-# db_table = tables[5]

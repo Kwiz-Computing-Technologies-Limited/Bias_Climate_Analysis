@@ -1,0 +1,1103 @@
+---
+format: html
+---
+
+```{r, echo =FALSE, cache=TRUE, results='asis', message=FALSE, warning=FALSE}
+library(here)
+library(gridExtra)
+
+# source bias function
+source(here("occAssess_spatial_env_bias_function.R"))
+```
+
+# Run Bias assessments
+
+This chunk identifies the regions and assessments missing (for spatial and environmental bias; and at family or species) and runs the analysis to update their results
+
+```{r, echo =FALSE, cache=TRUE, results='asis', message=FALSE, warning=FALSE}
+# urls to be downloaded from Dropbox
+occ_data = tibble(dataset = c("mdg_invaded_clean",
+                              "jpn_invaded_clean",
+                              "irl_Invaded_clean",
+                              "aus_glonaf",
+                              "gbr_invaded_clean",
+                              "zaf_invaded_clean",
+                              "nzl_glonaf_invaded_clean",
+                              "usa_invaded_clean"), 
+                  
+                  drop_url = c("https://www.dropbox.com/scl/fi/3hx8gbgd7858cpubyo4f1/MDG-invaded-clean.rds?rlkey=98cs05vrn2s55igxuuxhj5qdt&dl=1",
+                               "https://www.dropbox.com/scl/fi/qezmtd6oj1jf1lsvtkmux/JPN-invaded-clean.rds?rlkey=rs3d5mgwys2s1731if509ef1v&dl=1",
+                               "https://www.dropbox.com/scl/fi/gw9dpvdifdgp3sksinngo/IRL-invaded-clean.rds?rlkey=boyzevieh6vc8vi3ucwwwjo0c&dl=1",
+                               "https://www.dropbox.com/scl/fi/kizxr5oy7oe5d54kyw76p/AUS-Glonaf-invaded-clean.rds?rlkey=3ukbga0g9q7hjgowshl018n2s&dl=1",
+                               "https://www.dropbox.com/scl/fi/n0ridwusbnqk2lnrm078i/GBR-invaded-clean-v1.rds?rlkey=tejxsv5l3tge1552ld76fajrr&dl=1",
+                               "https://www.dropbox.com/scl/fi/5a0a1pepumq1t1ujwo7k8/ZAF-invaded-clean.rds?rlkey=ltdovycts12kvvyjt1smc1arg&dl=1",
+                               "https://www.dropbox.com/scl/fi/ux9levicn4cx3pz43v9i0/NZL-Glonaf-invaded-clean.csv?rlkey=9223dy2cm3atbg0dgbp8s81y3&dl=1",
+                               "https://www.dropbox.com/scl/fi/rxrutz13ogzpcu8h28ycu/USA-invaded-clean.rds?rlkey=ptf649kbc44nflu0nsv3sdvnh&dl=1"
+                               )) |>
+  na.omit()
+
+
+# generate bias output files
+tables = occ_data$dataset[6] 
+for (db_table in tables) {
+  Bias_assessment_function(db_table = db_table, 
+                           periods_length = 10)
+}
+```
+
+# Occurrence Periods
+
+Occurrence records were divided into 10 year periods to facilitate assessment of *temporal* variations in the levels of biases over time.
+
+```{r, echo =FALSE, cache=TRUE, results='asis', message=FALSE, warning=FALSE}
+## AUS GLONAF
+directory_files_aus_glonaf = list.files(here("13.  bias assessment results", "aus_glonaf_invaded_clean"))
+file_link_aus_glonaf = here("13.  bias assessment results", "aus_glonaf_invaded_clean", directory_files_aus_glonaf[grepl("periods_output", directory_files_aus_glonaf)])
+periods_aus_glonaf = read.csv(file = file_link_aus_glonaf)
+
+periods_range_aus_glonaf = data.frame(Period = 1:ncol(periods_aus_glonaf))
+for (i in 1:ncol(periods_aus_glonaf)) {
+  periods_range_aus_glonaf$range_years[i] = paste(min(periods_aus_glonaf[, i], na.rm = T), 
+                                  max(periods_aus_glonaf[ , i], na.rm = T), sep = "-")
+}
+periods_range_aus_glonaf$range_years = as.factor(periods_range_aus_glonaf$range_years)
+
+## GBR
+directory_files_gbr = list.files(here("13.  bias assessment results", "gbr_invaded_clean"))
+file_link_gbr = here("13.  bias assessment results", "gbr_invaded_clean", directory_files_gbr[grepl("periods_output", directory_files_gbr)])
+periods_gbr = read.csv(file = file_link_gbr)
+
+periods_range_gbr = data.frame(Period = 1:ncol(periods_gbr))
+for (i in 1:ncol(periods_gbr)) {
+  periods_range_gbr$range_years[i] = paste(min(periods_gbr[, i], na.rm = T), 
+                                  max(periods_gbr[ , i], na.rm = T), sep = "-")
+}
+periods_range_gbr$range_years = as.factor(periods_range_gbr$range_years)
+
+## IRL
+directory_files_irl = list.files(here("13.  bias assessment results", "irl_invaded_clean"))
+file_link_irl = here("13.  bias assessment results", "irl_invaded_clean", directory_files_irl[grepl("periods_output", directory_files_irl)])
+periods_irl = read.csv(file = file_link_irl)
+
+periods_range_irl = data.frame(Period = 1:ncol(periods_irl))
+for (i in 1:ncol(periods_irl)) {
+  periods_range_irl$range_years[i] = paste(min(periods_irl[, i], na.rm = T), 
+                                  max(periods_irl[ , i], na.rm = T), sep = "-")
+}
+periods_range_irl$range_years = as.factor(periods_range_irl$range_years)
+
+## JPN
+directory_files_jpn = list.files(here("13.  bias assessment results", "jpn_invaded_clean"))
+file_link_jpn = here("13.  bias assessment results", "jpn_invaded_clean", directory_files_jpn[grepl("periods_output", directory_files_jpn)])
+periods_jpn = read.csv(file = file_link_jpn)
+
+periods_range_jpn = data.frame(Period = 1:ncol(periods_jpn))
+for (i in 1:ncol(periods_jpn)) {
+  periods_range_jpn$range_years[i] = paste(min(periods_jpn[, i], na.rm = T), 
+                                  max(periods_jpn[ , i], na.rm = T), sep = "-")
+}
+periods_range_jpn$range_years = as.factor(periods_range_jpn$range_years)
+
+## MDG
+directory_files_mdg = list.files(here("13.  bias assessment results", "mdg_invaded_clean"))
+file_link_mdg = here("13.  bias assessment results", "mdg_invaded_clean", directory_files_mdg[grepl("periods_output", directory_files_mdg)])
+periods_mdg = read.csv(file = file_link_mdg)
+
+periods_range_mdg = data.frame(Period = 1:ncol(periods_mdg))
+for (i in 1:ncol(periods_mdg)) {
+  periods_range_mdg$range_years[i] = paste(min(periods_mdg[, i], na.rm = T), 
+                                  max(periods_mdg[ , i], na.rm = T), sep = "-")
+}
+periods_range_mdg$range_years = as.factor(periods_range_mdg$range_years)
+
+## NZL GLONAF
+directory_files_nzl_glonaf = list.files(here("13.  bias assessment results", "nzl_glonaf_invaded_clean"))
+file_link_nzl_glonaf = here("13.  bias assessment results", "nzl_glonaf_invaded_clean", directory_files_nzl_glonaf[grepl("periods_output", directory_files_nzl_glonaf)])
+periods_nzl_glonaf = read.csv(file = file_link_nzl_glonaf)
+
+periods_range_nzl_glonaf = data.frame(Period = 1:ncol(periods_nzl_glonaf))
+for (i in 1:ncol(periods_nzl_glonaf)) {
+  periods_range_nzl_glonaf$range_years[i] = paste(min(periods_nzl_glonaf[, i], na.rm = T), 
+                                  max(periods_nzl_glonaf[ , i], na.rm = T), sep = "-")
+}
+periods_range_nzl_glonaf$range_years = as.factor(periods_range_nzl_glonaf$range_years)
+
+## USA
+directory_files_usa = list.files(here("13.  bias assessment results", "usa_invaded_clean"))
+file_link_usa = here("13.  bias assessment results", "usa_invaded_clean", directory_files_usa[grepl("periods_output", directory_files_usa)])
+periods_usa = read.csv(file = file_link_usa)
+
+periods_range_usa = data.frame(Period = 1:ncol(periods_usa))
+for (i in 1:ncol(periods_usa)) {
+  periods_range_usa$range_years[i] = paste(min(periods_usa[, i], na.rm = T), 
+                                  max(periods_usa[ , i], na.rm = T), sep = "-")
+}
+periods_range_usa$range_years = as.factor(periods_range_usa$range_years)
+
+## ZAF
+directory_files_zaf = list.files(here("13.  bias assessment results", "zaf_invaded_clean"))
+file_link_zaf = here("13.  bias assessment results", "zaf_invaded_clean", directory_files_zaf[grepl("periods_output", directory_files_zaf)])
+periods_zaf = read.csv(file = file_link_zaf)
+
+periods_range_zaf = data.frame(Period = 1:ncol(periods_zaf))
+for (i in 1:ncol(periods_zaf)) {
+  periods_range_zaf$range_years[i] = paste(min(periods_zaf[, i], na.rm = T), 
+                                  max(periods_zaf[ , i], na.rm = T), sep = "-")
+}
+periods_range_zaf$range_years = as.factor(periods_range_zaf$range_years)
+```
+
+The table below summarizes the periods covered in each of the assessed occurrence datasets
+
+Table 1: Periods assessed 
+```{r, echo =FALSE, cache=TRUE, results='asis', message=FALSE, warning=FALSE}
+## Summary of occurrence periods
+Occurrence_summary = rbind(
+  c("aus_glonaf", min(periods_aus_glonaf), max(periods_aus_glonaf), ncol(periods_aus_glonaf)),
+  c("gbr", min(periods_gbr), max(periods_gbr), ncol(periods_gbr)),
+  c("irl", min(periods_irl), max(periods_irl), ncol(periods_irl)),
+  c("jpn", min(periods_jpn), max(periods_jpn), ncol(periods_jpn)),
+  c("mdg", min(periods_mdg), max(periods_mdg), ncol(periods_mdg)),
+  c("nzl_glonaf", min(periods_nzl_glonaf), max(periods_nzl_glonaf), ncol(periods_nzl_glonaf)),
+  c("usa", min(periods_usa), max(periods_usa), ncol(periods_usa)),
+  c("zaf", min(periods_zaf), max(periods_zaf), ncol(periods_zaf))) |> 
+  data.frame()
+
+names(Occurrence_summary) = c("Range", "start", "end", "number of periods")
+
+Occurrence_summary = Occurrence_summary |> 
+  dplyr::mutate(start = as.numeric(start), 
+                end = as.numeric(end),
+                `number of periods` = as.numeric(`number of periods`)) |> 
+  dplyr::arrange(start) 
+
+Occurrence_summary |>
+  knitr::kable()
+```
+
+Occurrence records on the invaded ranges assessed cover *3 centuries* with the earliest records taken in the *USA* and *GBR* in the *17th century* (*1601* and *1631* respectively) while *IRL*, *MDG* and *JPN* had the most recent earliest record captured in the *19th* century (*1801*, *1821* and *1861* respectively). 
+
+We use ANOVA and the Tukey multiple comparison tests to test for variations in the levels of bias between the different *periods* (temporal bias), between *occurrence ranges*, and between the different *taxonomic groups* (*species* and *families*) which form the basis of our bias comparisons. 
+
+# 1. Sampling intensity biases
+We use the following measures to assess Sampling intensity bias:
+- differences in the number of records identified between taxonomic groups
+- changes in the number of records identified over time (temporal Sampling intensity bias)
+
+## (a) Number of records identified (Sampling Intensity)
+### (i) by taxonomic group **(Family)** and **(Species)**
+## (b) Temporal biases in Sampling Intensity
+
+# 2. Taxonomic Sampling biases
+We use the following measures to assess taxonomic sampling bias:
+- differences in the number of species identified between taxonomic groups
+- changes in the number of species identified over time (temporal Sampling intensity bias)
+- whether rare species are under/over-represented in the data 
+
+## (a) Number of species identified (Taxonomic Sampling Intensity)
+### (i) by taxonomic group **(Family)**
+## (b) Temporal biases in Taxonomic Sampling Intensity
+## (c) representation of rare species (Taxonomic Coverage Index)
+## (d) Temporal changes in Taxonomic Coverage Index
+
+# 3. Spatial biases
+We use the following measures to assess taxonomic Spatial biases:
+- randomness of sampling distribution in the geographic space
+- temporal changes in randomness of sampling distribution in the geographic space
+- temporal changes in randomness of sampling distribution in the geographic space
+- spatio-temporal changes in representative portion of the spatial domain
+
+## (a) randomness of sampling distribution in the geographic space
+
+Uses Nearest Neighbor Index to evaluate and Indicate whether the data resemble a random distribution in the geographic space of interest for inference, and whether the extent to which the data resemble a random distribution changes over time
+
+### (i) aus_glonaf
+
+#### by family 
+
+```{r, echo =FALSE, cache=TRUE, results='asis', message=FALSE, warning=FALSE}
+directory_files_aus_glonaf = list.files(here("13.  bias assessment results", "aus_glonaf_invaded_clean"))
+
+file_link_aus_glonaf = here("13.  bias assessment results", "aus_glonaf_invaded_clean", directory_files_aus_glonaf[grepl("assessSpatialBias_output", directory_files_aus_glonaf)])
+
+file_link_aus_glonaf = file_link_aus_glonaf[!grepl("species", file_link_aus_glonaf)]
+assessSpatialBias_aus_glonaf = read.csv(file = file_link_aus_glonaf)
+assessSpatialBias_aus_glonaf = assessSpatialBias_aus_glonaf |> 
+  merge(periods_range_aus_glonaf, by.x = "Period", by.y = "Period") |>
+  dplyr::filter(!is.na(mean)) |>
+  dplyr::rename(Taxonomic_Group = identifier)
+
+### Figure: Nearest neighbour index for aus_glonaf_invaded_clean occurrence data
+
+assessSpatialBias_aus_glonaf_plot = assessSpatialBias_aus_glonaf |>
+  ggplot(mapping = aes(x = Period, y = mean, color = Taxonomic_Group)) +
+  geom_point( ) + geom_line() + 
+  theme_bw() + labs(y = "Nearest neighbour index", 
+                    title = "Randomness of the Occurrence records grouped by family") +
+  theme(legend.position = "none")
+
+assessSpatialBias_aus_glonaf_plot
+```
+
+#### by species 
+
+```{r, echo =FALSE, cache=TRUE, results='asis', message=FALSE, warning=FALSE}
+directory_files_aus_glonaf = list.files(here("13.  bias assessment results", "aus_glonaf_invaded_clean"))
+
+file_link_aus_glonaf = here("13.  bias assessment results", "aus_glonaf_invaded_clean", directory_files_aus_glonaf[grepl("assessSpatialBias_output", directory_files_aus_glonaf)])
+
+file_link_aus_glonaf = file_link_aus_glonaf[grepl("species", file_link_aus_glonaf)]
+assessSpatialBias_aus_glonaf_species = read.csv(file = file_link_aus_glonaf)
+assessSpatialBias_aus_glonaf_species = assessSpatialBias_aus_glonaf_species |> 
+  merge(periods_range_aus_glonaf, by.x = "Period", by.y = "Period") |>
+  dplyr::filter(!is.na(mean)) |>
+  dplyr::rename(Taxonomic_Group = identifier)
+
+### Figure: Nearest neighbour index for aus_glonaf_invaded_clean occurrence data
+
+assessSpatialBias_aus_glonaf_plot = assessSpatialBias_aus_glonaf_species |>
+  ggplot(mapping = aes(x = Period, y = mean, color = Taxonomic_Group)) +
+  geom_point( ) + geom_line() + 
+  theme_bw() + labs(y = "Nearest neighbour index", 
+                    title = "Randomness of the Occurrence records grouped by species") +
+  theme(legend.position = "none")
+
+assessSpatialBias_aus_glonaf_plot
+```
+
+### (ii) gbr
+
+#### by family
+
+```{r, echo =FALSE, cache=TRUE, results='asis', message=FALSE, warning=FALSE}
+directory_files_gbr = list.files(here("13.  bias assessment results", "gbr_invaded_clean"))
+
+file_link_gbr = here("13.  bias assessment results", "gbr_invaded_clean", directory_files_gbr[grepl("assessSpatialBias_output", directory_files_gbr)])
+
+file_link_gbr = file_link_gbr[!grepl("species", file_link_gbr)]
+assessSpatialBias_gbr = read.csv(file = file_link_gbr)
+assessSpatialBias_gbr = assessSpatialBias_gbr |> 
+  merge(periods_range_gbr, by.x = "Period", by.y = "Period") |>
+  dplyr::filter(!is.na(mean)) |>
+  dplyr::rename(Taxonomic_Group = identifier)
+
+### Figure: Nearest neighbour index for gbr_invaded_clean occurrence data
+
+assessSpatialBias_gbr_plot = assessSpatialBias_gbr |>
+  ggplot(mapping = aes(x = Period, y = mean, color = Taxonomic_Group)) +
+  geom_point( ) + geom_line() + 
+  theme_bw() + labs(y = "Nearest neighbour index", 
+                    title = "Randomness of the Occurrence records grouped by family") +
+  theme(legend.position = "none")
+
+assessSpatialBias_gbr_plot
+```
+
+#### by species
+
+```{r, echo =FALSE, cache=TRUE, results='asis', message=FALSE, warning=FALSE}
+directory_files_gbr = list.files(here("13.  bias assessment results", "gbr_invaded_clean"))
+
+file_link_gbr = here("13.  bias assessment results", "gbr_invaded_clean", directory_files_gbr[grepl("assessSpatialBias_output", directory_files_gbr)])
+
+file_link_gbr = file_link_gbr[grepl("species", file_link_gbr)]
+assessSpatialBias_gbr_species = read.csv(file = file_link_gbr)
+assessSpatialBias_gbr_species = assessSpatialBias_gbr_species |> 
+  merge(periods_range_gbr, by.x = "Period", by.y = "Period") |>
+  dplyr::filter(!is.na(mean)) |>
+  dplyr::rename(Taxonomic_Group = identifier)
+
+### Figure: Nearest neighbour index for gbr_invaded_clean occurrence data
+
+assessSpatialBias_gbr_plot = assessSpatialBias_gbr_species |>
+  ggplot(mapping = aes(x = Period, y = mean, color = Taxonomic_Group)) +
+  geom_point( ) + geom_line() + 
+  theme_bw() + labs(y = "Nearest neighbour index", 
+                    title = "Randomness of the Occurrence records grouped by species") +
+  theme(legend.position = "none")
+
+assessSpatialBias_gbr_plot
+```
+
+### (iii) irl
+
+#### by family
+
+```{r, echo =FALSE, cache=TRUE, results='asis', message=FALSE, warning=FALSE}
+directory_files_irl = list.files(here("13.  bias assessment results", "irl_invaded_clean"))
+
+file_link_irl = here("13.  bias assessment results", "irl_invaded_clean", directory_files_irl[grepl("assessSpatialBias_output", directory_files_irl)])
+
+file_link_irl = file_link_irl[!grepl("species", file_link_irl)]
+assessSpatialBias_irl = read.csv(file = file_link_irl)
+assessSpatialBias_irl = assessSpatialBias_irl |> 
+  merge(periods_range_irl, by.x = "Period", by.y = "Period") |>
+  dplyr::filter(!is.na(mean)) |>
+  dplyr::rename(Taxonomic_Group = identifier)
+
+### Figure: Nearest neighbour index for irl_invaded_clean occurrence data
+
+assessSpatialBias_irl_plot = assessSpatialBias_irl |>
+  ggplot(mapping = aes(x = Period, y = mean, color = Taxonomic_Group)) +
+  geom_point( ) + geom_line() + 
+  theme_bw() + labs(y = "Nearest neighbour index", 
+                    title = "Randomness of the Occurrence records grouped by family") +
+  theme(legend.position = "none")
+
+assessSpatialBias_irl_plot
+```
+
+#### by species
+
+```{r, echo =FALSE, cache=TRUE, results='asis', message=FALSE, warning=FALSE}
+directory_files_irl = list.files(here("13.  bias assessment results", "irl_invaded_clean"))
+
+file_link_irl = here("13.  bias assessment results", "irl_invaded_clean", directory_files_irl[grepl("assessSpatialBias_output", directory_files_irl)])
+
+file_link_irl = file_link_irl[grepl("species", file_link_irl)]
+assessSpatialBias_irl_species = read.csv(file = file_link_irl)
+assessSpatialBias_irl_species = assessSpatialBias_irl_species |> 
+  merge(periods_range_irl, by.x = "Period", by.y = "Period") |>
+  dplyr::filter(!is.na(mean)) |>
+  dplyr::rename(Taxonomic_Group = identifier)
+
+### Figure: Nearest neighbour index for irl_invaded_clean occurrence data
+
+assessSpatialBias_irl_plot = assessSpatialBias_irl_species |>
+  ggplot(mapping = aes(x = Period, y = mean, color = Taxonomic_Group)) +
+  geom_point( ) + geom_line() + 
+  theme_bw() + labs(y = "Nearest neighbour index", 
+                    title = "Randomness of the Occurrence records grouped by species") +
+  theme(legend.position = "none")
+
+assessSpatialBias_irl_plot
+```
+
+### (iv) jpn
+
+#### by family
+
+```{r, echo =FALSE, cache=TRUE, results='asis', message=FALSE, warning=FALSE}
+directory_files_jpn = list.files(here("13.  bias assessment results", "jpn_invaded_clean"))
+
+file_link_jpn = here("13.  bias assessment results", "jpn_invaded_clean", directory_files_jpn[grepl("assessSpatialBias_output", directory_files_jpn)])
+
+file_link_jpn = file_link_jpn[!grepl("species", file_link_jpn)]
+assessSpatialBias_jpn = read.csv(file = file_link_jpn)
+assessSpatialBias_jpn = assessSpatialBias_jpn |> 
+  merge(periods_range_jpn, by.x = "Period", by.y = "Period") |>
+  dplyr::filter(!is.na(mean)) |>
+  dplyr::rename(Taxonomic_Group = identifier)
+
+### Figure: Nearest neighbour index for jpn_invaded_clean occurrence data
+
+assessSpatialBias_jpn_plot = assessSpatialBias_jpn |>
+  ggplot(mapping = aes(x = Period, y = mean, color = Taxonomic_Group)) +
+  geom_point( ) + geom_line() + 
+  theme_bw() + labs(y = "Nearest neighbour index", 
+                    title = "Randomness of the Occurrence records grouped by family") +
+  theme(legend.position = "none")
+
+assessSpatialBias_jpn_plot
+```
+
+#### by species
+
+```{r, echo =FALSE, cache=TRUE, results='asis', message=FALSE, warning=FALSE}
+directory_files_jpn = list.files(here("13.  bias assessment results", "jpn_invaded_clean"))
+
+file_link_jpn = here("13.  bias assessment results", "jpn_invaded_clean", directory_files_jpn[grepl("assessSpatialBias_output", directory_files_jpn)])
+
+file_link_jpn = file_link_jpn[grepl("species", file_link_jpn)]
+assessSpatialBias_jpn_species = read.csv(file = file_link_jpn)
+assessSpatialBias_jpn_species = assessSpatialBias_jpn_species |> 
+  merge(periods_range_jpn, by.x = "Period", by.y = "Period") |>
+  dplyr::filter(!is.na(mean)) |>
+  dplyr::rename(Taxonomic_Group = identifier)
+
+### Figure: Nearest neighbour index for jpn_invaded_clean occurrence data
+
+assessSpatialBias_jpn_plot = assessSpatialBias_jpn_species |>
+  ggplot(mapping = aes(x = Period, y = mean, color = Taxonomic_Group)) +
+  geom_point( ) + geom_line() + 
+  theme_bw() + labs(y = "Nearest neighbour index", 
+                    title = "Randomness of the Occurrence records grouped by species") +
+  theme(legend.position = "none")
+
+assessSpatialBias_jpn_plot
+```
+
+### (v) mdg
+
+#### by family
+
+```{r, echo =FALSE, cache=TRUE, results='asis', message=FALSE, warning=FALSE}
+directory_files_mdg = list.files(here("13.  bias assessment results", "mdg_invaded_clean"))
+
+file_link_mdg = here("13.  bias assessment results", "mdg_invaded_clean", directory_files_mdg[grepl("assessSpatialBias_output", directory_files_mdg)])
+
+file_link_mdg = file_link_mdg[!grepl("species", file_link_mdg)]
+assessSpatialBias_mdg = read.csv(file = file_link_mdg)
+assessSpatialBias_mdg = assessSpatialBias_mdg |> 
+  merge(periods_range_mdg, by.x = "Period", by.y = "Period") |>
+  dplyr::filter(!is.na(mean)) |>
+  dplyr::rename(Taxonomic_Group = identifier)
+
+### Figure: Nearest neighbour index for mdg_invaded_clean occurrence data
+
+assessSpatialBias_mdg_plot = assessSpatialBias_mdg |>
+  ggplot(mapping = aes(x = Period, y = mean, color = Taxonomic_Group)) +
+  geom_point( ) + geom_line() + 
+  theme_bw() + labs(y = "Nearest neighbour index", 
+                    title = "Randomness of the Occurrence records grouped by family") +
+  theme(legend.position = "none")
+
+assessSpatialBias_mdg_plot
+```
+
+#### by species
+
+```{r, echo =FALSE, cache=TRUE, results='asis', message=FALSE, warning=FALSE}
+directory_files_mdg = list.files(here("13.  bias assessment results", "mdg_invaded_clean"))
+
+file_link_mdg = here("13.  bias assessment results", "mdg_invaded_clean", directory_files_mdg[grepl("assessSpatialBias_output", directory_files_mdg)])
+
+file_link_mdg = file_link_mdg[grepl("species", file_link_mdg)]
+assessSpatialBias_mdg_species = read.csv(file = file_link_mdg)
+assessSpatialBias_mdg_species = assessSpatialBias_mdg_species |> 
+  merge(periods_range_mdg, by.x = "Period", by.y = "Period") |>
+  dplyr::filter(!is.na(mean)) |>
+  dplyr::rename(Taxonomic_Group = identifier)
+
+### Figure: Nearest neighbour index for mdg_invaded_clean occurrence data
+
+assessSpatialBias_mdg_plot = assessSpatialBias_mdg_species |>
+  ggplot(mapping = aes(x = Period, y = mean, color = Taxonomic_Group)) +
+  geom_point( ) + geom_line() + 
+  theme_bw() + labs(y = "Nearest neighbour index", 
+                    title = "Randomness of the Occurrence records grouped by species") +
+  theme(legend.position = "none")
+
+assessSpatialBias_mdg_plot
+```
+
+### (vi) nzl_glonaf
+
+#### by family
+
+```{r, echo =FALSE, cache=TRUE, results='asis', message=FALSE, warning=FALSE}
+directory_files_nzl_glonaf = list.files(here("13.  bias assessment results", "nzl_glonaf_invaded_clean"))
+
+file_link_nzl_glonaf = here("13.  bias assessment results", "nzl_glonaf_invaded_clean", directory_files_nzl_glonaf[grepl("assessSpatialBias_output", directory_files_nzl_glonaf)])
+
+file_link_nzl_glonaf = file_link_nzl_glonaf[!grepl("species", file_link_nzl_glonaf)]
+assessSpatialBias_nzl_glonaf = read.csv(file = file_link_nzl_glonaf)
+assessSpatialBias_nzl_glonaf = assessSpatialBias_nzl_glonaf |> 
+  merge(periods_range_nzl_glonaf, by.x = "Period", by.y = "Period") |>
+  dplyr::filter(!is.na(mean)) |>
+  dplyr::rename(Taxonomic_Group = identifier)
+
+### Figure: Nearest neighbour index for nzl_glonaf_invaded_clean occurrence data
+
+assessSpatialBias_nzl_glonaf_plot = assessSpatialBias_nzl_glonaf |>
+  ggplot(mapping = aes(x = Period, y = mean, color = Taxonomic_Group)) +
+  geom_point( ) + geom_line() + 
+  theme_bw() + labs(y = "Nearest neighbour index", 
+                    title = "Randomness of the Occurrence records grouped by family") +
+  theme(legend.position = "none")
+
+assessSpatialBias_nzl_glonaf_plot
+```
+
+#### by species
+
+```{r, echo =FALSE, cache=TRUE, results='asis', message=FALSE, warning=FALSE}
+directory_files_nzl_glonaf = list.files(here("13.  bias assessment results", "nzl_glonaf_invaded_clean"))
+
+file_link_nzl_glonaf = here("13.  bias assessment results", "nzl_glonaf_invaded_clean", directory_files_nzl_glonaf[grepl("assessSpatialBias_output", directory_files_nzl_glonaf)])
+
+file_link_nzl_glonaf = file_link_nzl_glonaf[grepl("species", file_link_nzl_glonaf)]
+assessSpatialBias_nzl_glonaf_species = read.csv(file = file_link_nzl_glonaf)
+assessSpatialBias_nzl_glonaf_species = assessSpatialBias_nzl_glonaf_species |> 
+  merge(periods_range_nzl_glonaf, by.x = "Period", by.y = "Period") |>
+  dplyr::filter(!is.na(mean)) |>
+  dplyr::rename(Taxonomic_Group = identifier)
+
+### Figure: Nearest neighbour index for nzl_glonaf_invaded_clean occurrence data
+
+assessSpatialBias_nzl_glonaf_plot = assessSpatialBias_nzl_glonaf_species |>
+  ggplot(mapping = aes(x = Period, y = mean, color = Taxonomic_Group)) +
+  geom_point( ) + geom_line() + 
+  theme_bw() + labs(y = "Nearest neighbour index", 
+                    title = "Randomness of the Occurrence records grouped by species") +
+  theme(legend.position = "none")
+
+assessSpatialBias_nzl_glonaf_plot
+```
+
+### (vii) usa
+
+#### by family
+
+```{r, echo =FALSE, cache=TRUE, results='asis', message=FALSE, warning=FALSE}
+directory_files_usa = list.files(here("13.  bias assessment results", "usa_invaded_clean"))
+
+file_link_usa = here("13.  bias assessment results", "usa_invaded_clean", directory_files_usa[grepl("assessSpatialBias_output", directory_files_usa)])
+
+file_link_usa = file_link_usa[!grepl("species", file_link_usa)]
+assessSpatialBias_usa = read.csv(file = file_link_usa)
+assessSpatialBias_usa = assessSpatialBias_usa |> 
+  merge(periods_range_usa, by.x = "Period", by.y = "Period") |>
+  dplyr::filter(!is.na(mean)) |>
+  dplyr::rename(Taxonomic_Group = identifier)
+
+### Figure: Nearest neighbour index for usa_invaded_clean occurrence data
+
+assessSpatialBias_usa_plot = assessSpatialBias_usa |>
+  ggplot(mapping = aes(x = Period, y = mean, color = Taxonomic_Group)) +
+  geom_point( ) + geom_line() + 
+  theme_bw() + labs(y = "Nearest neighbour index", 
+                    title = "Randomness of the Occurrence records grouped by family") +
+  theme(legend.position = "none")
+
+assessSpatialBias_usa_plot
+```
+
+#### by species
+
+```{r, echo =FALSE, cache=TRUE, results='asis', message=FALSE, warning=FALSE}
+directory_files_usa = list.files(here("13.  bias assessment results", "usa_invaded_clean"))
+
+file_link_usa = here("13.  bias assessment results", "usa_invaded_clean", directory_files_usa[grepl("assessSpatialBias_output", directory_files_usa)])
+
+file_link_usa = file_link_usa[grepl("species", file_link_usa)]
+assessSpatialBias_usa_species = read.csv(file = file_link_usa)
+assessSpatialBias_usa_species = assessSpatialBias_usa_species |> 
+  merge(periods_range_usa, by.x = "Period", by.y = "Period") |>
+  dplyr::filter(!is.na(mean)) |>
+  dplyr::rename(Taxonomic_Group = identifier)
+
+### Figure: Nearest neighbour index for usa_invaded_clean occurrence data
+
+assessSpatialBias_usa_plot = assessSpatialBias_usa_species |>
+  ggplot(mapping = aes(x = Period, y = mean, color = Taxonomic_Group)) +
+  geom_point( ) + geom_line() + 
+  theme_bw() + labs(y = "Nearest neighbour index", 
+                    title = "Randomness of the Occurrence records grouped by species") +
+  theme(legend.position = "none")
+
+assessSpatialBias_usa_plot
+```
+
+
+### (viii) zaf
+
+#### by family
+
+```{r, echo =FALSE, cache=TRUE, results='asis', message=FALSE, warning=FALSE}
+directory_files_zaf = list.files(here("13.  bias assessment results", "zaf_invaded_clean"))
+
+file_link_zaf = here("13.  bias assessment results", "zaf_invaded_clean", directory_files_zaf[grepl("assessSpatialBias_output", directory_files_zaf)])
+
+file_link_zaf = file_link_zaf[!grepl("species", file_link_zaf)]
+assessSpatialBias_zaf = read.csv(file = file_link_zaf)
+assessSpatialBias_zaf = assessSpatialBias_zaf |> 
+  merge(periods_range_zaf, by.x = "Period", by.y = "Period") |>
+  dplyr::filter(!is.na(mean)) |>
+  dplyr::rename(Taxonomic_Group = identifier)
+
+### Figure: Nearest neighbour index for zaf_invaded_clean occurrence data
+
+assessSpatialBias_zaf_plot = assessSpatialBias_zaf |>
+  ggplot(mapping = aes(x = Period, y = mean, color = Taxonomic_Group)) +
+  geom_point( ) + geom_line() + 
+  theme_bw() + labs(y = "Nearest neighbour index", 
+                    title = "Randomness of the Occurrence records grouped by family") +
+  theme(legend.position = "none")
+
+assessSpatialBias_zaf_plot
+```
+
+#### by species
+
+```{r, echo =FALSE, cache=TRUE, results='asis', message=FALSE, warning=FALSE}
+directory_files_zaf = list.files(here("13.  bias assessment results", "zaf_invaded_clean"))
+
+file_link_zaf = here("13.  bias assessment results", "zaf_invaded_clean", directory_files_zaf[grepl("assessSpatialBias_output", directory_files_zaf)])
+
+file_link_zaf = file_link_zaf[grepl("species", file_link_zaf)]
+assessSpatialBias_zaf_species = read.csv(file = file_link_zaf)
+assessSpatialBias_zaf_species = assessSpatialBias_zaf_species |> 
+  merge(periods_range_zaf, by.x = "Period", by.y = "Period") |>
+  dplyr::filter(!is.na(mean)) |>
+  dplyr::rename(Taxonomic_Group = identifier)
+
+### Figure: Nearest neighbour index for zaf_invaded_clean occurrence data
+
+assessSpatialBias_zaf_plot = assessSpatialBias_zaf_species |>
+  ggplot(mapping = aes(x = Period, y = mean, color = Taxonomic_Group)) +
+  geom_point( ) + geom_line() + 
+  theme_bw() + labs(y = "Nearest neighbour index", 
+                    title = "Randomness of the Occurrence records grouped by species") +
+  theme(legend.position = "none")
+
+assessSpatialBias_zaf_plot
+```
+
+
+```{r, echo =FALSE, cache=TRUE, results='asis', message=FALSE, warning=FALSE}
+NN_index_summary = dplyr::tibble(
+  
+  region = c(
+    "aus_glonaf", "gbr", "irl", "jpn", "mdg", "nzl_glonaf", "usa", "zaf"),
+  
+  `unique periods` = c(
+    assessSpatialBias_aus_glonaf$Period |> unique() |> length(),
+    assessSpatialBias_gbr$Period |> unique() |> length(),
+    assessSpatialBias_irl$Period |> unique() |> length(),
+    assessSpatialBias_jpn$Period |> unique() |> length(),
+    assessSpatialBias_mdg$Period |> unique() |> length(),
+    assessSpatialBias_nzl_glonaf$Period |> unique() |> length(),
+    assessSpatialBias_usa$Period |> unique() |> length(),
+    assessSpatialBias_zaf$Period |> unique() |> length()
+  ),
+  
+  `unique families` = c(
+    assessSpatialBias_aus_glonaf$Taxonomic_Group |> unique() |> length(),
+    assessSpatialBias_gbr$Taxonomic_Group |> unique() |> length(),
+    assessSpatialBias_irl$Taxonomic_Group |> unique() |> length(),
+    assessSpatialBias_jpn$Taxonomic_Group |> unique() |> length(),
+    assessSpatialBias_mdg$Taxonomic_Group |> unique() |> length(),
+    assessSpatialBias_nzl_glonaf$Taxonomic_Group |> unique() |> length(),
+    assessSpatialBias_usa$Taxonomic_Group |> unique() |> length(),
+    assessSpatialBias_zaf$Taxonomic_Group |> unique() |> length()
+  ),
+  
+  `events with index < 1` = c(
+    assessSpatialBias_aus_glonaf |> filter(mean  < 1) |> nrow(),
+    assessSpatialBias_gbr |> filter(mean  < 1) |> nrow(),
+    assessSpatialBias_irl |> filter(mean  < 1) |> nrow(),
+    assessSpatialBias_jpn |> filter(mean  < 1) |> nrow(),
+    assessSpatialBias_mdg |> filter(mean  < 1) |> nrow(),
+    assessSpatialBias_nzl_glonaf |> filter(mean  < 1) |> nrow(),
+    assessSpatialBias_usa |> filter(mean  < 1) |> nrow(),
+    assessSpatialBias_zaf |> filter(mean  < 1) |> nrow()),
+  
+  `events with index > 1` = c(
+    assessSpatialBias_aus_glonaf |> filter(mean  > 1) |> nrow(),
+    assessSpatialBias_gbr |> filter(mean  > 1) |> nrow(),
+    assessSpatialBias_irl |> filter(mean  > 1) |> nrow(),
+    assessSpatialBias_jpn |> filter(mean  > 1) |> nrow(),
+    assessSpatialBias_mdg |> filter(mean  > 1) |> nrow(),
+    assessSpatialBias_nzl_glonaf |> filter(mean  > 1) |> nrow(),
+    assessSpatialBias_usa |> filter(mean  > 1) |> nrow(),
+    assessSpatialBias_zaf |> filter(mean  > 1) |> nrow()),
+  
+  `min index` = c(
+    assessSpatialBias_aus_glonaf$mean |> min(),
+    assessSpatialBias_gbr$mean |> min(),
+    assessSpatialBias_irl$mean |> min(),
+    assessSpatialBias_jpn$mean |> min(),
+    assessSpatialBias_mdg$mean |> min(),
+    assessSpatialBias_nzl_glonaf$mean |> min(),
+    assessSpatialBias_usa$mean |> min(),
+    assessSpatialBias_zaf$mean |> min()),
+  
+  
+  `max index` = c(
+    assessSpatialBias_aus_glonaf$mean |> max(),
+    assessSpatialBias_gbr$mean |> max(),
+    assessSpatialBias_irl$mean |> max(),
+    assessSpatialBias_jpn$mean |> max(),
+    assessSpatialBias_mdg$mean |> max(),
+    assessSpatialBias_nzl_glonaf$mean |> max(),
+    assessSpatialBias_usa$mean |> max(),
+    assessSpatialBias_zaf$mean |> max()))
+
+
+NN_index_summary |> knitr::kable(caption = "NNI Index summary By Family")
+```
+
+```{r, echo =FALSE, cache=TRUE, results='asis', message=FALSE, warning=FALSE}
+NN_index_summary = dplyr::tibble(
+  
+  region = c(
+    "aus_glonaf", "gbr", "irl", "jpn", "mdg", "nzl_glonaf", "usa", "zaf"),
+  
+  `unique periods` = c(
+    assessSpatialBias_aus_glonaf_species$Period |> unique() |> length(),
+    assessSpatialBias_gbr_species$Period |> unique() |> length(),
+    assessSpatialBias_irl_species$Period |> unique() |> length(),
+    assessSpatialBias_jpn_species$Period |> unique() |> length(),
+    assessSpatialBias_mdg_species$Period |> unique() |> length(),
+    assessSpatialBias_nzl_glonaf_species$Period |> unique() |> length(),
+    assessSpatialBias_usa_species$Period |> unique() |> length(),
+    assessSpatialBias_zaf_species$Period |> unique() |> length()
+  ),
+  
+  `unique families` = c(
+    assessSpatialBias_aus_glonaf_species$Taxonomic_Group |> unique() |> length(),
+    assessSpatialBias_gbr_species$Taxonomic_Group |> unique() |> length(),
+    assessSpatialBias_irl_species$Taxonomic_Group |> unique() |> length(),
+    assessSpatialBias_jpn_species$Taxonomic_Group |> unique() |> length(),
+    assessSpatialBias_mdg_species$Taxonomic_Group |> unique() |> length(),
+    assessSpatialBias_nzl_glonaf_species$Taxonomic_Group |> unique() |> length(),
+    assessSpatialBias_usa_species$Taxonomic_Group |> unique() |> length(),
+    assessSpatialBias_zaf_species$Taxonomic_Group |> unique() |> length()
+  ),
+  
+  `events with index < 1` = c(
+    assessSpatialBias_aus_glonaf_species |> filter(mean  < 1) |> nrow(),
+    assessSpatialBias_gbr_species |> filter(mean  < 1) |> nrow(),
+    assessSpatialBias_irl_species |> filter(mean  < 1) |> nrow(),
+    assessSpatialBias_jpn_species |> filter(mean  < 1) |> nrow(),
+    assessSpatialBias_mdg_species |> filter(mean  < 1) |> nrow(),
+    assessSpatialBias_nzl_glonaf_species |> filter(mean  < 1) |> nrow(),
+    assessSpatialBias_usa_species |> filter(mean  < 1) |> nrow(),
+    assessSpatialBias_zaf_species |> filter(mean  < 1) |> nrow()),
+  
+  `events with index > 1` = c(
+    assessSpatialBias_aus_glonaf_species |> filter(mean  > 1) |> nrow(),
+    assessSpatialBias_gbr_species |> filter(mean  > 1) |> nrow(),
+    assessSpatialBias_irl_species |> filter(mean  > 1) |> nrow(),
+    assessSpatialBias_jpn_species |> filter(mean  > 1) |> nrow(),
+    assessSpatialBias_mdg_species |> filter(mean  > 1) |> nrow(),
+    assessSpatialBias_nzl_glonaf_species |> filter(mean  > 1) |> nrow(),
+    assessSpatialBias_usa_species |> filter(mean  > 1) |> nrow(),
+    assessSpatialBias_zaf_species |> filter(mean  > 1) |> nrow()),
+  
+  `min index` = c(
+    assessSpatialBias_aus_glonaf_species$mean |> min(),
+    assessSpatialBias_gbr_species$mean |> min(),
+    assessSpatialBias_irl_species$mean |> min(),
+    assessSpatialBias_jpn_species$mean |> min(),
+    assessSpatialBias_mdg_species$mean |> min(),
+    assessSpatialBias_nzl_glonaf_species$mean |> min(),
+    assessSpatialBias_usa_species$mean |> min(),
+    assessSpatialBias_zaf_species$mean |> min()),
+  
+  
+  `max index` = c(
+    assessSpatialBias_aus_glonaf_species$mean |> max(),
+    assessSpatialBias_gbr_species$mean |> max(),
+    assessSpatialBias_irl_species$mean |> max(),
+    assessSpatialBias_jpn_species$mean |> max(),
+    assessSpatialBias_mdg_species$mean |> max(),
+    assessSpatialBias_nzl_glonaf_species$mean |> max(),
+    assessSpatialBias_usa_species$mean |> max(),
+    assessSpatialBias_zaf_species$mean |> max()))
+
+
+NN_index_summary |> knitr::kable(caption = "NNI Index summary By Species")
+```
+
+
+The Nearest neighbor index was  < 1 for all taxonomic groups across most of the periods. in all the 8 ranges. This implies that observations were more clustered than the random distribution signaling a bias towards certain sampling locations (oversampling). 
+There were only a few instances where certain families had  Nearest neighbor indices > 1, i.e sampling locations were sparsely distributed relative to a normal distribution (undersampling). 
+
+NOTE: There are more instances of undersampling than oversampling among taxonomic groups. However, there are more instances of spatial (geographic) oversampling than undersampling.
+
+## (b) temporal changes in randomness of sampling distribution in the geographic space
+
+### by family
+
+```{r, echo =FALSE, cache=TRUE, results='asis', message=FALSE, warning=FALSE}
+library(broom)
+library(purrr)
+
+# aus_glonaf
+spatial_index_slope_aus_glonaf = split.data.frame(assessSpatialBias_aus_glonaf, assessSpatialBias_aus_glonaf$Taxonomic_Group) |>
+  purrr::map(~lm(mean ~ 1 + Period, data = .x))|>
+  purrr::map_df(tidy) |>
+  dplyr::filter(term == 'Period') |>
+  dplyr::mutate(term = sort(assessSpatialBias_aus_glonaf$Taxonomic_Group |> unique())) |>
+  dplyr::filter(p.value < 0.05 | p.value == 0.05) |>
+  dplyr::rename(Taxonomic_group = term) |> dplyr::arrange(desc(estimate)) |>
+  dplyr::mutate(region = "aus_glonaf")
+
+# gbr
+spatial_index_slope_gbr = split.data.frame(assessSpatialBias_gbr, assessSpatialBias_gbr$Taxonomic_Group) |>
+  purrr::map(~lm(mean ~ 1 + Period, data = .x))|>
+  purrr::map_df(tidy) |>
+  dplyr::filter(term == 'Period') |>
+  dplyr::mutate(term = sort(assessSpatialBias_gbr$Taxonomic_Group |> unique())) |>
+  dplyr::filter(p.value < 0.05 | p.value == 0.05) |>
+  dplyr::rename(Taxonomic_group = term) |> dplyr::arrange(desc(estimate)) |>
+  dplyr::mutate(region = "gbr")
+
+# irl
+spatial_index_slope_irl = split.data.frame(assessSpatialBias_irl, assessSpatialBias_irl$Taxonomic_Group) |>
+  purrr::map(~lm(mean ~ 1 + Period, data = .x))|>
+  purrr::map_df(tidy) |>
+  dplyr::filter(term == 'Period') |>
+  dplyr::mutate(term = sort(assessSpatialBias_irl$Taxonomic_Group |> unique())) |>
+  dplyr::filter(p.value < 0.05 | p.value == 0.05) |>
+  dplyr::rename(Taxonomic_group = term) |> dplyr::arrange(desc(estimate)) |>
+  dplyr::mutate(region = "irl")
+
+# jpn
+spatial_index_slope_jpn = split.data.frame(assessSpatialBias_jpn, assessSpatialBias_jpn$Taxonomic_Group) |>
+  purrr::map(~lm(mean ~ 1 + Period, data = .x))|>
+  purrr::map_df(tidy) |>
+  dplyr::filter(term == 'Period') |>
+  dplyr::mutate(term = sort(assessSpatialBias_jpn$Taxonomic_Group |> unique())) |>
+  dplyr::filter(p.value < 0.05 | p.value == 0.05) |>
+  dplyr::rename(Taxonomic_group = term) |> dplyr::arrange(desc(estimate)) |>
+  dplyr::mutate(region = "jpn")
+
+# mdg
+spatial_index_slope_mdg = split.data.frame(assessSpatialBias_mdg, assessSpatialBias_mdg$Taxonomic_Group) |>
+  purrr::map(~lm(mean ~ 1 + Period, data = .x))|>
+  purrr::map_df(tidy) |>
+  dplyr::filter(term == 'Period') |>
+  dplyr::mutate(term = sort(assessSpatialBias_mdg$Taxonomic_Group |> unique())) |>
+  dplyr::filter(p.value < 0.05 | p.value == 0.05) |>
+  dplyr::rename(Taxonomic_group = term) |> dplyr::arrange(desc(estimate)) |>
+  dplyr::mutate(region = "mdg")
+
+# nzl_glonaf
+spatial_index_slope_nzl_glonaf = split.data.frame(assessSpatialBias_nzl_glonaf, assessSpatialBias_nzl_glonaf$Taxonomic_Group) |>
+  purrr::map(~lm(mean ~ 1 + Period, data = .x))|>
+  purrr::map_df(tidy) |>
+  dplyr::filter(term == 'Period') |>
+  dplyr::mutate(term = sort(assessSpatialBias_nzl_glonaf$Taxonomic_Group |> unique())) |>
+  dplyr::filter(p.value < 0.05 | p.value == 0.05) |>
+  dplyr::rename(Taxonomic_group = term) |> dplyr::arrange(desc(estimate)) |>
+  dplyr::mutate(region = "nzl_glonaf")
+
+# usa
+spatial_index_slope_usa = split.data.frame(assessSpatialBias_usa, assessSpatialBias_usa$Taxonomic_Group) |>
+  purrr::map(~lm(mean ~ 1 + Period, data = .x))|>
+  purrr::map_df(tidy) |>
+  dplyr::filter(term == 'Period') |>
+  dplyr::mutate(term = sort(assessSpatialBias_usa$Taxonomic_Group |> unique())) |>
+  dplyr::filter(p.value < 0.05 | p.value == 0.05) |>
+  dplyr::rename(Taxonomic_group = term) |> dplyr::arrange(desc(estimate)) |>
+  dplyr::mutate(region = "usa")
+
+# zaf
+spatial_index_slope_zaf = split.data.frame(assessSpatialBias_zaf, assessSpatialBias_zaf$Taxonomic_Group) |>
+  purrr::map(~lm(mean ~ 1 + Period, data = .x))|>
+  purrr::map_df(tidy) |>
+  dplyr::filter(term == 'Period') |>
+  dplyr::mutate(term = sort(assessSpatialBias_zaf$Taxonomic_Group |> unique())) |>
+  dplyr::filter(p.value < 0.05 | p.value == 0.05) |>
+  dplyr::rename(Taxonomic_group = term) |> dplyr::arrange(desc(estimate)) |>
+  dplyr::mutate(region = "zaf")
+
+spatial_index_slope_joined = spatial_index_slope_aus_glonaf |>
+  full_join(spatial_index_slope_gbr) |>
+  full_join(spatial_index_slope_irl) |> 
+  full_join(spatial_index_slope_jpn) |>
+  full_join(spatial_index_slope_mdg) |>
+  full_join(spatial_index_slope_nzl_glonaf) |>
+  full_join(spatial_index_slope_usa) |>
+  full_join(spatial_index_slope_zaf)
+
+spatial_index_slope_joined |> 
+  group_by(region) |> 
+  summarise(families_with_increasing_index = length(which(estimate > 0)),
+            families_with_decreasing_index = length(which(estimate < 0)),
+            min_slope = min(estimate),
+            max_slope = max(estimate)) |> 
+  knitr::kable()
+```
+
+
+### by species
+
+```{r, echo =FALSE, cache=TRUE, results='asis', message=FALSE, warning=FALSE}
+library(broom)
+library(purrr)
+
+# aus_glonaf
+spatial_index_slope_aus_glonaf = split.data.frame(assessSpatialBias_aus_glonaf_species, assessSpatialBias_aus_glonaf_species$Taxonomic_Group) |>
+  purrr::map(~lm(mean ~ 1 + Period, data = .x))|>
+  purrr::map_df(tidy) |>
+  dplyr::filter(term == 'Period') |>
+  dplyr::mutate(term = sort(assessSpatialBias_aus_glonaf$Taxonomic_Group |> unique())) |>
+  dplyr::filter(p.value < 0.05 | p.value == 0.05) |>
+  dplyr::rename(Taxonomic_group = term) |> dplyr::arrange(desc(estimate)) |>
+  dplyr::mutate(region = "aus_glonaf")
+
+# gbr
+spatial_index_slope_gbr = split.data.frame(assessSpatialBias_gbr_species, assessSpatialBias_gbr_species$Taxonomic_Group) |>
+  purrr::map(~lm(mean ~ 1 + Period, data = .x))|>
+  purrr::map_df(tidy) |>
+  dplyr::filter(term == 'Period') |>
+  dplyr::mutate(term = sort(assessSpatialBias_gbr$Taxonomic_Group |> unique())) |>
+  dplyr::filter(p.value < 0.05 | p.value == 0.05) |>
+  dplyr::rename(Taxonomic_group = term) |> dplyr::arrange(desc(estimate)) |>
+  dplyr::mutate(region = "gbr")
+
+# irl
+spatial_index_slope_irl = split.data.frame(assessSpatialBias_irl_species, assessSpatialBias_irl_species$Taxonomic_Group) |>
+  purrr::map(~lm(mean ~ 1 + Period, data = .x))|>
+  purrr::map_df(tidy) |>
+  dplyr::filter(term == 'Period') |>
+  dplyr::mutate(term = sort(assessSpatialBias_irl$Taxonomic_Group |> unique())) |>
+  dplyr::filter(p.value < 0.05 | p.value == 0.05) |>
+  dplyr::rename(Taxonomic_group = term) |> dplyr::arrange(desc(estimate)) |>
+  dplyr::mutate(region = "irl")
+
+# jpn
+spatial_index_slope_jpn = split.data.frame(assessSpatialBias_jpn_species, assessSpatialBias_jpn_species$Taxonomic_Group) |>
+  purrr::map(~lm(mean ~ 1 + Period, data = .x))|>
+  purrr::map_df(tidy) |>
+  dplyr::filter(term == 'Period') |>
+  dplyr::mutate(term = sort(assessSpatialBias_jpn$Taxonomic_Group |> unique())) |>
+  dplyr::filter(p.value < 0.05 | p.value == 0.05) |>
+  dplyr::rename(Taxonomic_group = term) |> dplyr::arrange(desc(estimate)) |>
+  dplyr::mutate(region = "jpn")
+
+# mdg
+spatial_index_slope_mdg = split.data.frame(assessSpatialBias_mdg_species, assessSpatialBias_mdg_species$Taxonomic_Group) |>
+  purrr::map(~lm(mean ~ 1 + Period, data = .x))|>
+  purrr::map_df(tidy) |>
+  dplyr::filter(term == 'Period') |>
+  dplyr::mutate(term = sort(assessSpatialBias_mdg$Taxonomic_Group |> unique())) |>
+  dplyr::filter(p.value < 0.05 | p.value == 0.05) |>
+  dplyr::rename(Taxonomic_group = term) |> dplyr::arrange(desc(estimate)) |>
+  dplyr::mutate(region = "mdg")
+
+# nzl_glonaf
+spatial_index_slope_nzl_glonaf = split.data.frame(assessSpatialBias_nzl_glonaf_species, assessSpatialBias_nzl_glonaf_species$Taxonomic_Group) |>
+  purrr::map(~lm(mean ~ 1 + Period, data = .x))|>
+  purrr::map_df(tidy) |>
+  dplyr::filter(term == 'Period') |>
+  dplyr::mutate(term = sort(assessSpatialBias_nzl_glonaf$Taxonomic_Group |> unique())) |>
+  dplyr::filter(p.value < 0.05 | p.value == 0.05) |>
+  dplyr::rename(Taxonomic_group = term) |> dplyr::arrange(desc(estimate)) |>
+  dplyr::mutate(region = "nzl_glonaf")
+
+# usa
+spatial_index_slope_usa = split.data.frame(assessSpatialBias_usa_species, assessSpatialBias_usa_species$Taxonomic_Group) |>
+  purrr::map(~lm(mean ~ 1 + Period, data = .x))|>
+  purrr::map_df(tidy) |>
+  dplyr::filter(term == 'Period') |>
+  dplyr::mutate(term = sort(assessSpatialBias_usa$Taxonomic_Group |> unique())) |>
+  dplyr::filter(p.value < 0.05 | p.value == 0.05) |>
+  dplyr::rename(Taxonomic_group = term) |> dplyr::arrange(desc(estimate)) |>
+  dplyr::mutate(region = "usa")
+
+# zaf
+spatial_index_slope_zaf = split.data.frame(assessSpatialBias_zaf_species, assessSpatialBias_zaf_species$Taxonomic_Group) |>
+  purrr::map(~lm(mean ~ 1 + Period, data = .x))|>
+  purrr::map_df(tidy) |>
+  dplyr::filter(term == 'Period') |>
+  dplyr::mutate(term = sort(assessSpatialBias_zaf$Taxonomic_Group |> unique())) |>
+  dplyr::filter(p.value < 0.05 | p.value == 0.05) |>
+  dplyr::rename(Taxonomic_group = term) |> dplyr::arrange(desc(estimate)) |>
+  dplyr::mutate(region = "zaf")
+
+spatial_index_slope_joined = spatial_index_slope_aus_glonaf |>
+  full_join(spatial_index_slope_gbr) |>
+  full_join(spatial_index_slope_irl) |> 
+  full_join(spatial_index_slope_jpn) |>
+  full_join(spatial_index_slope_mdg) |>
+  full_join(spatial_index_slope_nzl_glonaf) |>
+  full_join(spatial_index_slope_usa) |>
+  full_join(spatial_index_slope_zaf)
+
+spatial_index_slope_joined |> 
+  group_by(region) |> 
+  summarise(families_with_increasing_index = length(which(estimate > 0)),
+            families_with_decreasing_index = length(which(estimate < 0)),
+            min_slope = min(estimate),
+            max_slope = max(estimate)) |> 
+  knitr::kable()
+```
+
+
+## (c) spatio-temporal changes in representative portion of the spatial domain
+
+Indicates the extent to which a representative portion of the spatial domain of interest has been sampled over time. Output is a single map for each taxonomic group showing the number of time periods in which each grid cell has been sampled.
+
+```{r, echo =FALSE, cache=TRUE, results='asis', message=FALSE, warning=FALSE}
+library(knitr)
+library(ggplot2)
+library(gridExtra)
+library(raster)
+
+links_to_images = data.frame()
+
+for(region in occ_data$dataset) {
+  species_folder = here("13.  bias assessment results", region, "spatial_cov_species")
+  family_folder = here("13.  bias assessment results", region, "spatial_cov_family")
+  
+  paste(region, ": number of time periods each grid cell was sampled") |> print()
+  
+  "By Family" |> print()
+  
+  links_to_images = rbind(
+    links_to_images,
+    list(region = region,
+           group = "family",
+           links = here(family_folder)) |> as.data.frame())
+  
+  "By Species" |> print()
+  
+  links_to_images = rbind(
+    links_to_images,
+    list(region = region,
+           group = "species",
+           links = here(species_folder)) |> as.data.frame())
+}
+
+links_to_images |> knitr::kable()
+```
+
+
+# 4. Environment Bias
+
+```{r, echo =FALSE, cache=TRUE, results='asis', message=FALSE, warning=FALSE}
+## aus_glonaf
+env_bias_summary = function(db_table) {
+  directory_files = list.files(here("13.  bias assessment results", paste0(db_table, "_invaded_clean")))
+  file_links = here("13.  bias assessment results", paste0(db_table, "_invaded_clean"), directory_files_aus_glonaf[grepl("assessEnvBias_output", directory_files_aus_glonaf)])
+  
+  # Plot data
+  
+  ### by family
+  file_link_family = file_link_aus_glonaf[!grepl("species", file_link_aus_glonaf)] |> readr::read_csv()
+  if(nrow(file_link_family) > 0) {
+    # Assuming 'zaf' is your data frame
+family_plot = ggplot(file_link_family, aes(x = scores.PC1, y = scores.PC2, color = Period, group = Period)) +
+  stat_ellipse(type = "norm", geom = "polygon", alpha = 0.25) +
+  labs(title = "Scatter Plot with Ellipses by family",
+       x = "PC1",
+       y = "PC2")
+  }
+    
+   ### by species
+  file_link_species = file_link_aus_glonaf[grepl("species", file_link_aus_glonaf)] |> readr::read_csv()
+  if(nrow(file_link_species) > 0) {
+    # Assuming 'zaf' is your data frame
+species_plot = ggplot(file_link_species, aes(x = scores.PC1, y = scores.PC2, color = Period, group = Period)) +
+  stat_ellipse(type = "norm", geom = "polygon", alpha = 0.25) +
+  labs(title = "Scatter Plot with Ellipses by Species",
+       x = "PC1",
+       y = "PC2")
+  }
+  
+  return(list(
+    if(exists("family_plot")) {
+      family_plot = family_plot
+    },
+    
+    if(exists("species_plot")) {
+      species_plot = species_plot
+    }
+  ))
+}
+```
+
+
+```{r, echo =FALSE, cache=TRUE, results='asis', message=FALSE, warning=FALSE}
+env_bias_summary(db_table = "zaf")
+```
+
+
+
+
+

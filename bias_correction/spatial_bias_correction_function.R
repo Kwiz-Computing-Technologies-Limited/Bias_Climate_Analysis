@@ -39,19 +39,17 @@ library(here)
 
 # bias correction function
 bias_correction = function(db_table, min_distance) {
+  # create folder to hold the thinned datasets for the region
+  dir.create(here("bias_correction", substr(db_table, 1, 3)))
   
-# create folder to hold the thinned datasets for the region
-dir.create(here("bias_correction", substr(db_table, 1, 3)))
+  source(here("occurrence_download_template.R"))
   
-  
-source(here("occurrence_download_template.R"))
-  
-# get raw data
-raw_data = get_data(dataset = occ_data[occ_data$dataset == db_table, ]$dataset,
+  # get raw data
+  raw_data = get_data(dataset = occ_data[occ_data$dataset == db_table, ]$dataset,
                         drop_url = occ_data[occ_data$dataset == db_table, ]$drop_url)
 
   
-# thin each species independently
+  # thin each species independently
   d = min_distance
       
   paste("Spatially Thinning species occurrences in", db_table, "at", min_distance, "minimum distance") # |> print()

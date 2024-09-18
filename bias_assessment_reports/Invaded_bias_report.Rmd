@@ -156,7 +156,7 @@ We use the following measures to assess Sampling intensity bias:
 
 **(Family)**
 
-```{r, echo =FALSE, cache=TRUE, results='asis', message=FALSE, warning=FALSE}
+```{r, echo =FALSE, cache=TRUE, results='asis', message=FALSE, warning=FALSE, eval=FALSE}
 library(dplyr)
 ## AUS GLONAF
 file_link_aus_glonaf = here("13.  bias assessment results", "aus_glonaf_invaded_clean", directory_files_aus_glonaf[grepl("assessRecordNumber_output", directory_files_aus_glonaf)])
@@ -974,9 +974,6 @@ dplyr::tibble(
   dplyr::mutate(`ANOVA p.value` = round(`ANOVA p.value`, 4)) |>
   knitr::kable()
 ```
-
-
-
 
 
 
@@ -1972,7 +1969,7 @@ biased_groups_zaf = rownames(species_differences_zaf) |> strsplit(split = "-") |
 
 Table 3 below gives the p-value of the *ANOVA* tests for the different occurrence ranges. The *P-values < 0.05* imply presence of a significant variation in the Number of records identified between some of the families in the datasets. 
 
-Table 3: ANOVA p-values - Differences in the Number of records across taxonomic groups (families)
+Table 3: ANOVA p-values - Differences in the Number of species across taxonomic groups (families)
 ```{r, echo =FALSE, cache=TRUE, results='asis', message=FALSE, warning=FALSE}
 ## **(species)**
 
@@ -2213,9 +2210,6 @@ s_differences |> as.data.frame() |> group_by(region) |> summarise(min_difference
 We observed a positive slope in the Number of records identified over time among some families across all the regions (figure 1). We estimate the slopes of the Number of records recorded for each family over time, and test the alternative hypothesis that there is a temporal change in sampling intensity (i.e slope > 0). 
 
 
-
-
-
 ```{r, echo =FALSE, cache=TRUE, results='asis', message=FALSE, warning=FALSE}
 library(broom)
 library(purrr)
@@ -2388,7 +2382,6 @@ dplyr::tibble(
 Temporal changes in sampling intensity were observed in between 16% (IRL) and 62.39% (GBR) of families across the  8 invaded regions. Increases in sampling intensities were more dominant than decreases among the families where temporal changes were observed.  
 
 
-
 ```{r, echo =FALSE, cache=TRUE, results='asis', message=FALSE, warning=FALSE}
 library(broom)
 # BY species
@@ -2558,9 +2551,6 @@ dplyr::tibble(
 
 In contrast, when occurrences are aggregated at species level, instances of temporal change in sampling intensity decrease to between 0% (IRL) and 18.86% (GBR). Here, decreases in sampling intensities were more dominant than increases  among the species  where temporal changes were observed.  
 This suggests that aggregation at larger taxonomic scales makes temporal changes in sampling intensity more visible than at smaller scales. 
-
-
-
 
 
 ## (c) representation of rare species
@@ -2914,7 +2904,6 @@ This method however, does not differentiate between the over-sampling and under-
 
 
 ```{r, echo =FALSE, cache=TRUE, results='asis', message=FALSE, warning=FALSE}
-
 # aus_glonaf
 families_aus_glonaf = assessRarityBias_aus_glonaf$Taxonomic_Group |> unique()
 
@@ -2922,13 +2911,14 @@ family_residual_aus_glonaf = list()
 for (family in families_aus_glonaf) {
   resid_fam_aus_glonaf = assessRarityBias_aus_glonaf |>
     dplyr::filter(Taxonomic_Group == family) |>
-    dplyr::select(period, res) 
+    dplyr::select(period, res, index) 
   
   range_all = c(quantile(assessRarityBias_aus_glonaf$res, 0.16),
                 quantile(assessRarityBias_aus_glonaf$res, 0.84))
   
   family_residual_aus_glonaf[[family]] = data.frame(family = family,
                                              period = resid_fam_aus_glonaf$period,
+                                             r_square = resid_fam_aus_glonaf$index,
                                              mean_residual = resid_fam_aus_glonaf$res |> round(2),
                                              conf_lower = rep(round(range_all[1], 2), length(resid_fam_aus_glonaf$period)),
                                              conf_upper = rep(round(range_all[2], 2), length(resid_fam_aus_glonaf$period)),
@@ -2949,7 +2939,7 @@ family_residual_aus_glonaf2 = family_residual_aus_glonaf |>
   dplyr::filter(status == TRUE) |> dplyr::select(-status) |>
   dplyr::group_by(family, period) |>
   dplyr::summarise(mean_residual = mean(mean_residual),
-                   conf_lower = conf_lower, conf_upper = conf_upper) |>
+                   conf_lower = conf_lower, conf_upper = conf_upper, r_square = mean(r_square)) |>
   dplyr::ungroup(family, period) |>
   dplyr::mutate(`Bias type` = ifelse(mean_residual > conf_upper, "oversampled", "undersampled"))
 
@@ -2978,6 +2968,7 @@ for (family in families_gbr) {
   
   family_residual_gbr[[family]] = data.frame(family = family,
                                              period = resid_fam_gbr$period,
+                                             r_square = resid_fam_gbr$index,
                                              mean_residual = resid_fam_gbr$res |> round(2),
                                              conf_lower = rep(round(range_all[1], 2), length(resid_fam_gbr$period)),
                                              conf_upper = rep(round(range_all[2], 2), length(resid_fam_gbr$period)),
@@ -2998,7 +2989,7 @@ family_residual_gbr2 = family_residual_gbr |>
   dplyr::filter(status == TRUE) |> dplyr::select(-status) |>
   dplyr::group_by(family, period) |>
   dplyr::summarise(mean_residual = mean(mean_residual),
-                   conf_lower = conf_lower, conf_upper = conf_upper) |>
+                   conf_lower = conf_lower, conf_upper = conf_upper, r_square = mean(r_square)) |>
   dplyr::ungroup(family, period) |>
   dplyr::mutate(`Bias type` = ifelse(mean_residual > conf_upper, "oversampled", "undersampled"))
 
@@ -3027,6 +3018,7 @@ for (family in families_irl) {
   
   family_residual_irl[[family]] = data.frame(family = family,
                                              period = resid_fam_irl$period,
+                                             r_square = resid_fam_irl$index,
                                              mean_residual = resid_fam_irl$res |> round(2),
                                              conf_lower = rep(round(range_all[1], 2), length(resid_fam_irl$period)),
                                              conf_upper = rep(round(range_all[2], 2), length(resid_fam_irl$period)),
@@ -3047,7 +3039,7 @@ family_residual_irl2 = family_residual_irl |>
   dplyr::filter(status == TRUE) |> dplyr::select(-status) |>
   dplyr::group_by(family, period) |>
   dplyr::summarise(mean_residual = mean(mean_residual),
-                   conf_lower = conf_lower, conf_upper = conf_upper) |>
+                   conf_lower = conf_lower, conf_upper = conf_upper, r_square = mean(r_square)) |>
   dplyr::ungroup(family, period) |>
   dplyr::mutate(`Bias type` = ifelse(mean_residual > conf_upper, "oversampled", "undersampled"))
 
@@ -3077,6 +3069,7 @@ for (family in families_jpn) {
   
   family_residual_jpn[[family]] = data.frame(family = family,
                                              period = resid_fam_jpn$period,
+                                             r_square = resid_fam_jpn$index,
                                              mean_residual = resid_fam_jpn$res |> round(2),
                                              conf_lower = rep(round(range_all[1], 2), length(resid_fam_jpn$period)),
                                              conf_upper = rep(round(range_all[2], 2), length(resid_fam_jpn$period)),
@@ -3097,7 +3090,7 @@ family_residual_jpn2 = family_residual_jpn |>
   dplyr::filter(status == TRUE) |> dplyr::select(-status) |>
   dplyr::group_by(family, period) |>
   dplyr::summarise(mean_residual = mean(mean_residual),
-                   conf_lower = conf_lower, conf_upper = conf_upper) |>
+                   conf_lower = conf_lower, conf_upper = conf_upper, r_square = mean(r_square)) |>
   dplyr::ungroup(family, period) |>
   dplyr::mutate(`Bias type` = ifelse(mean_residual > conf_upper, "oversampled", "undersampled"))
 
@@ -3127,6 +3120,7 @@ for (family in families_mdg) {
   
   family_residual_mdg[[family]] = data.frame(family = family,
                                              period = resid_fam_mdg$period,
+                                             r_square = resid_fam_mdg$index,
                                              mean_residual = resid_fam_mdg$res |> round(2),
                                              conf_lower = rep(round(range_all[1], 2), length(resid_fam_mdg$period)),
                                              conf_upper = rep(round(range_all[2], 2), length(resid_fam_mdg$period)),
@@ -3147,7 +3141,7 @@ family_residual_mdg2 = family_residual_mdg |>
   dplyr::filter(status == TRUE) |> dplyr::select(-status) |>
   dplyr::group_by(family, period) |>
   dplyr::summarise(mean_residual = mean(mean_residual),
-                   conf_lower = conf_lower, conf_upper = conf_upper) |>
+                   conf_lower = conf_lower, conf_upper = conf_upper, r_square = mean(r_square)) |>
   dplyr::ungroup(family, period) |>
   dplyr::mutate(`Bias type` = ifelse(mean_residual > conf_upper, "oversampled", "undersampled"))
 
@@ -3177,6 +3171,7 @@ for (family in families_nzl_glonaf) {
   
   family_residual_nzl_glonaf[[family]] = data.frame(family = family,
                                              period = resid_fam_nzl_glonaf$period,
+                                             r_square = resid_fam_nzl_glonaf$index,
                                              mean_residual = resid_fam_nzl_glonaf$res |> round(2),
                                              conf_lower = rep(round(range_all[1], 2), length(resid_fam_nzl_glonaf$period)),
                                              conf_upper = rep(round(range_all[2], 2), length(resid_fam_nzl_glonaf$period)),
@@ -3197,7 +3192,7 @@ family_residual_nzl_glonaf2 = family_residual_nzl_glonaf |>
   dplyr::filter(status == TRUE) |> dplyr::select(-status) |>
   dplyr::group_by(family, period) |>
   dplyr::summarise(mean_residual = mean(mean_residual),
-                   conf_lower = conf_lower, conf_upper = conf_upper) |>
+                   conf_lower = conf_lower, conf_upper = conf_upper, r_square = mean(r_square)) |>
   dplyr::ungroup(family, period) |>
   dplyr::mutate(`Bias type` = ifelse(mean_residual > conf_upper, "oversampled", "undersampled"))
 
@@ -3227,6 +3222,7 @@ for (family in families_usa) {
   
   family_residual_usa[[family]] = data.frame(family = family,
                                              period = resid_fam_usa$period,
+                                             r_square = resid_fam_usa$index,
                                              mean_residual = resid_fam_usa$res |> round(2),
                                              conf_lower = rep(round(range_all[1], 2), length(resid_fam_usa$period)),
                                              conf_upper = rep(round(range_all[2], 2), length(resid_fam_usa$period)),
@@ -3247,7 +3243,7 @@ family_residual_usa2 = family_residual_usa |>
   dplyr::filter(status == TRUE) |> dplyr::select(-status) |>
   dplyr::group_by(family, period) |>
   dplyr::summarise(mean_residual = mean(mean_residual),
-                   conf_lower = conf_lower, conf_upper = conf_upper) |>
+                   conf_lower = conf_lower, conf_upper = conf_upper, r_square = mean(r_square)) |>
   dplyr::ungroup(family, period) |>
   dplyr::mutate(`Bias type` = ifelse(mean_residual > conf_upper, "oversampled", "undersampled"))
 
@@ -3277,6 +3273,7 @@ for (family in families_zaf) {
   
   family_residual_zaf[[family]] = data.frame(family = family,
                                              period = resid_fam_zaf$period,
+                                             r_square = resid_fam_zaf$index,
                                              mean_residual = resid_fam_zaf$res |> round(2),
                                              conf_lower = rep(round(range_all[1], 2), length(resid_fam_zaf$period)),
                                              conf_upper = rep(round(range_all[2], 2), length(resid_fam_zaf$period)),
@@ -3297,7 +3294,7 @@ family_residual_zaf2 = family_residual_zaf |>
   dplyr::filter(status == TRUE) |> dplyr::select(-status) |>
   dplyr::group_by(family, period) |>
   dplyr::summarise(mean_residual = mean(mean_residual),
-                   conf_lower = conf_lower, conf_upper = conf_upper) |>
+                   conf_lower = conf_lower, conf_upper = conf_upper, r_square = mean(r_square)) |>
   dplyr::ungroup(family, period) |>
   dplyr::mutate(`Bias type` = ifelse(mean_residual > conf_upper, "oversampled", "undersampled"))
 
@@ -3485,7 +3482,7 @@ In contrast, there were fewer families (between 0% and 28.13%) where a decrease 
 
 
 
-# 2. Spatial biases
+# 3. Spatial biases
 
 ```{r, echo =FALSE, cache=TRUE, results='asis', message=FALSE, warning=FALSE}
 ## aus_glonaf
@@ -3509,6 +3506,7 @@ assessSpatialBias_aus_glonaf_plot = assessSpatialBias_aus_glonaf |>
                     title = "Randomness of the Occurrence records grouped by family") +
   theme(legend.position = "none")
 
+assessSpatialBias_aus_glonaf_plot
 
 ## gbr
 directory_files_gbr = list.files(here("13.  bias assessment results", "gbr_invaded_clean"))
@@ -3531,6 +3529,7 @@ assessSpatialBias_gbr_plot = assessSpatialBias_gbr |>
                     title = "Randomness of the Occurrence records grouped by family") +
   theme(legend.position = "none")
 
+assessSpatialBias_gbr_plot
 
 ## irl
 directory_files_irl = list.files(here("13.  bias assessment results", "irl_invaded_clean"))
@@ -3553,7 +3552,7 @@ assessSpatialBias_irl_plot = assessSpatialBias_irl |>
                     title = "Randomness of the Occurrence records grouped by family") +
   theme(legend.position = "none")
 
-
+assessSpatialBias_irl_plot
 
 ## jpn
 directory_files_jpn = list.files(here("13.  bias assessment results", "jpn_invaded_clean"))
@@ -3576,6 +3575,7 @@ assessSpatialBias_jpn_plot = assessSpatialBias_jpn |>
                     title = "Randomness of the Occurrence records grouped by family") +
   theme(legend.position = "none")
 
+assessSpatialBias_jpn_plot
 
 ## mdg
 directory_files_mdg = list.files(here("13.  bias assessment results", "mdg_invaded_clean"))
@@ -3598,7 +3598,7 @@ assessSpatialBias_mdg_plot = assessSpatialBias_mdg |>
                     title = "Randomness of the Occurrence records grouped by family") +
   theme(legend.position = "none")
 
-
+assessSpatialBias_mdg_plot
 
 ## nzl_glonaf
 directory_files_nzl_glonaf = list.files(here("13.  bias assessment results", "nzl_glonaf_invaded_clean"))
@@ -3621,6 +3621,7 @@ assessSpatialBias_nzl_glonaf_plot = assessSpatialBias_nzl_glonaf |>
                     title = "Randomness of the Occurrence records grouped by family") +
   theme(legend.position = "none")
 
+assessSpatialBias_nzl_glonaf_plot
 
 ## usa
 directory_files_usa = list.files(here("13.  bias assessment results", "usa_invaded_clean"))
@@ -3643,7 +3644,7 @@ assessSpatialBias_usa_plot = assessSpatialBias_usa |>
                     title = "Randomness of the Occurrence records grouped by family") +
   theme(legend.position = "none")
 
-
+assessSpatialBias_usa_plot
 
 ## zaf
 directory_files_zaf = list.files(here("13.  bias assessment results", "zaf_invaded_clean"))
@@ -3666,6 +3667,7 @@ assessSpatialBias_zaf_plot = assessSpatialBias_zaf |>
                     title = "Randomness of the Occurrence records grouped by family") +
   theme(legend.position = "none")
 
+assessSpatialBias_zaf_plot
 
 NN_index_summary = dplyr::tibble(
   
@@ -3870,13 +3872,21 @@ spatial_index_slope_joined |>
 ```
 
 
+# 4. Environment Bias
 
 
-
-
+### _________________ start here
 
 ```{r, echo =FALSE, cache=TRUE, results='asis', message=FALSE, warning=FALSE}
+## aus_glonaf
+db_table = "aus_glonaf"
 
+### by family
+directory_files_aus_glonaf = list.files(here("13.  bias assessment results", paste0(db_table, "_invaded_clean")))
+
+file_link_aus_glonaf = here("13.  bias assessment results", paste0(db_table, "_invaded_clean"), directory_files_aus_glonaf[grepl("assessEnvBias_output", directory_files_aus_glonaf)])
+file_link_aus_glonaf = file_link_aus_glonaf[!grepl("species", file_link_aus_glonaf)]
+plot_data_name <- paste0(db_table, "_envBias_plot")
 
 ```
 
