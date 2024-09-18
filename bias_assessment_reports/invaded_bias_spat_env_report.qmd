@@ -1021,7 +1021,7 @@ library(raster)
 
 links_to_images = data.frame()
 
-for(region in occ_data$dataset) {
+for(region in tables) {
   species_folder = here("13.  bias assessment results", region, "spatial_cov_species")
   family_folder = here("13.  bias assessment results", region, "spatial_cov_family")
   
@@ -1074,7 +1074,7 @@ family_plot = ggplot(file_link_family, aes(x = scores.PC1, y = scores.PC2, color
   if(nrow(file_link_species) > 0) {
     # Assuming 'zaf' is your data frame
 species_plot = ggplot(file_link_species, aes(x = scores.PC1, y = scores.PC2, color = Period, group = Period)) +
-  stat_ellipse(type = "norm", geom = "polygon", alpha = 0.25) +
+  stat_ellipse(type = "norm", geom = "polygon", alpha = 0.05) +
   labs(title = "Scatter Plot with Ellipses by Species",
        x = "PC1",
        y = "PC2")
